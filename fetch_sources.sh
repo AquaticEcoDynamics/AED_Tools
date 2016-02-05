@@ -85,7 +85,7 @@ for src in $rep_list ; do
    fetch_it $src
 done
 
-if [ "$GETFABM" == "true" ] ; then
+if [ "$GETFABM" = "true" ] ; then
   if [ ! -d fabm-git ] ; then
     fetch_it fabm-src
     cd fabm-src
