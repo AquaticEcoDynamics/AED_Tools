@@ -30,16 +30,24 @@ while [ $# -gt 0 ] ; do
       ;;
     -g|--githost)
       GITHOST="$2"
-      shift # argument
+      shift # skip argument
       ;;
     *)
       ;;
   esac
-  shift
+  shift # next
 done
 
+if [ "$GET_GLM" = "true" ] ; then rep_list="$rep_list GLM" ; fi
+if [ "$GET_TFV_WQ" = "true" ] ; then rep_list="$rep_list TFV_WQ" ; fi
+if [ "$GETAED2" = "true" ] ; then rep_list="$rep_list libaed2" ; fi
+if [ "$GETPLOT" = "true" ] ; then rep_list="$rep_list libplot" ; fi
+if [ "$GETUTIL" = "true" ] ; then rep_list="$rep_list libutil" ; fi
 
-if [ "$GITHOST" = "" ] ; then
+#echo list = $rep_list
+
+
+if [ "$GITHOST" = "" -a "$rep_list" != "" ] ; then
   REPOS=`grep -w url .git/config | cut -d\  -f3`
   NWORDS=`echo $REPOS | cut -d: -f2 | sed 's:/: :g' | wc -w`
 
@@ -71,26 +79,21 @@ fetch_it () {
   fi
 }
 
-if [ "$GET_GLM" = "true" ] ; then rep_list="$rep_list GLM" ; fi
-if [ "$GET_TFV_WQ" = "true" ] ; then rep_list="$rep_list TFV_WQ" ; fi
-if [ "$GETAED2" = "true" ] ; then rep_list="$rep_list libaed2" ; fi
-if [ "$GETPLOT" = "true" ] ; then rep_list="$rep_list libplot" ; fi
-if [ "$GETUTIL" = "true" ] ; then rep_list="$rep_list libutil" ; fi
 
-echo list = $rep_list
+if [ "$rep_list" != "" ] ; then
+  echo "updating AED_Tools"
+  git pull
 
-git pull
-
-for src in $rep_list ; do
-   fetch_it $src
-done
+  for src in $rep_list ; do
+    fetch_it $src
+  done
+fi
 
 if [ "$GETFABM" = "true" ] ; then
   if [ ! -d fabm-git ] ; then
-    fetch_it fabm-src
-    cd fabm-src
-    ./unpack.sh
-    cd ..
+    wget http://aed.see.uwa.edu.au/research/models/Extras/fabm-git-20141205.tar.gz
+    tar xzf fabm-git-20141205.tar.gz
+    mv fabm-git-20141205 fabm-git
   fi
 fi
 
