@@ -91,7 +91,11 @@ fi
 
 if [ "$GETFABM" = "true" ] ; then
   if [ ! -d fabm-git ] ; then
-    wget http://aed.see.uwa.edu.au/research/models/Extras/fabm-git-20141205.tar.gz
+    if [ `which wget > /dev/null` ] ; then
+      curl -O http://aed.see.uwa.edu.au/research/models/Extras/fabm-git-20141205.tar.gz
+    else
+      wget http://aed.see.uwa.edu.au/research/models/Extras/fabm-git-20141205.tar.gz
+    fi
     tar xzf fabm-git-20141205.tar.gz
     mv fabm-git-20141205 fabm-git
   fi
