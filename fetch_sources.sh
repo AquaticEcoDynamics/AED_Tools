@@ -32,7 +32,12 @@ while [ $# -gt 0 ] ; do
       GITHOST="$2"
       shift # skip argument
       ;;
-    *)
+    *) # The default case is to fetch GLM
+      GETAED2="true"
+      GETPLOT="true"
+      GETUTIL="true"
+      GETFABM="true"
+      GET_GLM="true"
       ;;
   esac
   shift # next
