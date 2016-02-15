@@ -27,7 +27,7 @@ strip_file () {
     fi
 }
 
-for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm GLM/src GLM/Examples ${UTILDIR} ${AED2DIR} ${PLOTDIR} ; do
+for k in fabm-git/src/models/aed fabm-git/src/drivers/glm GLM/src GLM/Examples libutil libplot libaed2; do
    if [ -d $k ] ; then
       cd $k
       for j in 'F90' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
@@ -55,23 +55,23 @@ if [ -d GLM ] ; then
   cd ..
 fi
 
-if [ -d ${FABMDIR} ] ; then
-  tr -d '\r' < ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj > .tmpx
-  \diff ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+if [ -d fabm-git ] ; then
+  tr -d '\r' < fabm-git/compilers/vs2008/fabm-glm.vfproj > .tmpx
+  \diff fabm-git/compilers/vs2008/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
-    /bin/rm ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
-    /bin/mv .tmpx ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
+    echo changed fabm-git/compilers/vs2008/fabm-glm.vfproj
+    /bin/rm fabm-git/compilers/vs2008/fabm-glm.vfproj
+    /bin/mv .tmpx fabm-git/compilers/vs2008/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi
 
-  tr -d '\r' < ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj > .tmpx
-  \diff ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+  tr -d '\r' < fabm-git/compilers/vs2010/fabm-glm.vfproj > .tmpx
+  \diff fabm-git/compilers/vs2010/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
-    /bin/rm ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
-    /bin/mv .tmpx ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
+    echo changed fabm-git/compilers/vs2010/fabm-glm.vfproj
+    /bin/rm fabm-git/compilers/vs2010/fabm-glm.vfproj
+    /bin/mv .tmpx fabm-git/compilers/vs2010/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi
