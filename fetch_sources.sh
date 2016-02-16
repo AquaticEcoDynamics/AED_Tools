@@ -1,6 +1,15 @@
 #!/bin/sh
 
 rep_list=""
+if [ $# = 0 ] ; then
+  # The default case is to fetch GLM
+  GETAED2="true"
+  GETPLOT="true"
+  GETUTIL="true"
+  GETFABM="true"
+  GET_GLM="true"
+fi
+
 while [ $# -gt 0 ] ; do
   #echo $# : $1
 
@@ -32,12 +41,7 @@ while [ $# -gt 0 ] ; do
       GITHOST="$2"
       shift # skip argument
       ;;
-    *) # The default case is to fetch GLM
-      GETAED2="true"
-      GETPLOT="true"
-      GETUTIL="true"
-      GETFABM="true"
-      GET_GLM="true"
+    *)
       ;;
   esac
   shift # next
