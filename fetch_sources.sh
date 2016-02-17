@@ -61,7 +61,7 @@ if [ "$GITHOST" = "" -a "$rep_list" != "" ] ; then
   NWORDS=`echo $REPOS | cut -d: -f2 | sed 's:/: :g' | wc -w`
 
   if [ "`echo $REPOS | grep '@'`" != "" ] ; then
-    if [ $NWORDS == 1 ] ; then #
+    if [ $NWORDS = 1 ] ; then #
       GITHOST=`echo $REPOS | cut -d: -f1`:
     else
       NWORDS=`expr $NWORDS - 1`
