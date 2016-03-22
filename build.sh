@@ -89,6 +89,19 @@ make || exit 1
 
 cd ${CURDIR}
 ./build_glm.sh
+cd ..
 
+if [ "$OSTYPE" = "Linux" ] ; then
+  if [ ! -d binaries/ubuntu/$(lsb_release -rs) ] ; then
+    mkdir -p binaries/ubuntu/$(lsb_release -rs)/
+  fi
+  mv GLM/bin/ubuntu/$(lsb_release -rs)/glm*.deb binaries/ubuntu/$(lsb_release -rs)/
+fi
+if [ "$OSTYPE" = "Darwin" ] ; then
+  if [ ! -d binaries/macos ] ; then
+     mkdir -p binaries/macos
+  fi
+  mv GLM/bin/macos/glm_*.zip binaries/macos/
+fi
 
 exit 0

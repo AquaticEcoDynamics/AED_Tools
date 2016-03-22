@@ -5,7 +5,7 @@ fabm-src
 libaed2
 libplot
 libutil
-TFV_WQ
+libfvaed2
 gotm-git
 gotm-src
 *.tar.gz
