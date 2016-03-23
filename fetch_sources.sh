@@ -21,7 +21,7 @@ while [ $# -gt 0 ] ; do
       GETFABM="true"
       GET_GLM="true"
       ;;
-    fvaed2|tfv_wq)
+    fvaed2)
       GET_FV_WQ="true"
       GETAED2="true"
       ;;
@@ -48,7 +48,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "$GET_GLM" = "true" ] ; then rep_list="$rep_list GLM" ; fi
-if [ "$GET_FV_WQ" = "true" ] ; then rep_list="$rep_list FV_WQ" ; fi
+if [ "$GET_FV_WQ" = "true" ] ; then rep_list="$rep_list libfvaed2" ; fi
 if [ "$GETAED2" = "true" ] ; then rep_list="$rep_list libaed2" ; fi
 if [ "$GETPLOT" = "true" ] ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ] ; then rep_list="$rep_list libutil" ; fi
