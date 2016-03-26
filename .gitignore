@@ -10,3 +10,4 @@ gotm-git
 gotm-src
 *.tar.gz
 binaries
+.DS*
