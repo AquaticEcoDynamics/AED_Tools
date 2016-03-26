@@ -3,7 +3,7 @@
 if [ -d GLM ] ; then
   echo cleaning GLM
   cd GLM
-  ./clean_glm.sh
+  make distclean
   cd ..
 fi
 if [ -d fabm-git ] ; then
