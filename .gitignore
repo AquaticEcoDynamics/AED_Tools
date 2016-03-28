@@ -1,13 +1,10 @@
 GLM
-GLM-dev
-fabm-git
-fabm-src
+fabm*
 libaed2
 libplot
 libutil
 libfvaed2
-gotm-git
-gotm-src
+gotm*
 *.tar.gz
 binaries
 .DS*

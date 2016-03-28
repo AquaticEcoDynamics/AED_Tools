@@ -4,7 +4,7 @@ echo '*** checking status for .'
 git status
 
 CWD=`pwd`
-for src in libplot libutil libaed2 fabm-src GLM ; do
+for src in libplot libutil libaed2 GLM ; do
    echo '*** checking status for' $src
    if [ -d $src ] ; then
      cd $src
