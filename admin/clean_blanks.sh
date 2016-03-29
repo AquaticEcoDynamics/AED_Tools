@@ -5,7 +5,12 @@
 CWD=`pwd`
 OSTYPE=`uname -s`
 
-. GLM/GLM_CONFIG
+#. GLM/GLM_CONFIG
+AED2DIR=libaed2
+FABMDIR=fabm-git
+UTILDIR=libutil
+PLOTDIR=libplot
+
 
 strip_file () {
     FILE=$1
@@ -27,7 +32,7 @@ strip_file () {
     fi
 }
 
-for k in fabm-git/src/models/aed fabm-git/src/drivers/glm GLM/src GLM/Examples libutil libplot libaed2; do
+for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMDIR}/Examples ${UTILDIR} ${PLOTDIR} ${AED2DIR}; do
    if [ -d $k ] ; then
       cd $k
       for j in 'F90' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
