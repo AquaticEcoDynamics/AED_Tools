@@ -22,7 +22,7 @@ while [ $# -gt 0 ] ; do
       GET_GLM="true"
       ;;
     fvaed2)
-      GET_FV_WQ="true"
+      GETFVAED="true"
       GETAED2="true"
       ;;
     libaed2)
@@ -47,11 +47,11 @@ while [ $# -gt 0 ] ; do
   shift # next
 done
 
-if [ "$GET_GLM" = "true" ] ; then rep_list="$rep_list GLM" ; fi
-if [ "$GET_FV_WQ" = "true" ] ; then rep_list="$rep_list libfvaed2" ; fi
-if [ "$GETAED2" = "true" ] ; then rep_list="$rep_list libaed2" ; fi
-if [ "$GETPLOT" = "true" ] ; then rep_list="$rep_list libplot" ; fi
-if [ "$GETUTIL" = "true" ] ; then rep_list="$rep_list libutil" ; fi
+if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
+if [ "$GETFVAED" = "true" ] ; then rep_list="$rep_list libfvaed2" ; fi
+if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
+if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
+if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
 
 #echo list = $rep_list
 
@@ -77,20 +77,24 @@ fi
 fetch_it () {
   src=$1
 
-  echo "fetching $src"
+  echo "===================================================="
 
   if [ -d $src ] ; then
+    echo "updating $src from " `grep -w url $src/.git/config`
+
     cd $src
     git pull # origin master
     cd ..
   else
+    echo "fetching $src from ${GITHOST}$src"
+
     git  clone ${GITHOST}$src
   fi
 }
 
 
 if [ "$rep_list" != "" ] ; then
-  echo "updating AED_Tools"
+  echo "updating AED_Tools from " `grep -w url .git/config`
   git pull
 
   for src in $rep_list ; do

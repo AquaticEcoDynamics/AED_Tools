@@ -30,5 +30,11 @@ if [ -d libaed2 ] ; then
   make distclean
   cd ..
 fi
+if [ -d libfvaed2 ] ; then
+  echo cleaning libfvaed2
+  cd libfvaed2
+  make distclean
+  cd ..
+fi
 
 exit 0

@@ -5,7 +5,6 @@
 CWD=`pwd`
 OSTYPE=`uname -s`
 
-#. GLM/GLM_CONFIG
 AED2DIR=libaed2
 FABMDIR=fabm-git
 UTILDIR=libutil
@@ -32,7 +31,7 @@ strip_file () {
     fi
 }
 
-for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMDIR}/Examples ${UTILDIR} ${PLOTDIR} ${AED2DIR}; do
+for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMDIR}/Examples ${UTILDIR} ${PLOTDIR} ${AED2DIR} ; do
    if [ -d $k ] ; then
       cd $k
       for j in 'F90' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
@@ -52,31 +51,31 @@ for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GL
    fi
 done
 
-if [ -d GLM ] ; then
-  cd GLM
+if [ -d ${GLMDIR} ] ; then
+  cd ${GLMDIR}
   for i in *.sh .gitignore README* GLM_CONFIG RELEASE-NOTES ; do
      strip_file $i
   done
   cd ..
 fi
 
-if [ -d fabm-git ] ; then
-  tr -d '\r' < fabm-git/compilers/vs2008/fabm-glm.vfproj > .tmpx
-  \diff fabm-git/compilers/vs2008/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+if [ -d ${FABMDIR} ] ; then
+  tr -d '\r' < ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj > .tmpx
+  \diff ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed fabm-git/compilers/vs2008/fabm-glm.vfproj
-    /bin/rm fabm-git/compilers/vs2008/fabm-glm.vfproj
-    /bin/mv .tmpx fabm-git/compilers/vs2008/fabm-glm.vfproj
+    echo changed ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
+    /bin/rm ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
+    /bin/mv .tmpx ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi
 
-  tr -d '\r' < fabm-git/compilers/vs2010/fabm-glm.vfproj > .tmpx
-  \diff fabm-git/compilers/vs2010/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+  tr -d '\r' < ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj > .tmpx
+  \diff ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed fabm-git/compilers/vs2010/fabm-glm.vfproj
-    /bin/rm fabm-git/compilers/vs2010/fabm-glm.vfproj
-    /bin/mv .tmpx fabm-git/compilers/vs2010/fabm-glm.vfproj
+    echo changed ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
+    /bin/rm ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
+    /bin/mv .tmpx ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi
