@@ -1,10 +1,12 @@
 GLM
-fabm*
 libaed2
 libplot
 libutil
 libfvaed2
+binaries
+fabm*
 gotm*
 *.tar.gz
-binaries
+.*.swp
+*.diff
 .DS*

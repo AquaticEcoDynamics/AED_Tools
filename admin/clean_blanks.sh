@@ -9,7 +9,7 @@ AED2DIR=libaed2
 FABMDIR=fabm-git
 UTILDIR=libutil
 PLOTDIR=libplot
-
+GLMDIR=GLM
 
 strip_file () {
     FILE=$1
