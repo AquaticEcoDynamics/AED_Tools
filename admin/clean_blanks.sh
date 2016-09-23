@@ -60,22 +60,12 @@ if [ -d ${GLMDIR} ] ; then
 fi
 
 if [ -d ${FABMDIR} ] ; then
-  tr -d '\r' < ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj > .tmpx
-  \diff ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+  tr -d '\r' < Extras/fabm-glm.vfproj > .tmpx
+  \diff Extras/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
-    /bin/rm ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
-    /bin/mv .tmpx ${FABMDIR}/compilers/vs2008/fabm-glm.vfproj
-  else
-    /bin/rm .tmpx
-  fi
-
-  tr -d '\r' < ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj > .tmpx
-  \diff ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj .tmpx > /dev/null 2>&1
-  if [ $? != 0 ] ; then
-    echo changed ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
-    /bin/rm ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
-    /bin/mv .tmpx ${FABMDIR}/compilers/vs2010/fabm-glm.vfproj
+    echo changed Extras/fabm-glm.vfproj
+    /bin/rm Extras/fabm-glm.vfproj
+    /bin/mv .tmpx Extras/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi
