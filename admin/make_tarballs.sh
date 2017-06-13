@@ -47,6 +47,11 @@ if [ -d libaed2 ] ; then
   do_tarball libaed2 ${AED2VRS}
 fi
 
+if [ -d libaed2-plus ] ; then
+  AED2VRS=`grep AED2_PLUS_VERSION libaed2-plus/include/aed2+.h | cut -f2 -d\"`
+  do_tarball libaed2-plus ${AED2VRS}
+fi
+
 if [ -d GLM ] ; then
   GLM_VRS=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
   do_tarball GLM ${GLM_VRS}

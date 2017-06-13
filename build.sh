@@ -77,6 +77,10 @@ fi
 if [ "${AED2}" = "true" ] ; then
   cd ${AED2DIR}
   make || exit 1
+  if [ -d ${AED2PLS} ] ; then
+    cd ${AED2PLS}
+    make || exit 1
+  fi
 fi
 
 if [ "$WITH_PLOTS" = "true" ] ; then

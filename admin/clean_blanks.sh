@@ -6,10 +6,12 @@ CWD=`pwd`
 OSTYPE=`uname -s`
 
 AED2DIR=libaed2
+AED2PLS=libaed2-plus
 FABMDIR=fabm-git
 UTILDIR=libutil
 PLOTDIR=libplot
 GLMDIR=GLM
+FVAED2D=libfvaed2
 
 strip_file () {
     FILE=$1
@@ -31,7 +33,7 @@ strip_file () {
     fi
 }
 
-for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMDIR}/Examples ${UTILDIR} ${PLOTDIR} ${AED2DIR} ; do
+for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMDIR}/Examples ${UTILDIR} ${PLOTDIR} ${AED2DIR} ${AED2PLS} ${FVAED2D} ; do
    if [ -d $k ] ; then
       cd $k
       for j in 'F90' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do

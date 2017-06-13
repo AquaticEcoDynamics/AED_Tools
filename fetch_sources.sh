@@ -2,18 +2,31 @@
 
 rep_list=""
 if [ $# = 0 ] ; then
-  # The default case is to fetch GLM
+  # The default case is to fetch only libaed2
   GETAED2="true"
-  GETPLOT="true"
-  GETUTIL="true"
-  GETFABM="true"
-  GET_GLM="true"
+  GETPLOT="false"
+  GETUTIL="false"
+  GETFABM="false"
+  GET_GLM="false"
+  GETPLUS="false"
+  GETFVAED="false"
 fi
 
 while [ $# -gt 0 ] ; do
   #echo $# : $1
 
   case $1 in
+    all)
+      GETAED2="true"
+      GETPLOT="true"
+      GETUTIL="true"
+      GETFABM="true"
+      GET_GLM="true"
+      GETPLUS="true"
+      GETFVAED="true"
+      GET_TFV="false"
+      GETGOTM="false"
+      ;;
     GLM|glm)
       GETAED2="true"
       GETPLOT="true"
@@ -34,6 +47,9 @@ while [ $# -gt 0 ] ; do
     libutil)
       GETUTIL="true"
       ;;
+    plus)
+      GETPLUS="true"
+      ;;
     fabm)
       GETFABM="true"
       ;;
@@ -50,6 +66,7 @@ done
 if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
 if [ "$GETFVAED" = "true" ] ; then rep_list="$rep_list libfvaed2" ; fi
 if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
+if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed2-plus" ; fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
 

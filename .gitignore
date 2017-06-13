@@ -1,11 +1,12 @@
 GLM
 libaed2
+libaed2-plus
 libplot
 libutil
 libfvaed2
 binaries
-fabm*
-gotm*
+fabm-git
+gotm-git
 *.tar.gz
 .*.swp
 *.diff
