@@ -62,12 +62,12 @@ if [ -d ${GLMDIR} ] ; then
 fi
 
 if [ -d ${FABMDIR} ] ; then
-  tr -d '\r' < Extras/fabm-glm.vfproj > .tmpx
-  \diff Extras/fabm-glm.vfproj .tmpx > /dev/null 2>&1
+  tr -d '\r' < Extras/fabm/fabm-glm.vfproj > .tmpx
+  \diff Extras/fabm/fabm-glm.vfproj .tmpx > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    echo changed Extras/fabm-glm.vfproj
-    /bin/rm Extras/fabm-glm.vfproj
-    /bin/mv .tmpx Extras/fabm-glm.vfproj
+    echo changed Extras/fabm/fabm-glm.vfproj
+    /bin/rm Extras/fabm/fabm-glm.vfproj
+    /bin/mv .tmpx Extras/fabm/fabm-glm.vfproj
   else
     /bin/rm .tmpx
   fi

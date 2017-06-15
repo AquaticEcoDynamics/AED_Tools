@@ -92,20 +92,50 @@ cd ${UTILDIR}
 make || exit 1
 
 cd ${CURDIR}
-./build_glm.sh
-cd ..
+#./build_glm.sh
+make || exit
+
+
+VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
+
+cd ${CURDIR}/win
+${CURDIR}/vers.sh $VERSION
+cd ${CURDIR}/win-dll
+${CURDIR}/vers.sh $VERSION
+cd ${CURDIR}/..
 
 if [ "$OSTYPE" = "Linux" ] ; then
-  if [ ! -d binaries/ubuntu/$(lsb_release -rs) ] ; then
-    mkdir -p binaries/ubuntu/$(lsb_release -rs)/
+  if [ $(lsb_release -is) = Ubuntu ] ; then
+    if [ ! -d binaries/ubuntu/$(lsb_release -rs) ] ; then
+      mkdir -p binaries/ubuntu/$(lsb_release -rs)/
+    fi
+    cd ${CURDIR}
+    VERSDEB=`head -1 debian/changelog | cut -f2 -d\( | cut -f1 -d-`
+    echo debian version $VERSDEB
+    if [ "$VERSION" != "$VERSDEB" ] ; then
+      echo updating debian version
+      dch --newversion ${VERSION}-0 "new version ${VERSION}"
+    fi
+
+    fakeroot make -f debian/rules binary || exit 1
+
+    cd ..
+
+    mv glm*.deb binaries/ubuntu/$(lsb_release -rs)/
+  else
+    echo "No package build for $(lsb_release -is)"
   fi
-  mv GLM/bin/ubuntu/$(lsb_release -rs)/glm*.deb binaries/ubuntu/$(lsb_release -rs)/
 fi
 if [ "$OSTYPE" = "Darwin" ] ; then
   if [ ! -d binaries/macos ] ; then
      mkdir -p binaries/macos
   fi
-  mv GLM/bin/macos/glm_*.zip binaries/macos/
+  cd ${CURDIR}/macos
+  /bin/bash macpkg.sh ${HOMEBREW}
+
+  mv ${CURDIR}/macos/glm_*.zip ${CURDIR}/../binaries/macos/
+
+  cd ${CURDIR}/..
 fi
 
 exit 0

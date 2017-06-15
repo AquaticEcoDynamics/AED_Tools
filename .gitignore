@@ -6,7 +6,7 @@ libutil
 libfvaed2
 binaries
 fabm-git
-gotm-git
+gotm-*
 *.tar.gz
 .*.swp
 *.diff
