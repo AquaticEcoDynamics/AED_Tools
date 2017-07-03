@@ -77,9 +77,11 @@ fi
 if [ "${AED2}" = "true" ] ; then
   cd ${AED2DIR}
   make || exit 1
+  cd ..
   if [ -d ${AED2PLS} ] ; then
     cd ${AED2PLS}
     make || exit 1
+    cd ..
   fi
 fi
 
@@ -92,8 +94,10 @@ cd ${UTILDIR}
 make || exit 1
 
 cd ${CURDIR}
-#./build_glm.sh
 make || exit
+if [ -d ${AED2PLS} ] ; then
+  make glm+ || exit
+fi
 
 
 VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
