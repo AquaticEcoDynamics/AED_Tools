@@ -104,8 +104,8 @@ VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
 
 cd ${CURDIR}/win
 ${CURDIR}/vers.sh $VERSION
-cd ${CURDIR}/win-dll
-${CURDIR}/vers.sh $VERSION
+#cd ${CURDIR}/win-dll
+#${CURDIR}/vers.sh $VERSION
 cd ${CURDIR}/..
 
 if [ "$OSTYPE" = "Linux" ] ; then
@@ -119,6 +119,10 @@ if [ "$OSTYPE" = "Linux" ] ; then
     if [ "$VERSION" != "$VERSDEB" ] ; then
       echo updating debian version
       dch --newversion ${VERSION}-0 "new version ${VERSION}"
+    fi
+    VERSRUL=`grep 'version=' debian/rules | cut -f2 -d=`
+    if [ "$VERSION" != "$VERSRUL" ] ; then
+      sed -i "s/version=$VERSRUL/version=$VERSION/" debian/rules
     fi
 
     fakeroot make -f debian/rules binary || exit 1
@@ -135,9 +139,16 @@ if [ "$OSTYPE" = "Darwin" ] ; then
      mkdir -p binaries/macos
   fi
   cd ${CURDIR}/macos
+  if [ "${HOMEBREW}" = "" ] ; then
+    HOMEBREW=false
+  fi
   /bin/bash macpkg.sh ${HOMEBREW}
-
   mv ${CURDIR}/macos/glm_*.zip ${CURDIR}/../binaries/macos/
+
+  if [ -d ${AED2PLS} ] ; then
+    /bin/bash macpkg.sh ${HOMEBREW} glm+
+    mv ${CURDIR}/macos/glm+_*.zip ${CURDIR}/../binaries/macos/
+  fi
 
   cd ${CURDIR}/..
 fi
