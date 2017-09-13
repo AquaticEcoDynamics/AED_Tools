@@ -5,6 +5,7 @@
 
 rep_list=""
 upd_list=""
+count=0
 
 if [ $# = 0 ] ; then
   # The default case is to just update
