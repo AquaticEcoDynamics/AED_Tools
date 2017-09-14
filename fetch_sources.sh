@@ -138,6 +138,7 @@ elif [ "$rep_list" != "" ] ; then
   # echo GITHOST is $GITHOST
 
   for src in $rep_list ; do
+    count=$((count+1))
     fetch_it $src
   done
 fi
