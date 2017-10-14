@@ -42,7 +42,11 @@ export NETCDFLIB=${NETCDFLIBDIR}
 export NETCDFLIBNAME="-lnetcdff -lnetcdf"
 
 if [ "$FABM" = "true" ] ; then
-  export COMPILATION_MODE=production
+  if [ "$DEBUG" = "true" ] ; then
+    export COMPILATION_MODE=debug
+  else
+    export COMPILATION_MODE=production
+  fi
 
   if [ ! -d $FABMDIR ] ; then
     echo "FABM directory not found"
