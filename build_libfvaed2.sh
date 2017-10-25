@@ -40,19 +40,6 @@ export F77=$FC
 export F90=$FC
 export F95=$FC
 
-# export MPI=OPENMPI
-# 
-# export NETCDFHOME=/opt/intel
-# 
-# export HDF5LIB=$NETCDFHOME/lib
-# #export HDF5LIBNAME="-lhdf5"
-# 
-# export NETCDFINC=$NETCDFHOME/include
-# export NETCDFINCL=${NETCDFINC}
-# export NETCDFLIBDIR=$NETCDFHOME/lib
-# export NETCDFLIB=${NETCDFLIBDIR}
-# export NETCDFLIBNAME="-lnetcdff -lnetcdf"
-
 echo build libaed2
 cd  ${CURDIR}/../libaed2
 make || exit 1
