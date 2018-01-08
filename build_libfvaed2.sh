@@ -6,6 +6,8 @@ cd libfvaed2
 . FV_CONFIG
 cd ..
 
+export OSTYPE=`uname -s`
+
 export EXTERNAL_LIBS=shared
 
 if [ "$DEBUG" = "" ] ; then
@@ -67,10 +69,13 @@ if [ "$DEBUG" = "true" ] ; then
 else
    D=''
 fi
-if [ $(lsb_release -is) = Ubuntu ] ; then
-  T=_u
-else
-  T=_r
+
+if [ "$OSTYPE" == "Linux" ] ; then
+  if [ $(lsb_release -is) = Ubuntu ] ; then
+    T=_u
+  else
+    T=_r
+  fi
 fi
 EXTN="_$ISODATE$T$S$D"
 cd ${CURDIR}/..
@@ -78,7 +83,12 @@ if [ ! -d binaries ] ; then
   mkdir binaries
 fi
 if [ "$EXTERNAL_LIBS" = "shared" ] ; then
-  cp libfvaed2/lib/libtuflowfv_external_wq.so      binaries/
+  if [ "$OSTYPE" == "Darwin" ] ; then
+    cp libfvaed2/lib/libtuflowfv_external_wq.dylib   binaries/
+  fi
+  if [ "$OSTYPE" == "Linux" ] ; then
+    cp libfvaed2/lib/libtuflowfv_external_wq.so      binaries/
+  fi
 fi
 
 exit 0

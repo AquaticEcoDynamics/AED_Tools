@@ -7,8 +7,14 @@ cd ..
 export OSTYPE=`uname -s`
 
 if [ "$FORTRAN_COMPILER" = "IFORT" ] ; then
+   if [ `uname -m` = "i686" ] ; then
+      CPU="ia32"
+   else
+      CPU="intel64"
+   fi
+
    if [ -d /opt/intel/bin ] ; then
-      . /opt/intel/bin/compilervars.sh intel64
+      . /opt/intel/bin/compilervars.sh $CPU
    fi
    which ifort >& /dev/null
    if [ $? != 0 ] ; then
@@ -42,11 +48,7 @@ export NETCDFLIB=${NETCDFLIBDIR}
 export NETCDFLIBNAME="-lnetcdff -lnetcdf"
 
 if [ "$FABM" = "true" ] ; then
-  if [ "$DEBUG" = "true" ] ; then
-    export COMPILATION_MODE=debug
-  else
-    export COMPILATION_MODE=production
-  fi
+  export COMPILATION_MODE=production
 
   if [ ! -d $FABMDIR ] ; then
     echo "FABM directory not found"

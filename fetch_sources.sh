@@ -90,12 +90,19 @@ fetch_it () {
     echo "updating $src from " `grep -w url $src/.git/config`
 
     cd $src
-    git pull # origin master
+    BRANCH=`git branch | grep '*' | cut -f2 -d\ `
+    git pull origin $BRANCH
     cd ..
   else
     echo "fetching $src from ${GITHOST}$src"
 
     git  clone ${GITHOST}$src
+
+    if [ -d $src ] ; then
+      cd $src
+      git checkout dev
+      cd ..
+    fi
   fi
 }
 
@@ -112,7 +119,8 @@ if [ "$upd_list" != "" ] ; then
       echo "updating $src from " `grep -w url $src/.git/config`
 
       cd $src
-      git pull # origin master
+      BRANCH=`git branch | grep '*' | cut -f2 -d\ `
+      git pull origin $BRANCH
       cd ..
     fi
   done
