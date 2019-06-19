@@ -1,42 +1,58 @@
 #!/bin/bash
 
-# export DEBUG=true
-
 cd libfvaed2
 . FV_CONFIG
 cd ..
 
-export OSTYPE=`uname -s`
+while [ $# -gt 0 ] ; do
+  case $1 in
+    --debug)
+      export DEBUG=true
+      ;;
+    --fence)
+      export FENCE=true
+      ;;
+    --single)
+      export SINGLE=true
+      ;;
+    *)
+      ;;
+  esac
+  shift
+done
 
-export EXTERNAL_LIBS=shared
+if [ "$FC" = "" ] ; then
+  export FC=ifort
+fi
 
-if [ "$DEBUG" = "" ] ; then
-  export DEBUG=false
-  #export DEBUG=true
+if [ "$FC" = "ifort" ] ; then
+  if [ -d /opt/intel/bin ] ; then
+    . /opt/intel/bin/compilervars.sh intel64
+  fi
+  which ifort >& /dev/null
+  if [ $? != 0 ] ; then
+    echo ifort compiler requested, but not found
+    exit 1
+  fi
 fi
 
 if [ "$SINGLE" = "" ] ; then
   export SINGLE=false
-  #export SINGLE=true
 fi
 if [ "$PRECISION" = "" ] ; then
-   export PRECISION=1
-   #export PRECISION=2
+  export PRECISION=1
 fi
-if [ "$PRECISION" = "" ] ; then
+if [ "$PLOTS" = "" ] ; then
   export PLOTS=false
-  #export PLOTS=true
 fi
 if [ "$EXTERNAL_LIBS" = "" ] ; then
-  export EXTERNAL_LIBS=static
-  #export EXTERNAL_LIBS=shared
+  export EXTERNAL_LIBS=shared
 fi
+if [ "$DEBUG" = "" ] ; then
+  export DEBUG=false
+fi
+
 export LICENSE=0
-
-source /opt/intel/bin/compilervars.sh intel64
-
-export FORTRAN_COMPILER=IFORT
-export FC=ifort
 
 export F77=$FC
 export F90=$FC
@@ -69,6 +85,8 @@ if [ "$DEBUG" = "true" ] ; then
 else
    D=''
 fi
+
+export OSTYPE=`uname -s`
 
 if [ "$OSTYPE" == "Linux" ] ; then
   if [ $(lsb_release -is) = Ubuntu ] ; then

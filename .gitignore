@@ -1,4 +1,6 @@
 GLM*
+ALM
+gehm
 libaed2
 libaed2-plus
 libplot
@@ -11,3 +13,12 @@ gotm-*
 .*.swp
 *.diff
 .DS*
+._.DS*
+TUFLOWFV
+TUFLOWFV-*
+tuflowfv*
+Delft3d
+tmp
+iphreeqc*
+gmd-*
+intel2std*

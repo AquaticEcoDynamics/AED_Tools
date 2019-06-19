@@ -16,7 +16,11 @@ if [ $# = 0 ] ; then
   GET_GLM="false"
   GETPLUS="false"
   GETFVAED="false"
-  upd_list="libaed2 libplot libutil GLM libfvaed2 libaed2-plus"
+  GET_TFV="false"
+  GETGOTM="false"
+  GET_ALM="false"
+  GET_EGS="false"
+  upd_list="libaed2 libplot libutil GLM libfvaed2 libaed2-plus TUFLOWFV gotm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -35,6 +39,9 @@ while [ $# -gt 0 ] ; do
       GETFVAED="true"
       GET_TFV="false"
       GETGOTM="false"
+      ;;
+    ALM|alm)
+      GET_ALM="true"
       ;;
     GLM|glm)
       GETAED2="true"
@@ -62,6 +69,15 @@ while [ $# -gt 0 ] ; do
     fabm)
       GETFABM="true"
       ;;
+    TUFLOWFV|tuflowfv)
+      GET_TFV="true"
+      GETGOTM="true"
+      GETFVAED="true"
+      GETAED2="true"
+      ;;
+    examples)
+      GET_EGS="true"
+      ;;
     -g|--githost)
       GITHOST="$2"
       shift # skip argument
@@ -78,28 +94,35 @@ if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
 if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed2-plus" ; fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
+if [ "$GET_ALM" = "true" ]  ; then rep_list="$rep_list ALM" ; fi
+if [ "$GET_EGS" = "true" ]  ; then rep_list="$rep_list GLM_Examples" ; fi
 
 #-------------------------------------------------------------------------------
 
 fetch_it () {
   src=$1
+  dst=$2
 
   echo "===================================================="
 
-  if [ -d $src ] ; then
-    echo "updating $src from " `grep -w url $src/.git/config`
+  if [ "$dst" = "" ] ; then
+    dst=$src
+  fi
 
-    cd $src
+  if [ -d $dst ] ; then
+    echo "updating $dst from " `grep -w url $dst/.git/config`
+
+    cd $dst
     BRANCH=`git branch | grep '*' | cut -f2 -d\ `
     git pull origin $BRANCH
     cd ..
   else
-    echo "fetching $src from ${GITHOST}$src"
+    echo "fetching $src from ${GITHOST}$src $dst"
 
-    git  clone ${GITHOST}$src
+    git clone ${GITHOST}$src $dst
 
-    if [ -d $src ] ; then
-      cd $src
+    if [ -d $dst ] ; then
+      cd $dst
       git checkout dev
       cd ..
     fi
@@ -156,8 +179,37 @@ fi
 if [ "$GETFABM" = "true" ] ; then
   if [ ! -d fabm-git ] ; then
     echo "===================================================="
-    echo "fetching fabm from git://git.code.sf.net/p/fabm/code"
-    git clone git://git.code.sf.net/p/fabm/code fabm-git
+    echo "fetching fabm from https://github.com/fabm-model/fabm.git"
+    git clone https://github.com/fabm-model/fabm.git fabm-git
+  fi
+fi
+
+if [ "$GETGOTM" = "true" ] ; then
+  if [ ! -d gotm-git ] ; then
+# Two possible places :
+#   1) GOTM git repository
+#   2) AED's internal git copy of old
+#
+#   1)
+#   git clone git://git.code.sf.net/p/gotm/code gotm-git
+    git clone https://github.com/gotm-model/code gotm-git
+
+#   2)
+#   GITHOST=https://githost.aed-net.science.uwa.edu.au/private/
+#   fetch_it GOTM gotm-git
+  fi
+fi
+
+if [ "$GET_TFV" = "true" ] ; then
+  ME=`hostname -f`
+  WHEREAMI=`echo $ME | cut -d. -f2-`
+  if [ "$WHEREAMI" != "aed-net.science.uwa.edu.au" ] ; then
+     echo "It looks like you are not in the aed network, you probably can't get tuflowfv sources"
+  fi
+  if [ ! -d TUFLOWFV ] ; then
+    echo "===================================================="
+    GITHOST=https://githost.aed-net.science.uwa.edu.au/private/
+    fetch_it TUFLOWFV
   fi
 fi
 

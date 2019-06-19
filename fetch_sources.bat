@@ -162,4 +162,4 @@ exit /b 0
 
     git clone %GITHOST%%src%
   )
-  exit /b
+exit /b
