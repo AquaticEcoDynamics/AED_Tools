@@ -121,11 +121,11 @@ fetch_it () {
 
     git clone ${GITHOST}$src $dst
 
-    if [ -d $dst ] ; then
-      cd $dst
-      git checkout dev
-      cd ..
-    fi
+#   if [ -d $dst ] ; then
+#     cd $dst
+#     git checkout dev
+#     cd ..
+#   fi
   fi
 }
 
