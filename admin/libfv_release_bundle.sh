@@ -35,5 +35,7 @@ if [ -d libaed2-plus ] ; then
 fi
 
 /bin/rm -rf tttt
+mkdir -p binaries/sources
+mv libfvaed2-${FV_VRS}.tar.gz libfvaed2-${FV_VRS}.zip libfvaed2_Plus-${FV_VRS}.tar.gz libfvaed2_Plus-${FV_VRS}.zip binaries/sources
 
 exit 0

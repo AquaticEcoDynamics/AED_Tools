@@ -41,5 +41,7 @@ if [ -d libaed2-plus ] ; then
 fi
 
 /bin/rm -rf tttt
+mkdir -p binaries/sources
+mv GLM-${GLM_VRS}.tar.gz GLM-${GLM_VRS}.zip GLM_Plus-${GLM_VRS}.tar.gz GLM_Plus-${GLM_VRS}.zip binaries/sources
 
 exit 0
