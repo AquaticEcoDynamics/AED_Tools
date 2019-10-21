@@ -12,6 +12,9 @@ while [ $# -gt 0 ] ; do
     --fence)
       export FENCE=true
       ;;
+    --ifort)
+      export FC=ifort
+      ;;
     *)
       ;;
   esac
@@ -59,14 +62,15 @@ if [ "$FC" = "" ] ; then
 fi
 
 if [ "$FC" = "ifort" ] ; then
-   if [ `uname -m` = "i686" ] ; then
-      CPU="ia32"
-   else
-      CPU="intel64"
-   fi
+   # if [ `uname -m` = "i686" ] ; then
+   #    CPU="ia32"
+   # else
+   #    CPU="intel64"
+   # fi
 
    if [ -d /opt/intel/bin ] ; then
-      . /opt/intel/bin/compilervars.sh $CPU
+      # . /opt/intel/bin/compilervars.sh $CPU
+      . /opt/intel/bin/compilervars.sh intel64
    fi
    which ifort >& /dev/null
    if [ $? != 0 ] ; then
@@ -211,20 +215,24 @@ if [ "$OSTYPE" = "Linux" ] ; then
   fi
 fi
 if [ "$OSTYPE" = "Darwin" ] ; then
-  MOSNAME=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' '/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf' | tr ' ' '\n'  | tr -d '\\' | tail -1`
-  if [ ! -d binaries/macos/${MOSNAME} ] ; then
-     mkdir -p binaries/macos/${MOSNAME}
+  MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' '/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf'`
+  # pre Lion :   MOSNAME=`echo ${MOSLINE} | awk -F 'Mac OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
+  # pre Sierra : MOSNAME=`echo ${MOSLINE} | awk -F 'OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
+  MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
+
+  if [ ! -d "binaries/macos/${MOSNAME}" ] ; then
+     mkdir -p "binaries/macos/${MOSNAME}"
   fi
   cd ${CURDIR}/macos
   if [ "${HOMEBREW}" = "" ] ; then
     HOMEBREW=false
   fi
   /bin/bash macpkg.sh ${HOMEBREW}
-  mv ${CURDIR}/macos/glm_*.zip ${CURDIR}/../binaries/macos/${MOSNAME}/
+  mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
 
   if [ -d ${AED2PLS} ] ; then
     /bin/bash macpkg.sh ${HOMEBREW} glm+
-    mv ${CURDIR}/macos/glm+_*.zip ${CURDIR}/../binaries/macos/${MOSNAME}/
+    mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
   fi
 
   cd ${CURDIR}/..

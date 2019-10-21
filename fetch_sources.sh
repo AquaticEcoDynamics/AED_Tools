@@ -16,11 +16,9 @@ if [ $# = 0 ] ; then
   GET_GLM="false"
   GETPLUS="false"
   GETFVAED="false"
-  GET_TFV="false"
-  GETGOTM="false"
   GET_ALM="false"
   GET_EGS="false"
-  upd_list="libaed2 libplot libutil GLM libfvaed2 libaed2-plus TUFLOWFV gotm-git"
+  upd_list="libaed2 libplot libutil GLM libfvaed2 libaed2-plus fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -33,12 +31,10 @@ while [ $# -gt 0 ] ; do
       GETAED2="true"
       GETPLOT="true"
       GETUTIL="true"
-      GETFABM="true"
       GET_GLM="true"
-      GETPLUS="true"
+      GETFABM="false"
+      GETPLUS="false"
       GETFVAED="true"
-      GET_TFV="false"
-      GETGOTM="false"
       ;;
     ALM|alm)
       GET_ALM="true"
@@ -47,8 +43,8 @@ while [ $# -gt 0 ] ; do
       GETAED2="true"
       GETPLOT="true"
       GETUTIL="true"
-      GETFABM="true"
       GET_GLM="true"
+      GETFABM="false"
       ;;
     fvaed2)
       GETFVAED="true"
@@ -68,12 +64,6 @@ while [ $# -gt 0 ] ; do
       ;;
     fabm)
       GETFABM="true"
-      ;;
-    TUFLOWFV|tuflowfv)
-      GET_TFV="true"
-      GETGOTM="true"
-      GETFVAED="true"
-      GETAED2="true"
       ;;
     examples)
       GET_EGS="true"
@@ -177,39 +167,11 @@ fi
 #-------------------------------------------------------------------------------
 
 if [ "$GETFABM" = "true" ] ; then
+  count=$((count+1))
   if [ ! -d fabm-git ] ; then
     echo "===================================================="
     echo "fetching fabm from https://github.com/fabm-model/fabm.git"
     git clone https://github.com/fabm-model/fabm.git fabm-git
-  fi
-fi
-
-if [ "$GETGOTM" = "true" ] ; then
-  if [ ! -d gotm-git ] ; then
-# Two possible places :
-#   1) GOTM git repository
-#   2) AED's internal git copy of old
-#
-#   1)
-#   git clone git://git.code.sf.net/p/gotm/code gotm-git
-    git clone https://github.com/gotm-model/code gotm-git
-
-#   2)
-#   GITHOST=https://githost.aed-net.science.uwa.edu.au/private/
-#   fetch_it GOTM gotm-git
-  fi
-fi
-
-if [ "$GET_TFV" = "true" ] ; then
-  ME=`hostname -f`
-  WHEREAMI=`echo $ME | cut -d. -f2-`
-  if [ "$WHEREAMI" != "aed-net.science.uwa.edu.au" ] ; then
-     echo "It looks like you are not in the aed network, you probably can't get tuflowfv sources"
-  fi
-  if [ ! -d TUFLOWFV ] ; then
-    echo "===================================================="
-    GITHOST=https://githost.aed-net.science.uwa.edu.au/private/
-    fetch_it TUFLOWFV
   fi
 fi
 
