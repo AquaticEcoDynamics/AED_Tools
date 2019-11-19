@@ -12,6 +12,9 @@ while [ $# -gt 0 ] ; do
     --fence)
       export FENCE=true
       ;;
+    --fabm)
+      export FABM=true
+      ;;
     --ifort)
       export FC=ifort
       ;;
