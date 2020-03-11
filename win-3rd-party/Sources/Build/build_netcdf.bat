@@ -1,7 +1,7 @@
 @rem Script to build the netcdf library
 
-set LibName=netcdf
-set VersNum=-4.6.1
+set LibName=netcdf-c
+set VersNum=-4.7.3
 
 @echo off
 

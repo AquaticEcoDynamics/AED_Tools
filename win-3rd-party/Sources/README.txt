@@ -3,15 +3,15 @@ VisualStudio 2015/2017 ; use all_libs.sln. They are set up to access source
 files from directories in this directory called :
 
 zlib-1.2.11
-freetype-2.9.1
-jpeg-9c
-libpng-1.6.35
+freetype-2.10.1
+jpeg-9d
+libpng-1.6.37
 libgd-2.2.5
-curl-7.61.1
+curl-7.68.0
 szip-2.1.1
-hdf5-1.10.3
-netcdf-4.6.1
-netcdf-fortran-4.4.4
+hdf5-1.10.6
+netcdf-c-4.7.3
+netcdf-fortran-4.5.2
 
 This is obviously the versions of the source files used.
 
@@ -31,27 +31,27 @@ netcdf-fortran : https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 zlib-1.2.11.tar.gz          http://www.zlib.net/zlib-1.2.11.tar.gz
 zlib-1211.zip               http://www.zlib.net/zlib1211.zip
 
-freetype-2.9.1.tar.gz       https://download.savannah.gnu.org/releases/freetype/freetype-2.9.1.tar.gz
+freetype-2.10.1.tar.gz       https://download.savannah.gnu.org/releases/freetype/freetype-2.10.1.tar.gz
 
-jpegsrc.v9c.tar.gz          http://www.ijg.org/files/jpegsrc.v9c.tar.gz
-jpegsr9c.zip                http://www.ijg.org/files/jpegsr9c.zip
+jpegsrc.v9d.tar.gz          http://www.ijg.org/files/jpegsrc.v9d.tar.gz
+jpegsr9d.zip                http://www.ijg.org/files/jpegsr9d.zip
 
-libpng-1.6.35.tar.gz        http://prdownloads.sourceforge.net/libpng/libpng-1.6.35.tar.gz?download
-lpng1635.zip                http://prdownloads.sourceforge.net/libpng/lpng1635.zip?download
+libpng-1.6.37.tar.gz        http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.gz?download
+lpng1637.zip                http://prdownloads.sourceforge.net/libpng/lpng1637.zip?download
 
 libgd-2.2.5.tar.gz          https://github.com/libgd/libgd/releases/download/gd-2.2.5/libgd-2.2.5.tar.gz
 
-curl-7.61.1.tar.gz          https://curl.haxx.se/download/curl-7.61.1.tar.gz
-curl-7.61.1.zip             https://curl.haxx.se/download/curl-7.61.1.zip
+curl-7.68.0.tar.gz          https://curl.haxx.se/download/curl-7.68.0.tar.gz
+curl-7.68.0.zip             https://curl.haxx.se/download/curl-7.68.0.zip
 
 szip-2.1.1.tar.gz           https://support.hdfgroup.org/ftp/lib-external/szip/2.1.1/src/szip-2.1.1.tar.gz
 
-hdf5-1.10.3.tar.gz          https://www.hdfgroup.org/package/source-gzip-3/?wpdmdl=12596&refresh=5ba98754866d31537836884
-hdf5-1.10.3.zip             https://www.hdfgroup.org/package/source-zip-3/?wpdmdl=12598&refresh=5ba46af40aac21537501940
+hdf5-1.10.6.tar.gz          https://www.hdfgroup.org/package/hdf5-1-10-6-tar-gz/?wpdmdl=14135&refresh=5e5f47f69f23f1583302646
+hdf5-1.10.6.zip             https://www.hdfgroup.org/package/hdf5-1-10-6-zip/?wpdmdl=14136&refresh=5e5f47f69e23d1583302646
 
-netcdf-4.6.1.tar.gz         https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-4.6.1.tar.gz
-netcdf-4.6.1.zip            https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-4.6.1.zip
+netcdf-c-4.7.3.zip          https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-c-4.7.3.zip
+netcdf-c-4.7.3.tar.gz       https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-c-4.7.3.tar.gz
 
-netcdf-fortran-4.4.4.tar.gz https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.4.4.tar.gz
-netcdf-fortran-4.4.4.zip    https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.4.4.zip
+netcdf-fortran-4.5.2.tar.gz https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.5.2.tar.gz
+netcdf-fortran-4.5.2.zip    https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.5.2.zip
 

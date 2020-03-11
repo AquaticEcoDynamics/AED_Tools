@@ -1,7 +1,7 @@
 @rem Script to build the png library
 
 set LibName=libpng
-set VersNum=-1.6.35
+set VersNum=-1.6.37
 
 @echo off
 

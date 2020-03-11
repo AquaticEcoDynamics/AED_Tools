@@ -1,7 +1,7 @@
 @rem Script to build the hdf5 library
 
 set LibName=hdf5
-set VersNum=-1.10.3
+set VersNum=-1.10.6
 
 @echo off
 

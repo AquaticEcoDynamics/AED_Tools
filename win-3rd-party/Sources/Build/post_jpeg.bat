@@ -5,7 +5,7 @@ echo DestDir is %DestDir%
 if not EXIST "%DestDir%" ( mkdir %DestDir% )
 if not EXIST "%DestDir%\include" ( mkdir %DestDir%\include )
 
-copy ..\jpeg-9c\jpeglib.h %DestDir%\include
-copy ..\jpeg-9c\jerror.h %DestDir%\include
-copy ..\jpeg-9c\jconfig.h %DestDir%\include
-copy ..\jpeg-9c\jmorecfg.h %DestDir%\include
+copy ..\jpeg-9d\jpeglib.h %DestDir%\include
+copy ..\jpeg-9d\jerror.h %DestDir%\include
+copy ..\jpeg-9d\jconfig.h %DestDir%\include
+copy ..\jpeg-9d\jmorecfg.h %DestDir%\include

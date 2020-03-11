@@ -1,7 +1,7 @@
 @rem Script to build the fortran netcdf library
 
 set LibName=netcdf-fortran
-set VersNum=-4.4.4
+set VersNum=-4.5.2
 
 @echo off
 
