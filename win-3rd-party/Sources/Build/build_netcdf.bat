@@ -20,15 +20,13 @@ if "%VisualStudioVersion%"=="14.0" (
   set GV=14 2015
 ) else if "%VisualStudioVersion%"=="15.0" (
   set GV=15 2017
+) else if "%VisualStudioVersion%"=="16.0" (
+  set GV=16 2019
 ) else (
   echo Unknown Visual Studio version
 )
 
-if "%Platform%"=="x64" (
- set Generator="Visual Studio %GV% Win64"
-) else (
- set Generator="Visual Studio %GV%"
-)
+set Generator="Visual Studio %GV%"
 
 set startdir=%cd%
 set prevdir=%cd%
@@ -74,6 +72,7 @@ set (CMAKE_FIND_ROOT_PATH %install_prefix%)
 
 cmake "%SrcDir%" ^
       -G %Generator% ^
+      -A %Platform% ^
       -DENABLE_DAP=0 ^
 	  -DENABLE_TESTS=0 ^
 	  -DCMAKE_FIND_ROOT_PATH=%install_prefix% ^

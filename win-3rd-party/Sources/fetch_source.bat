@@ -1,6 +1,6 @@
 @REM The directory Build has project files to build the libraries using
-@REM VisualStudio 2015/2017 ; use all_libs.sln. They are set up to access source 
-@REM files from directories in this directory called :
+@REM VisualStudio 2015/2017/2019 ; use all_libs.sln. They are set up to
+@REM access source files from directories in this directory called :
 @REM 
 @REM zlib-1.2.11
 @REM freetype-2.10.1

@@ -1,6 +1,6 @@
 The directory Build has project files to build the libraries using
-VisualStudio 2015/2017 ; use all_libs.sln. They are set up to access source 
-files from directories in this directory called :
+VisualStudio 2015/2017/2019 ; use all_libs.sln. They are set up to access
+source files from directories in this directory called :
 
 zlib-1.2.11
 freetype-2.10.1
