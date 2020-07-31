@@ -9,7 +9,7 @@ count=0
 
 if [ $# = 0 ] ; then
   # The default case is to just update
-  GETAED2="false"
+  GETAED="false"
   GETPLOT="false"
   GETUTIL="false"
   GETFABM="false"
@@ -18,7 +18,7 @@ if [ $# = 0 ] ; then
   GETFVAED="false"
   GET_ALM="false"
   GET_EGS="false"
-  upd_list="libaed2 libplot libutil GLM libfvaed2 libaed2-plus fabm-git"
+  upd_list="libaed-water libaed-benthic libaed-riparian libaed-demo libaed-dev libplot libutil GLM libaed-fv fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ while [ $# -gt 0 ] ; do
 
   case $1 in
     all)
-      GETAED2="true"
+      GETAED="true"
       GETPLOT="true"
       GETUTIL="true"
       GET_GLM="true"
@@ -40,18 +40,18 @@ while [ $# -gt 0 ] ; do
       GET_ALM="true"
       ;;
     GLM|glm)
-      GETAED2="true"
+      GETAED="true"
       GETPLOT="true"
       GETUTIL="true"
       GET_GLM="true"
       GETFABM="false"
       ;;
-    fvaed2)
-      GETFVAED="true"
-      GETAED2="true"
+    aed-fv)
+      GETAEDFV="true"
+      GETAED="true"
       ;;
-    libaed2)
-      GETAED2="true"
+    libaed)
+      GETAED="true"
       ;;
     libplot)
       GETPLOT="true"
@@ -79,9 +79,9 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
-if [ "$GETFVAED" = "true" ] ; then rep_list="$rep_list libfvaed2" ; fi
-if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
-if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed2-plus" ; fi
+if [ "$GETAEDFV" = "true" ] ; then rep_list="$rep_list libaed-fv" ; fi
+if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-water libaed-benthic libaed-demo" ; fi
+if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed-riparian libaed-dev" ; fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
 if [ "$GET_ALM" = "true" ]  ; then rep_list="$rep_list ALM" ; fi
@@ -183,11 +183,11 @@ if [ $count = 0 ] ; then
   echo
   echo "where <repo> can be one or more of :"
   echo "  glm     : get glm [and it's dependancies]"
-  echo "  libaed2 : fetch the libaed2 sources"
+  echo "  libaed  : fetch the libaed sources"
   echo "  libplot : fetch the libplot sources"
   echo "  libutil : fetch the libutil sources"
-  echo "  plus    : fetch the libaed2-plus sources (private repository)"
-  echo "  fvaed2  : fetch the libfvaed2 sources"
+  echo "  plus    : fetch the libaed-* plus sources (private repository)"
+  echo "  aed-fv  : fetch the libaed-fv sources"
   echo "  fabm    : fetch the fabm sources (possible dependancy for glm)"
   echo
   echo "  all     : fetch them all"

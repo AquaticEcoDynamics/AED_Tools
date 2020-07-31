@@ -81,9 +81,6 @@ export F95=$FC
 
 export MPI=OPENMPI
 
-if [ "$AED2DIR" = "" ] ; then
-  export AED2DIR=../libaed2
-fi
 if [ "$PLOTDIR" = "" ] ; then
   export PLOTDIR=../libplot
 fi
@@ -122,16 +119,33 @@ if [ "$FABM" = "true" ] ; then
   make || exit 1
 fi
 
-if [ "${AED2}" = "true" ] ; then
-  cd ${AED2DIR}
+if [ "${AED}" = "true" ] ; then
+  cd  ${CURDIR}/../libaed-water
   make || exit 1
-  cd ..
-  if [ "${AED2PLS}" != "" ] ; then
-    if [ -d ${AED2PLS} ] ; then
-      cd ${AED2PLS}
-      make || exit 1
-      cd ..
-    fi
+  DAEDWATDIR=`pwd`
+  if [ -d ${CURDIR}/../libaed-benthic ] ; then
+    echo build libaed-benthic
+    cd  ${CURDIR}/../libaed-benthic
+    make || exit 1
+    DAEDBENDIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-riparian ] ; then
+    echo build libaed-riparian
+    cd  ${CURDIR}/../libaed-riparian
+    make || exit 1
+    DAEDRIPDIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-demo ] ; then
+    echo build libaed-demo
+    cd  ${CURDIR}/../libaed-demo
+    make || exit 1
+    DAEDDMODIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-dev ] ; then
+    echo build libaed-dev
+    cd  ${CURDIR}/../libaed-dev
+    make || exit 1
+    DAEDDEVDIR=`pwd`
   fi
 fi
 
@@ -144,10 +158,10 @@ cd ${UTILDIR}
 make || exit 1
 
 cd ${CURDIR}
-make || exit 1
-if [ -d ${AED2PLS} ] ; then
-  make glm+ || exit 1
-fi
+/bin/rm obj/aed_external.o
+make AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
+/bin/rm obj/aed_external.o
+make glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
 
 
 VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
@@ -164,7 +178,7 @@ if [ "$OSTYPE" = "Linux" ] ; then
       mkdir -p binaries/ubuntu/$(lsb_release -rs)/
     fi
     cd ${CURDIR}
-    if [ -d ${AED2PLS} ] ; then
+    if [ -x glm+ ] ; then
        /bin/cp debian/control-with+ debian/control
     else
        /bin/cp debian/control-no+ debian/control
@@ -205,7 +219,7 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   /bin/bash macpkg.sh ${HOMEBREW}
   mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
 
-  if [ -d ${AED2PLS} ] ; then
+  if [ -x glm+ ] ; then
     /bin/bash macpkg.sh ${HOMEBREW} glm+
     mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
   fi

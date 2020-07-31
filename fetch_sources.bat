@@ -12,14 +12,14 @@ SET GITHOST=https://github.com/AquaticEcoDynamics/
 
 if "%1"=="" (
   REM # The default case is to just update
-  SET GETAED2=false
+  SET GETAED=false
   SET GETPLOT=false
   SET GETUTIL=false
   SET GETFABM=false
   SET GET_GLM=false
   SET GETPLUS=false
-  SET GETFVAED=false
-  SET upd_list=libaed2;libplot;libutil;GLM;libfvaed2;libaed2-plus
+  SET GETAEDFV=false
+  SET upd_list=libaed-water;libaed-benthic;libaed-riparian;libaed-demo;libaed-dev;libplot;libutil;GLM;libaed-fv
 )
 
 REM #-------------------------------------------------------------------------------
@@ -28,26 +28,26 @@ REM #---------------------------------------------------------------------------
   if "%1"=="" ( GOTO :loop0end )
 
   if "%1"=="all" (
-      SET GETAED2=true
+      SET GETAED=true
       SET GETPLOT=true
       SET GETUTIL=true
       SET GETFABM=true
       SET GET_GLM=true
       SET GETPLUS=true
-      SET GETFVAED=true
+      SET GETAEDFV=true
   )
   if /i "%1"=="glm" (
-      SET GETAED2=true
+      SET GETAED=true
       SET GETPLOT=true
       SET GETUTIL=true
       SET GETFABM=true
       SET GET_GLM=true
   )
-  if "%1"=="fvaed2" (
-      SET GETFVAED=true
-      SET GETAED2=true
+  if "%1"=="aed-fv" (
+      SET GETAEDFV=true
+      SET GETAED=true
   )
-  if "%1"=="libaed2" (SET GETAED2=true)
+  if "%1"=="libaed"  (SET GETAED=true)
   if "%1"=="libplot" (SET GETPLOT=true)
   if "%1"=="libutil" (SET GETUTIL=true)
   if "%1"=="plus"    (SET GETPLUS=true)
@@ -66,9 +66,9 @@ REM #---------------------------------------------------------------------------
 :loop0end
 
 if "%GET_GLM%"=="true"  ( SET rep_list=%rep_list%;GLM )
-if "%GETFVAED%"=="true" ( SET rep_list=%rep_list%;libfvaed2 )
-if "%GETAED2%"=="true"  ( SET rep_list=%rep_list%;libaed2 )
-if "%GETPLUS%"=="true"  ( SET rep_list=%rep_list%;libaed2-plus )
+if "%GETAEDFV%"=="true" ( SET rep_list=%rep_list%;libaed-fv )
+if "%GETAED%"=="true"   ( SET rep_list=%rep_list%;libaed-water;libaed-benthic;libaed-demo )
+if "%GETPLUS%"=="true"  ( SET rep_list=%rep_list%;libaed-riparian;libaed-dev )
 if "%GETPLOT%"=="true"  ( SET rep_list=%rep_list%;libplot )
 if "%GETUTIL%"=="true"  ( SET rep_list=%rep_list%;libutil )
 
@@ -128,11 +128,11 @@ if !count! EQU 0 (
   @echo ""
   @echo "where <repo> can be one or more of :"
   @echo "  glm     : get glm [and it's dependancies]"
-  @echo "  libaed2 : fetch the libaed2 sources"
+  @echo "  libaed  : fetch the libaed sources"
   @echo "  libplot : fetch the libplot sources"
   @echo "  libutil : fetch the libutil sources"
-  @echo "  plus    : fetch the libaed2-plus sources (private repository)"
-  @echo "  fvaed2  : fetch the libfvaed2 sources"
+  @echo "  plus    : fetch the libaed-* plus sources (private repository)"
+  @echo "  aed-fv  : fetch the libaed-fv sources"
   @echo "  fabm    : fetch the fabm sources (possible dependancy for glm)"
   @echo ""
   @echo "  all     : fetch them all"

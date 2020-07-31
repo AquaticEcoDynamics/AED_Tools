@@ -49,7 +49,7 @@ do_diffs_here () {
 # This should be the AED_Tools directory
 do_diffs_here tools
 
-for src in libplot libutil libaed2 libaed2-plus GLM libfvaed2 TUFLOWFV ; do
+for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev GLM libaed-fv ; do
   echo "===================================================="
   if [ -d $src ] ; then
     cd $src

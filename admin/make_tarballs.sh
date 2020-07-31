@@ -42,14 +42,29 @@ if [ -d libutil ] ; then
   do_tarball libutil ${UTILVRS}
 fi
 
-if [ -d libaed2 ] ; then
-  AED2VRS=`grep AED2_VERSION libaed2/include/aed2.h | cut -f2 -d\"`
-  do_tarball libaed2 ${AED2VRS}
+if [ -d libaed-water ] ; then
+  AEDVRS=`grep AED_VERSION libaed-water/include/aed.h | cut -f2 -d\"`
+  do_tarball libaed-water ${AEDVRS}
 fi
 
-if [ -d libaed2-plus ] ; then
-  AED2VRS=`grep AED2_PLUS_VERSION libaed2-plus/include/aed2+.h | cut -f2 -d\"`
-  do_tarball libaed2-plus ${AED2VRS}
+if [ -d libaed-benthic ] ; then
+  AEDVRS=`grep AED_VERSION libaed-water/include/aed.h | cut -f2 -d\"`
+  do_tarball libaed-benthic ${AEDVRS}
+fi
+
+if [ -d libaed-demo ] ; then
+  AEDVRS=`grep AED_VERSION libaed-water/include/aed.h | cut -f2 -d\"`
+  do_tarball libaed-demo ${AEDVRS}
+fi
+
+if [ -d libaed-riparian ] ; then
+  AEDVRS=`grep AED_PLUS_VERSION libaed-water/include/aed+.h | cut -f2 -d\"`
+  do_tarball libaed-riparian ${AEDVRS}
+fi
+
+if [ -d libaed-dev ] ; then
+  AEDVRS=`grep AED_PLUS_VERSION libaed-water/include/aed+.h | cut -f2 -d\"`
+  do_tarball libaed-dev ${AEDVRS}
 fi
 
 if [ -d GLM ] ; then

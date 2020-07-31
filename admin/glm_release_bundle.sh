@@ -16,8 +16,14 @@ tar cf - libplot | (cd tttt; tar xf -)
 tar cf - libutil | (cd tttt; tar xf -)
 /bin/rm -rf tttt/libutil/.git*
 
-tar cf - libaed2 | (cd tttt; tar xf -)
-/bin/rm -rf tttt/libaed2/.git*
+tar cf - libaed-water | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed-water/.git*
+
+tar cf - libaed-benthic | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed-benthic/.git*
+
+tar cf - libaed-demo | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed-demo/.git*
 
 GLM_VRS=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
 tar cf - GLM | (cd tttt; tar xf -)
@@ -30,9 +36,12 @@ tar czf GLM-${GLM_VRS}.tar.gz GLM-${GLM_VRS}
 zip -r GLM-${GLM_VRS}.zip GLM-${GLM_VRS}
 mv GLM-${GLM_VRS} tttt
 
-if [ -d libaed2-plus ] ; then
-  tar cf - libaed2-plus | (cd tttt; tar xf -)
-  /bin/rm -rf tttt/libaed2-plus/.git*
+if [ -d libaed-dev ] ; then
+  tar cf - libaed-riparian | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed-riparian/.git*
+
+  tar cf - libaed-dev | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed-dev/.git*
 
   mv tttt GLM_Plus-${GLM_VRS}
   tar czf GLM_Plus-${GLM_VRS}.tar.gz GLM_Plus-${GLM_VRS}

@@ -10,32 +10,35 @@ fi
 
 mkdir tttt
 
-tar cf - libaed2 | (cd tttt; tar xf -)
-/bin/rm -rf tttt/libaed2/.git*
+tar cf - libaed-water | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed-water/.git*
 
-FV_VRS=`grep FV_AED_VERS libfvaed2/src/fv_aed2.F90 | grep -w define | cut -f2 -d\"`
-tar cf - libfvaed2 | (cd tttt; tar xf -)
-/bin/rm -rf tttt/libfvaed2/.git*
+FV_VRS=`grep FV_AED_VERS libaed-fv/src/fv_aed.F90 | grep -w define | cut -f2 -d\"`
+tar cf - libaed-fv | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed-fv/.git*
 
-tar cf - admin build_libfvaed2.sh build.sh Notes READ* fetch* | (cd tttt; tar xf -)
+tar cf - admin build_libaed-fv.sh build.sh Notes READ* fetch* | (cd tttt; tar xf -)
 
-mv tttt libfvaed2-${FV_VRS}
-tar czf libfvaed2-${FV_VRS}.tar.gz libfvaed2-${FV_VRS}
-zip -r libfvaed2-${FV_VRS}.zip libfvaed2-${FV_VRS}
-mv libfvaed2-${FV_VRS} tttt
+mv tttt libaed_fv-${FV_VRS}
+tar czf libaed_fv-${FV_VRS}.tar.gz libaed_fv-${FV_VRS}
+zip -r libaed_fv-${FV_VRS}.zip libaed_fv-${FV_VRS}
+mv libaed_fv-${FV_VRS} tttt
 
-if [ -d libaed2-plus ] ; then
-  tar cf - libaed2-plus | (cd tttt; tar xf -)
-  /bin/rm -rf tttt/libaed2-plus/.git*
+if [ -d libaed-dev ] ; then
+  tar cf - libaed-riparian | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed-riparian/.git*
 
-  mv tttt libfvaed2_Plus-${FV_VRS}
-  tar czf libfvaed2_Plus-${FV_VRS}.tar.gz libfvaed2_Plus-${FV_VRS}
-  zip -r libfvaed2_Plus-${FV_VRS}.zip libfvaed2_Plus-${FV_VRS}
-  mv libfvaed2_Plus-${FV_VRS} tttt
+  tar cf - libaed-dev | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed-dev/.git*
+
+  mv tttt libaed_fv_Plus-${FV_VRS}
+  tar czf libaed_fv_Plus-${FV_VRS}.tar.gz libaed_fv_Plus-${FV_VRS}
+  zip -r libaed_fv_Plus-${FV_VRS}.zip libaed_fv_Plus-${FV_VRS}
+  mv libaed_fv_Plus-${FV_VRS} tttt
 fi
 
 /bin/rm -rf tttt
 mkdir -p binaries/sources
-mv libfvaed2-${FV_VRS}.tar.gz libfvaed2-${FV_VRS}.zip libfvaed2_Plus-${FV_VRS}.tar.gz libfvaed2_Plus-${FV_VRS}.zip binaries/sources
+mv libaed_fv-${FV_VRS}.tar.gz libaed_fv-${FV_VRS}.zip libaed_fv_Plus-${FV_VRS}.tar.gz libaed_fv_Plus-${FV_VRS}.zip binaries/sources
 
 exit 0

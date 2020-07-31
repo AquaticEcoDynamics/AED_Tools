@@ -37,7 +37,7 @@
 1) Get the AED_Tools and unpack it.
        git clone https://github.com/AquaticEcoDynamics/AED_Tools
 
-2) In the base directory get glm, libaed2, libplot and libutil
+2) In the base directory get glm, libaed-*, libplot and libutil
        ./fetch_sources.sh glm
 
 3) GLM may be built with FABM, but not all FABM releases will compile with GLM.
@@ -52,7 +52,7 @@
                                    |
               +-------------+------+------+-----------+----------+
               |             |             |           |          |
-          fabm-git         GLM         libplot     libutil    libaed2
+          fabm-git         GLM         libplot     libutil    libaed-*
 
 5) For linux you should be able to build with:
 
