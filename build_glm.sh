@@ -158,10 +158,15 @@ cd ${UTILDIR}
 make || exit 1
 
 cd ${CURDIR}
-/bin/rm obj/aed_external.o
+if [ -f obj/aed_external.o ] ; then
+  /bin/rm obj/aed_external.o
+fi
 make AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
-/bin/rm obj/aed_external.o
-make glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
+if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
+  echo now build plus version
+  /bin/rm obj/aed_external.o
+  make glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
+fi
 
 
 VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
@@ -219,9 +224,11 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   /bin/bash macpkg.sh ${HOMEBREW}
   mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
 
-  if [ -x glm+ ] ; then
+  if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
     /bin/bash macpkg.sh ${HOMEBREW} glm+
     mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
+  else
+    echo No GLM+
   fi
 
   cd ${CURDIR}/..

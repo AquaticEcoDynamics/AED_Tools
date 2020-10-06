@@ -11,6 +11,18 @@ for i in water benthic riparian demo dev fv ; do
    fi
 done
 
+if [ -d libplot ] ; then
+   cd  libplot
+   make distclean
+   cd ..
+fi
+
+if [ -d libutil ] ; then
+   cd  libutil
+   make distclean
+   cd ..
+fi
+
 if [ -d gotm-git ] ; then
   export GOTMDIR=${CWD}/gotm-git
   export FORTRAN_COMPILER=IFORT
