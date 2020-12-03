@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 cd GLM
-. GLM_CONFIG
+. ./GLM_CONFIG
 cd ..
 
 while [ $# -gt 0 ] ; do
@@ -25,7 +25,7 @@ while [ $# -gt 0 ] ; do
 done
 
 export OSTYPE=`uname -s`
-if [ "$OSTYPE" == "Darwin" ] ; then
+if [ "$OSTYPE" = "Darwin" ] ; then
   if [ "$HOMEBREW" = "" ] ; then
     brew -v >& /dev/null
     if [ $? != 0 ] ; then
@@ -46,9 +46,9 @@ fi
 # will have gfortran at version 7 but also gfortran version 8 as gfortran-8
 # if we can't find gfortran default to ifort
 if [ "$FC" = "" ] ; then
-  gfortran-8 -v >& /dev/null
+  gfortran-8 -v > /dev/null 2>&1
   if [ $? != 0 ] ; then
-    gfortran -v >& /dev/null
+    gfortran -v > /dev/null 2>&1
     if [ $? != 0 ] ; then
       export FC=ifort
     else
@@ -68,7 +68,7 @@ if [ "$FC" = "ifort" ] ; then
    if [ -d /opt/intel/bin ] ; then
       . /opt/intel/bin/compilervars.sh intel64
    fi
-   which ifort >& /dev/null
+   which ifort > /dev/null 2>&1
    if [ $? != 0 ] ; then
       echo ifort compiler requested, but not found
       exit 1
@@ -93,7 +93,7 @@ if [ "$FABM" = "true" ] ; then
     echo "FABM directory not found"
     export FABM=false
   else
-    which cmake >& /dev/null
+    which cmake > /dev/null 2>&1
     if [ $? != 0 ] ; then
       echo "cmake not found - FABM cannot be built"
       export FABM=false
@@ -224,7 +224,7 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   /bin/bash macpkg.sh ${HOMEBREW}
   mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
 
-  if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
+  if [ "${DAEDDEVDIR}" != "" -a -d "${DAEDDEVDIR}" ] ; then
     /bin/bash macpkg.sh ${HOMEBREW} glm+
     mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
   else
