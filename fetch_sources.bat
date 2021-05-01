@@ -19,7 +19,7 @@ if "%1"=="" (
   SET GET_GLM=false
   SET GETPLUS=false
   SET GETAEDFV=false
-  SET upd_list=libaed-water;libaed-benthic;libaed-riparian;libaed-demo;libaed-dev;libplot;libutil;GLM;libaed-fv
+  SET upd_list=libaed-water;libaed-benthic;libaed-demo;libaed-riparian;libaed-dev;libplot;libutil;GLM;libaed-fv
 )
 
 REM #-------------------------------------------------------------------------------

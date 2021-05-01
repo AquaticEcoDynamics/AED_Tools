@@ -10,6 +10,7 @@ count=0
 if [ $# = 0 ] ; then
   # The default case is to just update
   GETAED="false"
+  GETAED2="false"
   GETPLOT="false"
   GETUTIL="false"
   GETFABM="false"
@@ -18,7 +19,7 @@ if [ $# = 0 ] ; then
   GETFVAED="false"
   GET_ALM="false"
   GET_EGS="false"
-  upd_list="libaed-water libaed-benthic libaed-riparian libaed-demo libaed-dev libplot libutil GLM libaed-fv fabm-git"
+  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libplot libutil GLM libaed-fv fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -49,6 +50,9 @@ while [ $# -gt 0 ] ; do
     aed-fv)
       GETAEDFV="true"
       GETAED="true"
+      ;;
+    libaed2)
+      GETAED2="true"
       ;;
     libaed)
       GETAED="true"
@@ -81,7 +85,11 @@ done
 if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
 if [ "$GETAEDFV" = "true" ] ; then rep_list="$rep_list libaed-fv" ; fi
 if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-water libaed-benthic libaed-demo" ; fi
-if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed-riparian libaed-dev" ; fi
+if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
+if [ "$GETPLUS" = "true" ]  ; then
+    rep_list="$rep_list libaed-riparian libaed-dev"
+    if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2-plus" ; fi
+fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
 if [ "$GET_ALM" = "true" ]  ; then rep_list="$rep_list ALM" ; fi

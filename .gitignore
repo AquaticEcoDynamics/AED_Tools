@@ -3,6 +3,8 @@
 *.diff
 GLM*
 libaed-*
+libaed2
+libaed2-plus
 libplot
 libutil
 binaries

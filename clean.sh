@@ -11,6 +11,15 @@ for i in water benthic riparian demo dev fv ; do
    fi
 done
 
+for i in 2 2-plus ; do
+   echo clean libaed$i
+   if [ -d libaed$i ] ; then
+     cd  libaed$i
+     make distclean
+     cd ..
+   fi
+done
+
 if [ -d libplot ] ; then
    cd  libplot
    make distclean
