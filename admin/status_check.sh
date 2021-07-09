@@ -25,7 +25,7 @@ git status
 REPO=`cat .git/config | grep -w url | head -n 1 | cut -f2 -d=`
 if [ $verbose ] ; then check_remote $REPO; fi
 
-for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev GLM libaed-fv fabm-git ; do
+for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev GLM libaed-fv libaed2 libaed2-plus fabm-git ; do
   if [ -d $src ] ; then
     REPO=`cat $src/.git/config | grep -w url | head -n 1 | cut -f2 -d=`
     echo "===================================================="
