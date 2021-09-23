@@ -25,6 +25,9 @@ tar cf - libaed-benthic | (cd tttt; tar xf -)
 tar cf - libaed-demo | (cd tttt; tar xf -)
 /bin/rm -rf tttt/libaed-demo/.git*
 
+tar cf - libaed2 | (cd tttt; tar xf -)
+/bin/rm -rf tttt/libaed2/.git*
+
 GLM_VRS=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
 tar cf - GLM | (cd tttt; tar xf -)
 /bin/rm -rf tttt/GLM/.git*
@@ -43,6 +46,11 @@ if [ -d libaed-dev ] ; then
   tar cf - libaed-dev | (cd tttt; tar xf -)
   /bin/rm -rf tttt/libaed-dev/.git*
 
+  tar cf - libaed2-plus | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed2-plus/.git*
+
+  /bin/rm `find tttt/ -name .DS_Store
+  /bin/rm `find tttt/ -name ._.DS_Store
   mv tttt GLM_Plus-${GLM_VRS}
   tar czf GLM_Plus-${GLM_VRS}.tar.gz GLM_Plus-${GLM_VRS}
   zip -r GLM_Plus-${GLM_VRS}.zip GLM_Plus-${GLM_VRS}

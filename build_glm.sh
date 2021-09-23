@@ -4,6 +4,8 @@ cd GLM
 . ./GLM_CONFIG
 cd ..
 
+# export FC=ifort
+
 while [ $# -gt 0 ] ; do
   case $1 in
     --debug)
@@ -14,6 +16,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --fabm)
       export FABM=true
+      ;;
+    --gfort)
+      export FC=gfortran
       ;;
     --ifort)
       export FC=ifort

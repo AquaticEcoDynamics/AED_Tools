@@ -19,7 +19,7 @@ if [ $# = 0 ] ; then
   GETFVAED="false"
   GET_ALM="false"
   GET_EGS="false"
-  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libplot libutil GLM libaed-fv fabm-git"
+  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
