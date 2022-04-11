@@ -2,61 +2,32 @@
 
 CWD=`pwd`
 
+if [ "$FC" = "" ] ; then
+  export FC=gfortran
+fi
+export MAKE=make
+export OSTYPE=`uname -s`
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  export MAKE=gmake
+  export FC=flang
+fi
+
 for i in water benthic riparian demo dev fv ; do
    echo clean libaed-$i
    if [ -d libaed-$i ] ; then
      cd  libaed-$i
-     make distclean
+     ${MAKE} distclean
      cd ..
    fi
 done
 
-for i in 2 2-plus ; do
-   echo clean libaed$i
-   if [ -d libaed$i ] ; then
-     cd  libaed$i
-     make distclean
+for i in libaed2 libaed2-plus libplot libutil GLM ; do
+   echo clean $i
+   if [ -d $i ] ; then
+     cd  $i
+     ${MAKE} distclean
      cd ..
    fi
 done
-
-if [ -d libplot ] ; then
-   cd  libplot
-   make distclean
-   cd ..
-fi
-
-if [ -d libutil ] ; then
-   cd  libutil
-   make distclean
-   cd ..
-fi
-
-if [ -d gotm-git ] ; then
-  export GOTMDIR=${CWD}/gotm-git
-  export FORTRAN_COMPILER=IFORT
-  cd gotm-git
-  make distclean
-  cd ..
-fi
-
-if [ -d tuflowfv-svn ] ; then
-  export OSTYPE=`uname -s`
-  if [ "${OSTYPE}" = "Linux" ] ; then
-    PLATFORM=linux_ifort
-  elif [ "${OSTYPE}" = "Darwin" ] ; then
-    PLATFORM=macos_ifort
-  fi
-
-  cd ${CWD}/tuflowfv-svn/platform/${PLATFORM}
-  make clean
-  cd ..
-fi
-
-if [ -d GLM ] ; then
-  cd ${CWD}/GLM
-  make distclean
-  cd ..
-fi
 
 exit 0
