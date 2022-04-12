@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # libfv_release_bundle.sh
 #
@@ -21,7 +21,8 @@ while [ $# -gt 0 ] ; do
       export DO_TAG=true
       export WITH_TAG="$1"
       if [ $# -gt 1 ] ; then
-         if [[ "$2" != "--"* ]] ; then
+#        if [[ "$2" != "--"* ]] ; then
+         if [ "${2#--*}" = "$2" ] ; then
            LFV_VRS="$2"
            shift
          fi
@@ -29,7 +30,8 @@ while [ $# -gt 0 ] ; do
       ;;
     --tag)
       if [ $# -gt 1 ] ; then
-         if [[ "$2" != "--"* ]] ; then
+#        if [[ "$2" != "--"* ]] ; then
+         if [ "${2#--*}" = "$2" ] ; then
             HAVE_TAG="$2"
          fi
       fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Replace tabs with spaces (set at 4 space stops)
 

@@ -4,7 +4,8 @@ cd GLM
 . ./GLM_CONFIG
 cd ..
 
-# export FC=ifort
+# keep the default as ifort in the common 'Tuflow' folder
+export FC=ifort
 
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -22,6 +23,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --ifort)
       export FC=ifort
+      ;;
+    --flang)
+      export FC=flang
       ;;
     *)
       ;;
@@ -47,7 +51,9 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 else
   if [ "$OSTYPE" = "FreeBSD" ] ; then
-    export FC=flang
+    if [ "$FC" = "" ] ; then
+      export FC=flang
+    fi
     export MAKE=gmake
   fi
 fi
@@ -158,17 +164,17 @@ if [ "${AED}" = "true" ] ; then
     ${MAKE} || exit 1
     DAEDBENDIR=`pwd`
   fi
-  if [ -d ${CURDIR}/../libaed-riparian ] ; then
-    echo build libaed-riparian
-    cd  ${CURDIR}/../libaed-riparian
-    ${MAKE} || exit 1
-    DAEDRIPDIR=`pwd`
-  fi
   if [ -d ${CURDIR}/../libaed-demo ] ; then
     echo build libaed-demo
     cd  ${CURDIR}/../libaed-demo
     ${MAKE} || exit 1
     DAEDDMODIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-riparian ] ; then
+    echo build libaed-riparian
+    cd  ${CURDIR}/../libaed-riparian
+    ${MAKE} || exit 1
+    DAEDRIPDIR=`pwd`
   fi
   if [ -d ${CURDIR}/../libaed-dev ] ; then
     echo build libaed-dev
@@ -198,7 +204,7 @@ if [ -f obj/aed_external.o ] ; then
   /bin/rm obj/aed_external.o
 fi
 ${MAKE} AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
-if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
+if [ "${DAEDDEVDIR}" != "" ] && [ -d ${DAEDDEVDIR} ] ; then
   echo now build plus version
   /bin/rm obj/aed_external.o
   ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1

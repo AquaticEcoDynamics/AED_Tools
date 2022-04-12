@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # glm_release_bundle.sh
 #
@@ -16,7 +16,7 @@ while [ $# -gt 0 ] ; do
       export DO_TAG=true
       export WITH_TAG="$1"
       if [ $# -gt 1 ] ; then
-         if [[ "$2" != "--"* ]] ; then
+         if [ "${2#--*}" = "$2" ] ; then
            GLM_VRS="$2"
            shift
          fi
@@ -45,7 +45,6 @@ fi
 if [ "${DO_TAG}" = "true" ] ; then
   export PRTAG="GLM_${GLM_VRS}"
 fi
-echo PRTAG=${PRTAG}
 
 ./admin/libaed_release_bundle.sh ${WITH_TAG} --tag "${PRTAG}"
 mkdir tttt

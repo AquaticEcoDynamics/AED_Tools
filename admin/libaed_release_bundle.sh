@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 #
 # libaed_release_bundle.sh
 #
 # Script to bundle up libaed-* as a libaed.tgz
 
 CWD=`pwd`
+
 
 export AED_VRS=""
 export DO_TAG=""
@@ -17,7 +18,7 @@ while [ $# -gt 0 ] ; do
       export DO_TAG=true
       export WITH_TAG="$1"
       if [ $# -gt 1 ] ; then
-         if [[ "$2" != "--"* ]] ; then
+         if [ "${2#--*}" = "$2" ] ; then
            AED_VRS="$2"
            shift
          fi
@@ -25,8 +26,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --tag)
       if [ $# -gt 1 ] ; then
-         if [[ "$2" != "--"* ]] ; then
-            HAVE_TAG="$2"
+         if [ "${2#--*}" = "$2" ] ; then
+           export HAVE_TAG="$2"
+           shift
          fi
       fi
       ;;

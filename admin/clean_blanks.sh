@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Strip trailing blanks off source files
 
@@ -13,6 +13,7 @@ PLOTDIR=libplot
 GLMDIR=GLM
 GLMEGS=GLM_Examples
 AEDFV=libaed-fv
+AEDEX=flang_extra
 
 strip_file () {
     FILE=$1
@@ -34,10 +35,10 @@ strip_file () {
     fi
 }
 
-for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${GLMEGS} ${UTILDIR} ${PLOTDIR} ${AEDDIR} ${AEDPLS} ${AEDFV} ; do
+for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR} ${GLMEGS} ${UTILDIR} ${PLOTDIR} ${AEDDIR} ${AEDPLS} ${AEDFV} ${AEDEX} ; do
    if [ -d $k ] ; then
       cd $k
-      for j in 'F90' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
+      for j in 'f90' 'F90' 'F95' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
          echo "cleaning trailing spaces in $k/\*.$j"
          for i in `find . -name \*.$j` ;  do
             strip_file $i
@@ -57,7 +58,9 @@ done
 if [ -d ${GLMDIR} ] ; then
   cd ${GLMDIR}
   for i in *.sh .gitignore README* GLM_CONFIG RELEASE-NOTES ; do
-     strip_file $i
+     if [ -f $i ] ; then
+       strip_file $i
+     fi
   done
   cd ..
 fi
