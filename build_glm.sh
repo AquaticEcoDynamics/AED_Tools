@@ -1,11 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 cd GLM
 . ./GLM_CONFIG
 cd ..
 
-# keep the default as ifort in the common 'Tuflow' folder
-export FC=ifort
+# export FC=ifort
 
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -23,9 +22,6 @@ while [ $# -gt 0 ] ; do
       ;;
     --ifort)
       export FC=ifort
-      ;;
-    --flang)
-      export FC=flang
       ;;
     *)
       ;;
@@ -51,9 +47,7 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 else
   if [ "$OSTYPE" = "FreeBSD" ] ; then
-    if [ "$FC" = "" ] ; then
-      export FC=flang
-    fi
+    export FC=flang
     export MAKE=gmake
   fi
 fi
@@ -164,17 +158,17 @@ if [ "${AED}" = "true" ] ; then
     ${MAKE} || exit 1
     DAEDBENDIR=`pwd`
   fi
-  if [ -d ${CURDIR}/../libaed-demo ] ; then
-    echo build libaed-demo
-    cd  ${CURDIR}/../libaed-demo
-    ${MAKE} || exit 1
-    DAEDDMODIR=`pwd`
-  fi
   if [ -d ${CURDIR}/../libaed-riparian ] ; then
     echo build libaed-riparian
     cd  ${CURDIR}/../libaed-riparian
     ${MAKE} || exit 1
     DAEDRIPDIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-demo ] ; then
+    echo build libaed-demo
+    cd  ${CURDIR}/../libaed-demo
+    ${MAKE} || exit 1
+    DAEDDMODIR=`pwd`
   fi
   if [ -d ${CURDIR}/../libaed-dev ] ; then
     echo build libaed-dev
@@ -204,7 +198,7 @@ if [ -f obj/aed_external.o ] ; then
   /bin/rm obj/aed_external.o
 fi
 ${MAKE} AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
-if [ "${DAEDDEVDIR}" != "" ] && [ -d ${DAEDDEVDIR} ] ; then
+if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
   echo now build plus version
   /bin/rm obj/aed_external.o
   ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
@@ -272,6 +266,30 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   else
     echo No GLM+
   fi
+
+  cd ${CURDIR}/..
+fi
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  USRENV=`uname -K`
+  if [ ! -d "binaries/freebsd/${USRENV}" ] ; then
+    mkdir -p binaries/freebsd/${USRENV}
+  fi
+
+  cd ${CURDIR}/freebsd
+
+  VERSRUL=`grep '^version:' create_pkg.sh | cut -f2 -d\"`
+  if [ "$VERSION" != "$VERSRUL" ] ; then
+    echo sed -e "s/version: \"${VERSRUL}\"/version: \"${VERSION}\"/" -i.x create_pkg.sh
+    sed -e "s/version: \"${VERSRUL}\"/version: \"${VERSION}\"/" -i.x create_pkg.sh
+    /bin/rm create_pkg.sh.x
+  fi
+
+  /bin/sh create_pkg.sh glm
+  if [ -x ../glm+ ] ; then
+    /bin/sh create_pkg.sh glm+
+  fi
+
+  mv *.pkg ${CURDIR}/../binaries/freebsd/${USRENV}
 
   cd ${CURDIR}/..
 fi
