@@ -23,6 +23,9 @@ while [ $# -gt 0 ] ; do
     --ifort)
       export FC=ifort
       ;;
+    --flang)
+      export FC=flang
+      ;;
     *)
       ;;
   esac
@@ -47,7 +50,9 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 else
   if [ "$OSTYPE" = "FreeBSD" ] ; then
-    export FC=flang
+    if [ "$FC" = "" ] ; then
+      export FC=flang
+    fi
     export MAKE=gmake
   fi
 fi
@@ -187,7 +192,7 @@ cd ${UTILDIR}
 ${MAKE} || exit 1
 
 cd ${CURDIR}/..
-if [ "$FC" = "flang" ] && [ -d flang_extra ] ; then
+if [ "$FC" = "flang" -a -d flang_extra ] ; then
   echo making flang extras
   cd flang_extra
   ${MAKE} || exit 1
