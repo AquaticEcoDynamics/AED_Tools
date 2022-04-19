@@ -1,7 +1,5 @@
 #!/bin/sh
 
-cd libaed-fv
-cd ..
 export SINGLE=false
 export PRECISION=1
 export PLOTS=false
@@ -45,24 +43,36 @@ done
 export OSTYPE=`uname -s`
 
 export MAKE=make
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  if [ "$FC" = "" ] ; then
+    export FC=flang
+  fi
+  export MAKE=gmake
+fi
+
 if [ "$FC" = "" ] ; then
   export FC=ifort
-  if [ "$OSTYPE" = "FreeBSD" ] ; then
-    export FC=flang
-    export MAKE=gmake
-  else
-    export FC=ifort
-  fi
 fi
 
 if [ "$FC" = "ifort" ] ; then
-  if [ -d /opt/intel/bin ] ; then
-    . /opt/intel/bin/compilervars.sh intel64
+  export start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
+  # ifort config scripts wont work with /bin/sh
+  # so we restart using bash
+  if [ "$start_sh" = "/bin/sh" ] ; then
+    /bin/bash $0
+    exit $?
   fi
-  which ifort > /dev/null 2>&1
-  if [ $? != 0 ] ; then
-    echo ifort compiler requested, but not found
-    exit 1
+  if [ -d /opt/intel/oneapi ] ; then
+     . /opt/intel/oneapi/setvars.sh
+  else
+    if [ -d /opt/intel/bin ] ; then
+       . /opt/intel/bin/compilervars.sh intel64
+    fi
+    which ifort > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+       echo ifort compiler requested, but not found
+       exit 1
+    fi
   fi
 fi
 

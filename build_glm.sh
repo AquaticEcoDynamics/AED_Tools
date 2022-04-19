@@ -79,6 +79,13 @@ if [ "$FC" = "" ] ; then
 fi
 
 if [ "$FC" = "ifort" ] ; then
+  start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')"
+  # ifort config scripts wont work with /bin/sh
+  # so we restart using bash
+  if [ "$start_sh" = "/bin/sh" ] ;  then
+     /bin/bash $0
+     exit $?
+  fi
   if [ -d /opt/intel/oneapi ] ; then
      . /opt/intel/oneapi/setvars.sh
   else
@@ -163,17 +170,17 @@ if [ "${AED}" = "true" ] ; then
     ${MAKE} || exit 1
     DAEDBENDIR=`pwd`
   fi
-  if [ -d ${CURDIR}/../libaed-riparian ] ; then
-    echo build libaed-riparian
-    cd  ${CURDIR}/../libaed-riparian
-    ${MAKE} || exit 1
-    DAEDRIPDIR=`pwd`
-  fi
   if [ -d ${CURDIR}/../libaed-demo ] ; then
     echo build libaed-demo
     cd  ${CURDIR}/../libaed-demo
     ${MAKE} || exit 1
     DAEDDMODIR=`pwd`
+  fi
+  if [ -d ${CURDIR}/../libaed-riparian ] ; then
+    echo build libaed-riparian
+    cd  ${CURDIR}/../libaed-riparian
+    ${MAKE} || exit 1
+    DAEDRIPDIR=`pwd`
   fi
   if [ -d ${CURDIR}/../libaed-dev ] ; then
     echo build libaed-dev
