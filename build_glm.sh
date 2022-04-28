@@ -4,7 +4,7 @@ cd GLM
 . ./GLM_CONFIG
 cd ..
 
-# export FC=ifort
+#export FC=ifort
 
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -225,10 +225,16 @@ ${CURDIR}/vers.sh $VERSION
 #${CURDIR}/vers.sh $VERSION
 cd ${CURDIR}/..
 
+
+# =====================================================================
+# Package building bit
+
+# ***************************** Linux *********************************
 if [ "$OSTYPE" = "Linux" ] ; then
   if [ $(lsb_release -is) = Ubuntu ] ; then
-    if [ ! -d binaries/ubuntu/$(lsb_release -rs) ] ; then
-      mkdir -p binaries/ubuntu/$(lsb_release -rs)/
+    BINPATH=binaries/ubuntu/$(lsb_release -rs)
+    if [ ! -d "${BINPATH}" ] ; then
+      mkdir -p "${BINPATH}"/
     fi
     cd ${CURDIR}
     if [ -x glm+ ] ; then
@@ -251,40 +257,47 @@ if [ "$OSTYPE" = "Linux" ] ; then
 
     cd ..
 
-    mv glm*.deb binaries/ubuntu/$(lsb_release -rs)/
+    mv glm*.deb ${BINPATH}/
   else
+    BINPATH="binaries/$(lsb_release -is)/$(lsb_release -rs)"
     echo "No package build for $(lsb_release -is)"
   fi
 fi
+
+# ****************************** MacOS ********************************
 if [ "$OSTYPE" = "Darwin" ] ; then
   MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' '/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf'`
   # pre Lion :   MOSNAME=`echo ${MOSLINE} | awk -F 'Mac OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
   # pre Sierra : MOSNAME=`echo ${MOSLINE} | awk -F 'OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
   MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
 
-  if [ ! -d "binaries/macos/${MOSNAME}" ] ; then
-     mkdir -p "binaries/macos/${MOSNAME}"
+  BINPATH="binaries/macos/${MOSNAME}"
+  if [ ! -d "${BINPATH}" ] ; then
+     mkdir -p "${BINPATH}"
   fi
   cd ${CURDIR}/macos
   if [ "${HOMEBREW}" = "" ] ; then
     HOMEBREW=false
   fi
   /bin/bash macpkg.sh ${HOMEBREW}
-  mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
+  mv ${CURDIR}/macos/glm_*.zip "${CURDIR}/../${BINPATH}/"
 
   if [ "${DAEDDEVDIR}" != "" -a -d "${DAEDDEVDIR}" ] ; then
     /bin/bash macpkg.sh ${HOMEBREW} glm+
-    mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../binaries/macos/${MOSNAME}/"
+    mv ${CURDIR}/macos/glm+_*.zip "${CURDIR}/../${BINPATH}/"
   else
     echo No GLM+
   fi
 
   cd ${CURDIR}/..
 fi
+
+# ***************************** FreeBSD *******************************
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   USRENV=`uname -K`
-  if [ ! -d "binaries/freebsd/${USRENV}" ] ; then
-    mkdir -p binaries/freebsd/${USRENV}
+  BINPATH="binaries/freebsd/${USRENV}"
+  if [ ! -d "${BINPATH}" ] ; then
+    mkdir -p "${BINPATH}"
   fi
 
   cd ${CURDIR}/freebsd
@@ -301,9 +314,19 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
     /bin/sh create_pkg.sh glm+
   fi
 
-  mv *.pkg ${CURDIR}/../binaries/freebsd/${USRENV}
+  mv *.pkg ${CURDIR}/../${BINPATH}
 
   cd ${CURDIR}/..
 fi
+
+if [ -x ${BINPATH}/glm_$VERSION ] ; then
+  /bin/rm -r ${BINPATH}/glm_$VERSION
+fi
+/bin/mkdir ${BINPATH}/glm_$VERSION
+/bin/cp ${CURDIR}/glm ${BINPATH}/glm_$VERSION
+if [ -x ${CURDIR}/glm+ ] ; then
+  /bin/cp ${CURDIR}/glm+ ${BINPATH}/glm_$VERSION
+fi
+./admin/make_release_info.sh > ${BINPATH}/glm_$VERSION/ReleaseInfo.txt
 
 exit 0
