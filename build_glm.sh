@@ -3,10 +3,17 @@
 cd GLM
 . ./GLM_CONFIG
 cd ..
+export OSTYPE=`uname -s`
 
-#export FC=ifort
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  export FC=flang
+else
+  export FC=gfortran
+fi
 
+ARGS=""
 while [ $# -gt 0 ] ; do
+  ARGS="$ARGS $1"
   case $1 in
     --debug)
       export DEBUG=true
@@ -33,7 +40,6 @@ while [ $# -gt 0 ] ; do
 done
 
 export MAKE=make
-export OSTYPE=`uname -s`
 if [ "$OSTYPE" = "Darwin" ] ; then
   if [ "$HOMEBREW" = "" ] ; then
     brew -v > /dev/null 2>&1
@@ -50,13 +56,9 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 else
   if [ "$OSTYPE" = "FreeBSD" ] ; then
-    if [ "$FC" = "" ] ; then
-      export FC=flang
-    fi
     export MAKE=gmake
   fi
 fi
-
 
 # see if FC is defined, if not look for gfortran at least v8
 if [ "$FC" = "" ] ; then
@@ -83,7 +85,8 @@ if [ "$FC" = "ifort" ] ; then
   # ifort config scripts wont work with /bin/sh
   # so we restart using bash
   if [ "$start_sh" = "/bin/sh" ] ;  then
-     /bin/bash $0
+     echo Restart using bash because ifort cant use /bin/sh
+     /bin/bash $0 $ARGS
      exit $?
   fi
   if [ -d /opt/intel/oneapi ] ; then

@@ -8,6 +8,7 @@ libaed2-plus
 libplot
 libutil
 binaries
+flang_extra
 fabm-git
 gotm-*
 *-bak

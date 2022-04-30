@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 export OUTFILE="ReleaseInfo.txt"
 export MAINLIST="GLM libplot libutil libaed-water libaed-benthic libaed-demo libaed2"
