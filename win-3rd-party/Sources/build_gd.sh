@@ -233,7 +233,7 @@ export LDFLAGS="-L${FINALDIR}/lib"
 # libgd depends on jpeg, png and freetype
    if [ ! -d $LIBGD ] ; then
      unpack_src  $LIBGD
-     patch -p0 < libgd.diff
+     patch -p0 < libgd.patch
    fi
    cd $LIBGD
    ./configure --prefix=${FINALDIR} --enable-shared=no --with-zlib=${FINALDIR} --with-png=${FINALDIR} --with-freetype=${FINALDIR} --with-jpeg=${FINALDIR}

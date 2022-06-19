@@ -99,7 +99,7 @@ fi
 
 if [ ! -f ${NETCDF}.tar.gz ] ; then
    # curl https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
-   curl https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz -o ${NETCDF}.tar.gz
+   curl -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${NETCDF}.tar.gz
    fi
@@ -107,11 +107,12 @@ fi
 
 if [ ! -f ${NETCDFF}.tar.gz ] ; then
    # curl https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
-   curl https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz -o ${NETCDFF}.tar.gz
+   curl -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${NETCDFF}.tar.gz
    fi
 fi
+exit 0
 
 #===============================================================================
 export CC=gcc
@@ -285,7 +286,7 @@ export LDFLAGS="-L${FINALDIR}/lib"
 # libgd depends on jpeg, png and freetype
    if [ ! -d $LIBGD ] ; then
      unpack_src  $LIBGD
-     patch -p0 < libgd.diff
+     patch -p0 < libgd.patch
    fi
    cd $LIBGD
    ./configure --prefix=${FINALDIR} --enable-shared=no --with-zlib=${FINALDIR} --with-png=${FINALDIR} --with-freetype=${FINALDIR} --with-jpeg=${FINALDIR}
