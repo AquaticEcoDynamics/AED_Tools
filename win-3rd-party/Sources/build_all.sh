@@ -112,7 +112,6 @@ if [ ! -f ${NETCDFF}.tar.gz ] ; then
       echo failed to fetch ${NETCDFF}.tar.gz
    fi
 fi
-exit 0
 
 #===============================================================================
 export CC=gcc
