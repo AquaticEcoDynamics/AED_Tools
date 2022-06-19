@@ -16,8 +16,7 @@ for fetching the sources and building the binaries from them.
 
 The build process has been tested using Visual Studio Community both versions
 2017 and 2019.  Additionally, you will also need cmake and git might be useful.
-If using vs2019 cmake version 3.17.0 works, while for vs2017 cmake version 3.12.2
-seemed to be OK.
+cmake version 3.17.0 is required for HDF5
 
 It probably a good idea to check that the full path to this directory does not
 contain spaces in the name; that has been know to cause problems.

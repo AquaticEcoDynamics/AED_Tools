@@ -1,2 +1,2 @@
-copy ..\jpeg-9d\jconfig.vc ..\jpeg-9d\jconfig.h
+copy ..\jpeg-9e\jconfig.vc ..\jpeg-9e\jconfig.h
 

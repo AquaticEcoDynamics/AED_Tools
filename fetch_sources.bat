@@ -33,14 +33,16 @@ REM #---------------------------------------------------------------------------
       SET GETUTIL=true
       SET GETFABM=true
       SET GET_GLM=true
-      SET GETPLUS=true
+      SET GETAED2=true
       SET GETAEDFV=true
+      SET GETPLUS=true
   )
   if /i "%1"=="glm" (
       SET GETAED=true
       SET GETPLOT=true
       SET GETUTIL=true
-      SET GETFABM=true
+      SET GETFABM=false
+      SET GETAED2=true
       SET GET_GLM=true
   )
   if "%1"=="aed-fv" (
@@ -71,6 +73,7 @@ if "%GETAED%"=="true"   ( SET rep_list=%rep_list%;libaed-water;libaed-benthic;li
 if "%GETPLUS%"=="true"  ( SET rep_list=%rep_list%;libaed-riparian;libaed-dev )
 if "%GETPLOT%"=="true"  ( SET rep_list=%rep_list%;libplot )
 if "%GETUTIL%"=="true"  ( SET rep_list=%rep_list%;libutil )
+if "%GETAED2%"=="true"  ( SET rep_list=%rep_list%;libaed2 )
 
 
 REM #-------------------------------------------------------------------------------

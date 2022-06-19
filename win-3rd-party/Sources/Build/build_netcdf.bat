@@ -1,7 +1,7 @@
 @rem Script to build the netcdf library
 
 set LibName=netcdf-c
-set VersNum=-4.7.3
+set VersNum=-4.8.1
 
 @echo off
 
@@ -76,6 +76,7 @@ cmake "%SrcDir%" ^
       -DENABLE_DAP=0 ^
 	  -DENABLE_TESTS=0 ^
 	  -DCMAKE_FIND_ROOT_PATH=%install_prefix% ^
+      -DCMAKE_PREFIX_PATH=%install_prefix% ^
       -DHDF5_C_LIRARY=%install_prefix% ^
       -DHDF5_ROOT=%install_prefix% ^
       -DSZIP_ROOT=%install_prefix% ^

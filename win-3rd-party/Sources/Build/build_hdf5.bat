@@ -1,7 +1,7 @@
 @rem Script to build the hdf5 library
 
 set LibName=hdf5
-set VersNum=-1.10.6
+set VersNum=-1.12.0
 
 @echo off
 
@@ -36,7 +36,7 @@ set prevdir=%cd%
    cd ..
     rem echo now in dir %cd%
     rem echo prev in dir %prevdir%
-   if "%prevdir%"=="%cd%" (
+    if "%prevdir%"=="%cd%" (
       rem chdir did nothing - probably at the top of the tree
       echo Cannot find source tree
       chdir %startdir%
@@ -71,17 +71,14 @@ cmake "%SrcDir%" ^
       -G %Generator% ^
       -A %Platform% ^
       -DCMAKE_FIND_ROOT_PATH="%install_prefix%" ^
-      -DSZIP_USE_EXTERNAL=1 ^
-      -DZLIB_USE_EXTERNAL=1 ^
-      -DSZIP_INCLUDE_DIRS=%install_prefix%\include ^
-      -DZLIB_INCLUDE_DIRS=%install_prefix%\include ^
-      -DSZIP_LIBRARIES=%install_prefix%\lib ^
-      -DZLIB_LIBRARIES=%install_prefix%\lib ^
-      -DCMAKE_CXX_FLAGS="-I%install_prefix%\include" ^
+	  -DBUILD_TESTING=OFF ^
+      -DHDF5_ENABLE_Z_LIB_SUPPORT:PATH="%install_prefix%" ^
+      -DHDF5_ENABLE_SZIP_SUPPORT:PATH="%install_prefix%" ^
+      -DCMAKE_C_FLAGS="-I%install_prefix%\include" ^
+	  -DHDF5_BUILD_CXX:BOOL=OFF ^
       -DCMAKE_VS_PLATFORM_NAME=%Platform% ^
       -DCMAKE_CONFIGURATION_TYPES="Debug;Release" ^
       -DCMAKE_INSTALL_PREFIX="%install_prefix%"
-
 
 cmake --build . --clean-first --config %Configuration% --target INSTALL
 

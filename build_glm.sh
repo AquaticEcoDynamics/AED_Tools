@@ -3,8 +3,14 @@
 cd GLM
 . ./GLM_CONFIG
 cd ..
-export OSTYPE=`uname -s`
+OSTYPE=`uname -o`
+if [ "$OSTYPE" = "Msys" ] ; then
+  export OSTYPE
+else
+  export OSTYPE=`uname -s`
+fi
 
+export CC=gcc
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
 else

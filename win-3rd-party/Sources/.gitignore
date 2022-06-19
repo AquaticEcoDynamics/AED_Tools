@@ -1,7 +1,6 @@
 zlib-*
 freetype-*
-jpegsrc-*
-jpeg-*
+jpeg*
 libpng-*
 libgd-*
 curl-*

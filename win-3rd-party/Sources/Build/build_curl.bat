@@ -1,7 +1,7 @@
 @rem Script to build the zlib library for glm
 
 set LibName=curl
-set VersNum=-7.68.0
+set VersNum=-7.83.1
 
 @echo off
 

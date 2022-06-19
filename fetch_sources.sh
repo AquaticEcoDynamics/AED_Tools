@@ -33,9 +33,10 @@ while [ $# -gt 0 ] ; do
       GETPLOT="true"
       GETUTIL="true"
       GET_GLM="true"
-      GETFABM="false"
-      GETPLUS="false"
       GETFVAED="true"
+      GETAED2="true"
+      GETPLUS="false"
+      GETFABM="false"
       ;;
     ALM|alm)
       GET_ALM="true"
@@ -45,6 +46,7 @@ while [ $# -gt 0 ] ; do
       GETPLOT="true"
       GETUTIL="true"
       GET_GLM="true"
+      GETAED2="true"
       GETFABM="false"
       ;;
     aed-fv)

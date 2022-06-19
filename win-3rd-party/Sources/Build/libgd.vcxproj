@@ -63,7 +63,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\$(Platform)-$(Configuration)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\$(Platform)-$(Configuration)\include;C:\Users\sadm\Desktop\win-3rd-party\Win32-Debug\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NONDLL;BGDWIN32;HAVE_FT2BUILD_H;HAVE_LIBZ;HAVE_LIBFREETYPE;HAVE_LIBJPEG;HAVE_LIBPNG</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
@@ -88,56 +88,56 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\libgd-2.2.5\src\msinttypes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\libgd-2.3.3\src\msinttypes</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\libgd-2.2.5\src\gd.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdcache.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfontg.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfontl.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfontmb.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfonts.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfontt.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdfx.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gdhelpers.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gd_color.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\gd_io.h" />
-    <ClInclude Include="..\libgd-2.2.5\src\wbmp.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gd.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdcache.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfontg.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfontl.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfontmb.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfonts.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfontt.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdfx.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gdhelpers.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gd_color.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\gd_io.h" />
+    <ClInclude Include="..\libgd-2.3.3\src\wbmp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\libgd-2.2.5\windows\libgd.rc" />
+    <ResourceCompile Include="..\libgd-2.3.3\windows\libgd.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\libgd-2.2.5\src\gd.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdcache.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfontg.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfontl.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfontmb.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfonts.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfontt.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdft.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdfx.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdhelpers.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdkanji.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdtables.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gdxpm.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_color.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_gd.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_gd2.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_gif_in.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_gif_out.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_io.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_io_dp.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_io_file.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_io_ss.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_jpeg.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_png.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_security.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_ss.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_topal.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\gd_wbmp.c" />
-    <ClCompile Include="..\libgd-2.2.5\src\wbmp.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdcache.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfontg.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfontl.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfontmb.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfonts.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfontt.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdft.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdfx.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdhelpers.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdkanji.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdtables.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gdxpm.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_color.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_gd.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_gd2.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_gif_in.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_gif_out.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_io.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_io_dp.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_io_file.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_io_ss.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_jpeg.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_png.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_security.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_ss.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_topal.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\gd_wbmp.c" />
+    <ClCompile Include="..\libgd-2.3.3\src\wbmp.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="freetype2.vcxproj">
