@@ -30,4 +30,9 @@ for i in libaed2 libaed2-plus libplot libutil GLM ; do
    fi
 done
 
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  cd ancillary/freebsd
+  ${MAKE} distclean
+fi
+
 exit 0

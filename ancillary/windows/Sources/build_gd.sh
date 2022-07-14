@@ -24,7 +24,7 @@ export GD=gd-2.3.3
 #@REM netcdf-fortran : https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 #@REM 
 
-export DSTDIR=x64-Release
+export DSTDIR=msys
 export ZLIB=zlib-${ZLIBV}
 export FREETYPE2=freetype-${FRREETYPE2V}
 export JPEG=jpegsrc.v${JPEGV}

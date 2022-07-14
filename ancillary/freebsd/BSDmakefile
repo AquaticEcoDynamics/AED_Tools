@@ -1,0 +1,12 @@
+GNUMAKE = gmake
+
+# by default bsdmake will cd into ./obj first
+.OBJDIR: ./
+
+all:
+	@$(GNUMAKE) --no-print-directory
+
+.DEFAULT:
+	@$(GNUMAKE) --no-print-directory $@
+
+#.PHONY: all

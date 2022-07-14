@@ -25,7 +25,7 @@ export NETCDFFV=4.5.4
 #@REM netcdf-fortran : https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 #@REM 
 
-export DSTDIR=x64-Release
+export DSTDIR=msys
 export ZLIB=zlib-${ZLIBV}
 export CURL=curl-${CURLV}
 export SZIP=szip-${SZIPV}

@@ -32,7 +32,7 @@
 curl  http://www.zlib.net/zlib-1.2.12.tar.gz -o zlib-1.2.12.tar.gz
 tar -xzf zlib-1.2.12.tar.gz
 
-curl  -L https://download.savannah.gnu.org/releases/freetype/freetype-2.10.1.tar.gz -o freetype-2.10.1.tar.gz
+curl  -L https://download.savannah.gnu.org/releases/freetype/freetype-2.12.1.tar.gz -o freetype-2.12.1.tar.gz
 tar -xzf freetype-2.12.1.tar.gz
 
 curl  http://www.ijg.org/files/jpegsrc.v9e.tar.gz -o jpegsrc.v9e.tar.gz
@@ -50,12 +50,12 @@ tar -xzf curl-7.83.1.tar.gz
 curl  https://support.hdfgroup.org/ftp/lib-external/szip/2.1.1/src/szip-2.1.1.tar.gz -o szip-2.1.1.tar.gz
 tar -xzf szip-2.1.1.tar.gz
 
-curl  -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14135&refresh=5e5f47f69f23f1583302646" -o hdf5-1.12.0.tar.gz
+curl  -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o hdf5-1.12.0.tar.gz
 tar -xzf hdf5-1.12.0.tar.gz
 
-curl  https://downloads.unidata.ucar.edu/netcdf-c/4.8.1/netcdf-c-4.8.1.tar.gz -o netcdf-c-4.8.1.tar.gz
+curl -LJO https://downloads.unidata.ucar.edu/netcdf-c/4.8.1/netcdf-c-4.8.1.tar.gz -o netcdf-c-4.8.1.tar.gz
 tar -xzf netcdf-c-4.8.1.tar.gz
 
-curl  https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.4.tar.gz -o netcdf-fortran-4.5.4.tar.gz
+curl -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.5.4.tar.gz -o netcdf-fortran-4.5.4.tar.gz
 tar -xzf netcdf-fortran-4.5.4.tar.gz
 

@@ -212,9 +212,9 @@ cd ${UTILDIR}
 ${MAKE} || exit 1
 
 cd ${CURDIR}/..
-if [ "$FC" = "flang" -a -d flang_extra ] ; then
+if [ "$OSTYPE" = "FreeBSD" -a -d ancillary/freebsd ] ; then
   echo making flang extras
-  cd flang_extra
+  cd ancillary/freebsd
   ${MAKE} || exit 1
 fi
 
@@ -232,10 +232,12 @@ cd ${CURDIR}
 VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
 
 ${MAKE} AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
-if [ "${DAEDDEVDIR}" != "" -a -d ${DAEDDEVDIR} ] ; then
-  echo now build plus version
-  /bin/rm obj/aed_external.o
-  ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
+if [ "${DAEDDEVDIR}" != "" ] ; then
+  if [ -d ${DAEDDEVDIR} ] ; then
+    echo now build plus version
+    /bin/rm obj/aed_external.o
+    ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
+  fi
 fi
 
 cd ${CURDIR}/..
@@ -302,13 +304,11 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   else
     echo No GLM+
   fi
-
-  cd ${CURDIR}/..
 fi
 
 # ***************************** FreeBSD *******************************
 if [ "$OSTYPE" = "FreeBSD" ] ; then
-  USRENV=`uname -K`
+  USRENV=`uname -r`
   BINPATH="binaries/freebsd/${USRENV}"
   if [ ! -d "${BINPATH}" ] ; then
     mkdir -p "${BINPATH}"
@@ -329,8 +329,6 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   fi
 
   mv *.pkg ${CURDIR}/../${BINPATH}
-
-  cd ${CURDIR}/..
 fi
 
 # ***************************** Msys *******************************
@@ -344,14 +342,14 @@ if [ "$OSTYPE" = "Msys" ] ; then
     mkdir -p "${BINPATH}"
   fi
   mkdir glm_$VERSION
-  cp win-3rd-party/x64-Release/bin/libnetcdf.dll glm_$VERSION
+  cp ancillary/windows/msys/bin/libnetcdf.dll glm_$VERSION
   for dll in libgfortran-5.dll libgcc_s_seh-1.dll libquadmath-0.dll libwinpthread-1.dll ; do
     dllp=`find /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/ -name $dll 2> /dev/null | head -1`
     echo \"$dllp\"
     cp "$dllp" glm_$VERSION
   done
   /bin/cp "${CURDIR}/glm" glm_$VERSION
-# gzip -o "${BINPATH}/glm_$VERSION.zip" glm_$VERSION
+  # zip up the bundle
   powershell -Command "Compress-Archive -LiteralPath glm_$VERSION -DestinationPath glm_$VERSION.zip"
   mv  glm_$VERSION.zip ${BINPATH}
 
@@ -359,23 +357,46 @@ if [ "$OSTYPE" = "Msys" ] ; then
     mkdir glm+_$VERSION
     cp glm_$VERSION/*.dll glm+_$VERSION
     /bin/cp "${CURDIR}/glm+" glm+_$VERSION
-#   gzip -o "${BINPATH}/glm+_$VERSION.zip" glm+_$VERSION
+
+    # zip up the + bundle
     powershell -Command "Compress-Archive -LiteralPath glm+_$VERSION -DestinationPath glm+_$VERSION.zip"
-    mv  glm+_$VERSION.zip ${BINPATH}
-    /bin/rm -r glm+_$VERSION
+    mv glm+_$VERSION.zip ${BINPATH}
+    mv glm+_$VERSION ${BINPATH}
   fi
-  /bin/rm -r glm_$VERSION
+  mv glm_$VERSION ${BINPATH}
 fi
 
 # ***************************** All *******************************
-if [ -x ${BINPATH}/glm_$VERSION ] ; then
-  /bin/rm -r ${BINPATH}/glm_$VERSION
+cd ${CURDIR}/..
+
+echo Finished build for $OSTYPE
+
+if [ -d ${BINPATH}/glm_$VERSION ] ; then
+  /bin/mv ${BINPATH}/glm_$VERSION ${BINPATH}/glm_latest
+else
+  if [ ! -d ${BINPATH}/glm_latest ] ; then
+    /bin/mkdir ${BINPATH}/glm_latest
+  fi
 fi
-/bin/mkdir ${BINPATH}/glm_$VERSION
-/bin/cp ${CURDIR}/glm ${BINPATH}/glm_$VERSION
+echo "glm_$VERSION" > ${BINPATH}/glm_latest/VERSION
+/bin/cp ${CURDIR}/glm ${BINPATH}/glm_latest
+echo Generating ReleaseInfo.txt
+./admin/make_release_info.sh > ${BINPATH}/glm_latest/ReleaseInfo.txt
+
 if [ -x ${CURDIR}/glm+ ] ; then
-  /bin/cp ${CURDIR}/glm+ ${BINPATH}/glm_$VERSION
+  if [ -d ${BINPATH}/glm+_$VERSION ] ; then
+    /bin/mv ${BINPATH}/glm+_$VERSION ${BINPATH}/glm+_latest
+  else
+    if [ ! -d ${BINPATH}/glm+_latest ] ; then
+      /bin/mkdir ${BINPATH}/glm+_latest
+    fi
+  fi
+  echo "glm+_$VERSION" > ${BINPATH}/glm+_latest/VERSION
+  /bin/cp ${CURDIR}/glm+ ${BINPATH}/glm+_latest
+  echo Generating ReleaseInfo.txt
+  ./admin/make_release_info.sh > ${BINPATH}/glm+_latest/ReleaseInfo.txt
 fi
-./admin/make_release_info.sh > ${BINPATH}/glm_$VERSION/ReleaseInfo.txt
+
+echo Finished packaging for $OSTYPE
 
 exit 0

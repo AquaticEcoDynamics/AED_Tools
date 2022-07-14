@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <!-- Set the PlatformToolset based on the Visual Studio Version -->
+  <PropertyGroup>
+    <!-- Default to Visual Studio 2017 -->
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+  </PropertyGroup>
+  <!-- Visual Studio 2015 (14.0) -->
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '14.0'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <!-- Visual Studio 2017 (15.0) -->
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <!-- Visual Studio 2019 (16.0) -->
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '16.0'">
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <!-- Set the PlatformToolset based on the Visual Studio Version -->
+  <!-- Latest Target Version property -->
+  <PropertyGroup Condition="'$(WindowsTargetPlatformVersion)'==''">
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' == ''">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <TargetPlatformVersion>$(WindowsTargetPlatformVersion)</TargetPlatformVersion>
+  </PropertyGroup>
+  <!-- Latest Target Version property -->
+  <PropertyGroup Label="Globals">
+    <ProjectName>freetype2</ProjectName>
+    <ProjectGuid>{CB404D77-D8D1-4803-8F77-B98AF49E8C4E}</ProjectGuid>
+    <RootNamespace>freetype2</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>..\..\$(Platform)-$(Configuration)\lib\</OutDir>
+    <IntDir>$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\freetype-2.12.1\include;..\..\$(Platform)-$(Configuration)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+    </ClCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>.\post_freetype.bat $(ConfigurationName) $(PlatformName)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;FT2_BUILD_LIBRARY;NDEBUG</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;FT2_BUILD_LIBRARY;_WIN32;_DEBUG;FT_DEBUG_LEVEL_ERROR;FT_DEBUG_LEVEL_TRACE</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\freetype-2.12.1\src\autofit\autofit.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftbase.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftbbox.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftbdf.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftbitmap.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftcid.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftfntfmt.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftfstype.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftgasp.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftglyph.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftgxval.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftinit.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftlcdfil.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftmm.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftotval.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftpatent.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftpfr.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftstroke.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftsynth.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftsystem.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\fttype1.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\base\ftwinfnt.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\bdf\bdf.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\cache\ftcache.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\cff\cff.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\cid\type1cid.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\gzip\ftgzip.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\lzw\ftlzw.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\pcf\pcf.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\pfr\pfr.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\psaux\psaux.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\pshinter\pshinter.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\psnames\psmodule.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\raster\raster.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\sdf\sdf.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\sfnt\sfnt.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\smooth\smooth.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\svg\svg.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\truetype\truetype.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\type1\type1.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\type42\type42.c" />
+    <ClCompile Include="..\freetype-2.12.1\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\freetype-2.12.1\builds\windows\ftdebug.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\freetype-2.12.1\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="..\freetype-2.12.1\include\freetype\config\ftheader.h" />
+    <ClInclude Include="..\freetype-2.12.1\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="..\freetype-2.12.1\include\freetype\config\ftoption.h" />
+    <ClInclude Include="..\freetype-2.12.1\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="..\freetype-2.12.1\include\ft2build.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
