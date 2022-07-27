@@ -3,6 +3,12 @@
 # libfv_release_bundle.sh
 #
 # Script to bundle up libaed-fv and libaed-* as a libfv.tgz
+#
+# To set tags when doing the release use as :
+#
+#     admin/libfv_release_bundle.sh --do-tagging
+#
+# wich will produce a tag based on the version number in the source.
 
 CWD=`pwd`
 
@@ -72,9 +78,9 @@ set_tag () {
     echo setting tag for $src
     cd $src
     echo git tag -a ${PRTAG} -m \"libaed-fv Build Version ${LFV_VRS}\"
-    git tag -a ${PRTAG} -m "libaed-fv Build Version ${LFV_VRS}"
+#   git tag -a ${PRTAG} -m "libaed-fv Build Version ${LFV_VRS}"
     echo git push origin ${PRTAG}
-    git push origin ${PRTAG}
+#   git push origin ${PRTAG}
     cd ..
   fi
 }

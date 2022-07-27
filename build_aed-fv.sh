@@ -47,7 +47,7 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   if [ "$FC" = "" ] ; then
     export FC=flang
   fi
-  export MAKE=gmake
+  export MAKE=ifort
 fi
 
 if [ "$FC" = "" ] ; then
@@ -155,7 +155,13 @@ if [ "$OSTYPE" = "Linux" ] ; then
     T=_r
   fi
 fi
-EXTN="_$ISODATE$T$S$D"
+cd ${CURDIR}
+
+# Update versions in resource files
+VERSION=`grep FV_AED_VERS ${AEDFVDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
+EXTN="_$VERSION$T$S$D"
+cd ${AEDFVDIR}/win
+${AEDFVDIR}/vers.sh $VERSION
 cd ${CURDIR}
 
 if [ "$EXTERNAL_LIBS" = "shared" ] ; then
@@ -171,12 +177,16 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
     fi
   fi
 
-  if [ ! -d ${BINPATH} ] ; then
-     mkdir -p ${BINPATH}
+  if [ ! -d ${CURDIR}/${BINPATH} ] ; then
+     mkdir -p ${CURDIR}/${BINPATH}
   fi
 
-  cd ${CURDIR}/libaed-fv/lib
-  tar czf ${CURDIR}/${BINPATH}/libtuflowfv_external_wq${EXTN}.tar.gz libtuflowfv_external_wq.*
+  if [ -d ${AEDFVDIR}/lib ] ; then
+    cd ${AEDFVDIR}/lib
+    tar czf ${CURDIR}/${BINPATH}/libtuflowfv_external_wq${EXTN}.tar.gz libtuflowfv_external_wq.*
+  else
+    echo \*\*\* packaging failed no directory ${AEDFVDIR}/lib
+  fi
 fi
 
 exit 0
