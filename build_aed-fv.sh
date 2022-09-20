@@ -8,6 +8,23 @@ export DEBUG=false
 
 export LICENSE=0
 
+case `uname` in
+  "Darwin"|"Linux"|"FreeBSD")
+    export OSTYPE=`uname -s`
+    ;;
+  MINGW*)
+    export OSTYPE="Msys"
+    ;;
+esac
+
+export CC=gcc
+if [ "$OSTYPE" = "FreeBSD" ] ; then
+  export FC=flang
+  export CC=clang
+else
+  export FC=ifort
+fi
+
 while [ $# -gt 0 ] ; do
   case $1 in
     --debug)
@@ -47,7 +64,7 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   if [ "$FC" = "" ] ; then
     export FC=flang
   fi
-  export MAKE=ifort
+  export MAKE=gmake
 fi
 
 if [ "$FC" = "" ] ; then
@@ -129,7 +146,9 @@ if [ "${NO_DEV}" != "true" ] ; then
 fi
 
 echo build tfv_wq
-/bin/rm ${AEDFVDIR}/obj/aed_external.o
+if [ -f ${AEDFVDIR}/obj/aed_external.o ] ;  then
+  /bin/rm ${AEDFVDIR}/obj/aed_external.o
+fi
 ${MAKE} -C ${AEDFVDIR} ${PARAMS} || exit 1
 
 ISODATE=`date +%Y%m%d`

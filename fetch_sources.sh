@@ -19,7 +19,7 @@ if [ $# = 0 ] ; then
   GETFVAED="false"
   GET_ALM="false"
   GET_EGS="false"
-  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
+  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libaed-light libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ if [ "$GETAEDFV" = "true" ] ; then rep_list="$rep_list libaed-fv" ; fi
 if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-water libaed-benthic libaed-demo" ; fi
 if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2" ; fi
 if [ "$GETPLUS" = "true" ]  ; then
-    rep_list="$rep_list libaed-riparian libaed-dev"
+    rep_list="$rep_list libaed-riparian libaed-dev libaed-light"
     if [ "$GETAED2" = "true" ]  ; then rep_list="$rep_list libaed2-plus" ; fi
 fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi

@@ -78,9 +78,9 @@ set_tag () {
     echo setting tag for $src
     cd $src
     echo git tag -a ${PRTAG} -m \"libaed-fv Build Version ${LFV_VRS}\"
-#   git tag -a ${PRTAG} -m "libaed-fv Build Version ${LFV_VRS}"
+    git tag -a ${PRTAG} -m "libaed-fv Build Version ${LFV_VRS}"
     echo git push origin ${PRTAG}
-#   git push origin ${PRTAG}
+    git push origin ${PRTAG}
     cd ..
   fi
 }
