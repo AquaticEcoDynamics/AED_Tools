@@ -30,6 +30,9 @@ while [ $# -gt 0 ] ; do
     --debug)
       export DEBUG=true
       ;;
+    --mdebug)
+      export MDEBUG=true
+      ;;
     --fence)
       export FENCE=true
       ;;
@@ -44,6 +47,10 @@ while [ $# -gt 0 ] ; do
       ;;
     --flang)
       export FC=flang
+      ;;
+    --no-gui)
+      export WITH_PLOTS=false
+      export WITH_XPLOTS=false
       ;;
     *)
       ;;

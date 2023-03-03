@@ -12,12 +12,12 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
 fi
 
-for i in water benthic riparian demo dev fv ; do
+for i in water benthic riparian demo dev light fv ; do
    echo clean libaed-$i
    if [ -d libaed-$i ] ; then
      cd  libaed-$i
      ${MAKE} distclean
-     cd ..
+     cd $CWD
    fi
 done
 
