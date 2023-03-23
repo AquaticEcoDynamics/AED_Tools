@@ -113,6 +113,9 @@ if [ -d libaed-dev ] ; then
   tar cf - libaed-riparian | (cd tttt; tar xf -)
   /bin/rm -rf tttt/libaed-riparian/.git*
 
+  tar cf - libaed-light | (cd tttt; tar xf -)
+  /bin/rm -rf tttt/libaed-light/.git*
+
   tar cf - libaed-dev | (cd tttt; tar xf -)
   /bin/rm -rf tttt/libaed-dev/.git*
 

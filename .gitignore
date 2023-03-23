@@ -9,6 +9,7 @@ libplot
 libutil
 binaries
 fabm-git
+fabm-schism
 gotm-*
 *-bak
 *.mod
@@ -18,3 +19,9 @@ gotm-*
 *.dylib
 *.i90
 .*.swp
+tuflowfv-svn*
+tuflowfv-lib*
+schism
+TestSets
+aed_dbase
+sim*

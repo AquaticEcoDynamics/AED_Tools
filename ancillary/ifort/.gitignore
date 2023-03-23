@@ -1,0 +1,5 @@
+netcdf-fortran-*
+include
+lib
+share
+bin

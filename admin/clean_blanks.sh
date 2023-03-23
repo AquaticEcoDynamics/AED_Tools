@@ -6,14 +6,13 @@ CWD=`pwd`
 OSTYPE=`uname -s`
 
 AEDDIR="libaed-water libaed-benthic libaed-demo"
-AEDPLS="libaed-riparian libaed-dev"
+AEDPLS="libaed-riparian libaed-light libaed-dev"
 FABMDIR=fabm-git
 UTILDIR=libutil
 PLOTDIR=libplot
 GLMDIR=GLM
 GLMEGS=GLM_Examples
 AEDFV=libaed-fv
-AEDEX=flang_extra
 
 strip_file () {
     FILE=$1

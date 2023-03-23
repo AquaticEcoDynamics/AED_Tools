@@ -1,33 +1,47 @@
 #!/bin/sh
 
-export ZLIBV=1.2.12
-export FRREETYPE2V=2.12.1
-export JPEGV=9e
-export LIBPNGV=1.6.37
-export GD=gd-2.3.3
-export CURLV=7.83.1
-export SZIPV=2.1.1
-export HDF5V=1.12.0
-export NETCDFV=4.8.1
-export NETCDFFV=4.5.4
+if [ $# -eq 0 ] ; then
+  export DOLIBGD=1
+  export DONETCDF=1
+else
+  export DOLIBGD=0
+  export DONETCDF=0
+fi
 
-#@REM The directory Build has project files to build the libraries using
-#@REM VisualStudio 2017/2019 ; use all_libs.sln. They are set up to
-#@REM access source files from directories in this directory called :
-#@REM 
-#@REM They are available from :
-#@REM 
-#@REM zlib           : http://www.zlib.net/
-#@REM freetype       : http://www.freetype.org/download.html
-#@REM jpeg           : http://www.ijg.org/
-#@REM libpng         : http://www.libpng.org/pub/png/libpng.html
-#@REM libgd          : http://libgd.github.io/
-#@REM curl           : https://curl.haxx.se/download.html
-#@REM szip           : https://support.hdfgroup.org/doc_resource/SZIP/
-#@REM hdf5           : https://www.hdfgroup.org/downloads/hdf5/source-code/
-#@REM netcdf &
-#@REM netcdf-fortran : https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
-#@REM 
+while [ $# -gt 0 ] ; do
+  case $1 in
+    --gd)
+      export DOLIBGD=1
+      ;;
+    --netcdf)
+      export DONETCDF=1
+      ;;
+    *)
+      ;;
+  esac
+  shift
+done
+
+if [ $DOLIBGD = 0 ] ; then
+  if [ $DONETCDF = 0 ] ; then
+    echo nothing to do\?
+    exit 1
+  fi
+fi
+echo OK
+if [ ${DOLIBGD} != 0 ] ;then
+  echo doing libgd
+fi
+
+if [ ${DONETCDF} != 0 ] ;then
+  echo doing netcdf
+
+  if [ "$FC" != "ifort" ] ; then
+    echo 'not doing netcdff'
+  fi
+fi
+
+. ./versions.inc
 
 export DSTDIR=msys
 export ZLIB=zlib-${ZLIBV}
@@ -42,74 +56,93 @@ export NETCDF=netcdf-c-${NETCDFV}
 export NETCDFF=netcdf-fortran-${NETCDFFV}
 
 if [ ! -f ${ZLIB}.tar.gz ] ; then
-   curl  http://www.zlib.net/${ZLIB}.tar.gz -o ${ZLIB}.tar.gz
+   echo fetching ${ZLIB}.tar.gz
+   curl http://www.zlib.net/${ZLIB}.tar.gz -o ${ZLIB}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${ZLIB}.tar.gz
    fi
 fi
 
-if [ ! -f ${FREETYPE2}.tar.gz ] ; then
-   curl  -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${FREETYPE2}.tar.gz
+if [ ${DOLIBGD} != 0 ] ;then
+   if [ ! -f ${FREETYPE2}.tar.gz ] ; then
+      echo fetching ${FREETYPE2}.tar.gz
+      curl -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${FREETYPE2}.tar.gz
+      fi
+   fi
+
+   if [ ! -f ${JPEG}.tar.gz ] ; then
+      echo fetching ${JPEG}.tar.gz
+      curl http://www.ijg.org/files/${JPEG}.tar.gz -o ${JPEG}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${JPEG}.tar.gz
+      fi
+   fi
+
+   if [ ! -f ${LIBPNG}.tar.gz ] ; then
+      echo fetching ${LIBPNG}.tar.gz
+      curl -L http://prdownloads.sourceforge.net/libpng/${LIBPNG}.tar.gz -o ${LIBPNG}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${LIBPNG}.tar.gz
+      fi
+   fi
+
+   if [ ! -f ${LIBGD}.tar.gz ] ; then
+      echo fetching ${LIBGD}.tar.gz
+      curl -L https://github.com/libgd/libgd/releases/download/${GD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${LIBGD}.tar.gz
+      fi
    fi
 fi
 
-if [ ! -f ${JPEG}.tar.gz ] ; then
-   curl  http://www.ijg.org/files/${JPEG}.tar.gz -o ${JPEG}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${JPEG}.tar.gz
+if [ ${DONETCDF} != 0 ] ;then
+   if [ ! -f ${CURL}.tar.gz ] ; then
+      echo fetching ${CURL}.tar.gz
+      curl -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${CURL}.tar.gz
+      fi
    fi
-fi
 
-if [ ! -f ${LIBPNG}.tar.gz ] ; then
-   curl  -L http://prdownloads.sourceforge.net/libpng/${LIBPNG}.tar.gz -o ${LIBPNG}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${LIBPNG}.tar.gz
+   if [ ! -f ${SZIP}.tar.gz ] ; then
+      echo fetching ${SZIP}.tar.gz
+      curl https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${SZIP}.tar.gz
+      fi
    fi
-fi
 
-if [ ! -f ${LIBGD}.tar.gz ] ; then
-   curl  -L https://github.com/libgd/libgd/releases/download/${GD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${LIBGD}.tar.gz
+   if [ ! -f ${HDF5}.tar.gz ] ; then
+      HVER=`echo ${HDF5V} | cut -f1 -d\.`
+      HMAJ=`echo ${HDF5V} | cut -f2 -d\.`
+      HMIN=`echo ${HDF5V} | cut -f3 -d\.`
+      HDFDV="HDF5_${HVER}_${HMAJ}_${HMIN}"
+      HDF5URL="https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/${HDFDV}/src/${HDF5}.tar.gz"
+      echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
+      curl -L ${HDF5URL} -o ${HDF5}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${HDF5}.tar.gz
+      fi
    fi
-fi
 
-if [ ! -f ${CURL}.tar.gz ] ; then
-   curl  -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${CURL}.tar.gz
+   if [ ! -f ${NETCDF}.tar.gz ] ; then
+      echo fetching ${NETCDF}.tar.gz
+      curl -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz -o ${NETCDF}.tar.gz
+      if [ $? != 0 ] ; then
+         echo failed to fetch ${NETCDF}.tar.gz
+      fi
    fi
-fi
 
-if [ ! -f ${SZIP}.tar.gz ] ; then
-   curl  https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${SZIP}.tar.gz
-   fi
-fi
-
-if [ ! -f ${HDF5}.tar.gz ] ; then
-   curl  -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${HDF5}.tar.gz
-   fi
-fi
-
-if [ ! -f ${NETCDF}.tar.gz ] ; then
-   # curl https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
-   curl -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${NETCDF}.tar.gz
-   fi
-fi
-
-if [ ! -f ${NETCDFF}.tar.gz ] ; then
-   # curl https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
-   curl -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
-   if [ $? != 0 ] ; then
-      echo failed to fetch ${NETCDFF}.tar.gz
+   if [ "$FC" != "ifort" ] ; then
+     if [ ! -f ${NETCDFF}.tar.gz ] ; then
+       echo fetching ${NETCDFF}.tar.gz
+       curl -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz -o ${NETCDFF}.tar.gz
+       if [ $? != 0 ] ; then
+         echo failed to fetch ${NETCDFF}.tar.gz
+       fi
+     fi
    fi
 fi
 
@@ -124,15 +157,14 @@ if [ ! -d $DSTDIR ] ; then
 fi
 cd $DSTDIR
 export FINALDIR=`pwd`
-cd "$CWD"
 
-if [ ! -d "${FINALDIR}"/include ] ; then
-  mkdir "${FINALDIR}"/include
+if [ ! -d include ] ; then
+  mkdir include
 fi
-if [ ! -d "${FINALDIR}"/lib ] ; then
-  mkdir "${FINALDIR}"/lib
+if [ ! -d lib ] ; then
+  mkdir lib
 fi
-echo -n > fail.log
+cd "$CWD"
 
    # The jpeg package and directory names differ, so it's a special case
    #   luckily it has no dependancies, so we can build it first
@@ -147,30 +179,25 @@ echo -n > fail.log
    if [ -d jpeg-${JPEGV} ] ; then
       echo '****************' building in jpeg-${JPEGV}
       cd jpeg-${JPEGV}
-#     CFLAGS="-I${FINALDIR}/include" LDFLAGS="-L${FINALDIR}/lib" ./configure --prefix=${FINALDIR}
       cp jconfig.vc jconfig.h
       sed -e 's/\<cc\>/gcc/' < makefile.ansi > Makefile
       if [ $? = 0 ] ; then
          make
          if [ $? = 0 ] ; then
-#           make install
 	        cp jpeglib.h jerror.h jconfig.h jmorecfg.h ${FINALDIR}/include
             cp libjpeg.a ${FINALDIR}/lib
          else
             echo '****' build failed for jpeg-${JPEGV}
-            echo '****' build failed for jpeg-${JPEGV} >> fail.log
             exit 1
          fi
       else
         echo '****' config failed for jpeg-${JPEGV}
-        echo '****' config failed for jpeg-${JPEGV} >> fail.log
         exit 1
       fi
       cd ..
       echo '****************' done building in jpeg-${JPEGV}
    else
      echo no directory for jpeg-${JPEGV}
-     echo no directory for jpeg-${JPEGV} >> fail.log
    fi
 
 export CFLAGS="-I${FINALDIR}/include"
@@ -203,35 +230,31 @@ unpack_src () {
       echo '****************' building in $src
    else
      echo no directory for $src
-     echo no directory for $src >> fail.log
      exit 1
    fi
 }
 #----------------------------------------------------------------
 
 ## build zlib
-   unpack_src  $ZLIB
+   unpack_src $ZLIB
    cd $ZLIB
-#   cmake . -G "Unix Makefiles" -DCMAKE_CXX_FLAGS="-I$FINALDIR/include" -DCMAKE_INSTALL_PREFIX="$FINALDIR"
-#   make
    make -f win32/Makefile.gcc
    if [ $? = 0 ] ; then
       export BINARY_PATH=${FINALDIR}/bin
       export LIBRARY_PATH=${FINALDIR}/lib
       export INCLUDE_PATH=${FINALDIR}/include
       make -f win32/Makefile.gcc install
-#      make install
    else
       echo '****' build failed for $ZLIB
-      echo '****' build failed for $ZLIB >> fail.log
       exit 1
    fi
    cd ..
    echo '****************' done building in $ZLIB
 
+if [ ${DOLIBGD} != 0 ] ; then
 ## build png
 # png depends on zlib
-   unpack_src  $LIBPNG
+   unpack_src $LIBPNG
    cd $LIBPNG
    ./configure --prefix=${FINALDIR}
    if [ $? = 0 ] ; then
@@ -242,18 +265,16 @@ unpack_src () {
          make install
       else
          echo '****' build failed for $LIBPNG
-         echo '****' build failed for $LIBPNG >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $LIBPNG
-      echo '****' config failed for $LIBPNG >> fail.log
       exit 1
    fi
    cd ..
    echo '****************' done building in $LIBPNG
 
-# freetype doesnt like havine these set
+# freetype doesnt like having these set
 unset CFLAGS
 unset CPPFLAGS
 unset LDFLAGS
@@ -271,7 +292,6 @@ unset LDFLAGS
       cp objs/freetype.a ${FINALDIR}/lib
    else
       echo '****' build failed for $FREETYPE2
-      echo '****' build failed for $FREETYPE2 >> fail.log
       exit 1
    fi
    cd ..
@@ -300,19 +320,20 @@ export LDFLAGS="-L${FINALDIR}/lib"
          make install
       else
          echo '****' build failed for $LIBGD
-         echo '****' build failed for $LIBGD >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $LIBGD
-      echo '****' config failed for $LIBGD >> fail.log
       exit 1
    fi
    cd ..
    echo '****************' done building in $LIBGD
+fi
 
 
-# build szips	
+if [ ${DONETCDF} != 0 ] ; then
+
+# build szip
    unpack_src  $SZIP
    cd $SZIP
    ./configure --prefix=${FINALDIR}
@@ -326,12 +347,10 @@ export LDFLAGS="-L${FINALDIR}/lib"
          make install
       else
          echo '****' build failed for $SZIP
-         echo '****' build failed for $SZIP >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $SZIP
-      echo '****' config failed for $SZIP >> fail.log
       exit 1
    fi
    cd ..
@@ -352,12 +371,10 @@ export LDFLAGS="-L${FINALDIR}/lib"
          make install
       else
          echo '****' build failed for $CURL
-         echo '****' build failed for $CURL >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $CURL
-      echo '****' config failed for $CURL >> fail.log
       exit 1
    fi
    cd ..
@@ -377,14 +394,16 @@ export LDFLAGS="-L${FINALDIR}/lib"
         -G "Unix Makefiles" \
 		-DCMAKE_FIND_ROOT_PATH="$FINALDIR" \
         -DBUILD_TESTING=OFF \
-        -DBUILD_SHARED_LIBS:BOOL=OFF \
         -DCMAKE_C_FLAGS="-I$FINALDIR/include" \
 		-DHDF5_ENABLE_Z_LIB_SUPPORT:PATH="$FINALDIR" \
         -DHDF5_ENABLE_SZIP_SUPPORT:PATH="$FINALDIR" \
 		-DHDF5_BUILD_CXX:BOOL=OFF \
-        -DCMAKE_INSTALL_PREFIX="$FINALDIR"
+        -DCMAKE_INSTALL_PREFIX="$FINALDIR" \
+        -DEFAULT_API_VERSION:STRING=v110
 
-#   ./configure --prefix=$FINALDIR --with-zlib=$FINALDIR --with-szlib=$FINALDIR --disable-shared --disable-tests --enable-build-mode=production
+#       -DBUILD_SHARED_LIBS:BOOL=OFF \
+
+#   ./configure --prefix=$FINALDIR --with-zlib=$FINALDIR --with-szlib=$FINALDIR --disable-shared --disable-tests --enable-build-mode=production --with-default-api-version=v110
    if [ $? = 0 ] ; then
 #      for j in `find . -name Makefile` ; do
 #         sed -e 's/\<SHELL\>/XSHELL/' < $j > Makefile-x
@@ -396,12 +415,10 @@ export LDFLAGS="-L${FINALDIR}/lib"
          make install
       else
          echo '****' build failed for $HDF5
-         echo '****' build failed for $HDF5 >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $HDF5
-      echo '****' config failed for $HDF5 >> fail.log
       exit 1
    fi
    cd ..
@@ -413,34 +430,38 @@ export LDFLAGS="-L${FINALDIR}/lib"
    cd $NETCDF
    cmake "." \
         -G "Unix Makefiles" \
-		-DENABLE_DAP=0 \
-		-DENABLE_TESTS=0 \
+                -DENABLE_DAP=0 \
+                -DENABLE_TESTS=0 \
+                -DENABLE_BYTERANGE=0 \
+                -DCURL_LIBRARIES=0 \
         -DCMAKE_FIND_ROOT_PATH=$FINALDIR \
-		-DCMAKE_PREFIX_PATH=$FINALDIR \
-		-DHDF5_C_LIBRARY=$FINALDIR \
-		-DHDF5_ROOT=$FINALDIR \
-		-DSZIP_ROOT=$FINALDIR \
-		-DZLIB_ROOT=$FINALDIR \
-		-DHDF5_DIR=$FINALDIR\cmake\hdf5 \
+                -DCMAKE_PREFIX_PATH=$FINALDIR \
+                -DHDF5_C_LIBRARY=$FINALDIR \
+                -DHDF5_ROOT=$FINALDIR \
+                -DSZIP_ROOT=$FINALDIR \
+                -DZLIB_ROOT=$FINALDIR \
+                -DHDF5_DIR=$FINALDIR\cmake\hdf5 \
         -DCMAKE_CXX_FLAGS="-I$FINALDIR/include" \
         -DCMAKE_INSTALL_PREFIX="$FINALDIR"
+
+#  ./configure --prefix=${FINALDIR} --enable-static --enable-shared
+
    if [ $? = 0 ] ; then
       make
       if [ $? = 0 ] ; then
          make install
       else
          echo '****' build failed for $NETCDF
-         echo '****' build failed for $NETCDF >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $NETCDF
-      echo '****' config failed for $NETCDF >> fail.log
       exit 1
    fi
    cd ..
    echo '****************' done building in $NETCDF
 
+  if [ "$FC" != "ifort" ] ; then
 # netcdff depends on netcdf
    unpack_src  $NETCDFF
    cd $NETCDFF
@@ -448,22 +469,30 @@ export LDFLAGS="-L${FINALDIR}/lib"
         -G "Unix Makefiles" \
         -DCMAKE_FIND_ROOT_PATH=$FINALDIR \
         -DCMAKE_INSTALL_PREFIX="$FINALDIR"
+
+#  export LDFLAGS="-static -L${FINALDIR}/lib"
+#  export LIBS="-L${FINALDIR}/lib -lnetcdf -lhdf5_hl -lhdf5 -lm -lz -lsz -lxml2 -lcurl"
+
+#  ./configure --prefix=${FINALDIR} --enable-static --enable-shared \
+#   --disable-f03-compiler-check --disable-f03 --disable-fortran-type-check
+
    if [ $? = 0 ] ; then
       make
       if [ $? = 0 ] ; then
          make install
       else
          echo '****' build failed for $NETCDFF
-         echo '****' build failed for $NETCDFF >> fail.log
          exit 1
       fi
    else
       echo '****' config failed for $NETCDFF
-      echo '****' config failed for $NETCDFF >> fail.log
       exit 1
    fi
    cd ..
    echo '****************' done building in $NETCDFF
+  fi
+
+fi
 
 exit 0
 

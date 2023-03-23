@@ -2,14 +2,18 @@
 
 export OUTFILE="ReleaseInfo.txt"
 export MAINLIST="GLM libplot libutil libaed-water libaed-benthic libaed-demo libaed2"
-export PLUSLIST="libaed-riparian libaed-dev libaed2-plus"
+export PLUSLIST="libaed-riparian libaed-light libaed-dev libaed2-plus"
 export GITPATH=".git"
 
 extract_vers () {
 # export RPO=`cat .git/config | grep -w url | rev | cut -d'/' -f 1 | rev`
 # mingw doesnt have rev, so do it this way.
   export RPO=`cat ${GITPATH}/config | grep -w url | tr '/' '\n' | tail -1`
-  export VRS=`cat ${GITPATH}/ORIG_HEAD | cut -c -7`
+  # HEAD tells us where the head info is
+  WHR=`cat ${GITPATH}/HEAD | cut -f2 -d:`
+  # fudge to remove leading/trailing spaces
+  WHR=`echo $WHR`
+  export VRS=`cat ${GITPATH}/${WHR} | cut -c -7`
   echo "$VRS $RPO"
 }
 

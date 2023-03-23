@@ -62,6 +62,11 @@ if [ -d libaed-riparian ] ; then
   do_tarball libaed-riparian ${AEDVRS}
 fi
 
+if [ -d libaed-light ] ; then
+  AEDVRS=`grep AED_PLUS_VERSION libaed-water/include/aed+.h | cut -f2 -d\"`
+  do_tarball libaed-light ${AEDVRS}
+fi
+
 if [ -d libaed-dev ] ; then
   AEDVRS=`grep AED_PLUS_VERSION libaed-water/include/aed+.h | cut -f2 -d\"`
   do_tarball libaed-dev ${AEDVRS}

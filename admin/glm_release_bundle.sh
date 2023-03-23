@@ -46,7 +46,11 @@ if [ "${DO_TAG}" = "true" ] ; then
   export PRTAG="GLM_${GLM_VRS}"
 fi
 
-./admin/libaed_release_bundle.sh ${WITH_TAG} --tag "${PRTAG}"
+if [ "${PRTAG}" = "" ] ; then
+  ./admin/libaed_release_bundle.sh ${WITH_TAG}
+else
+  ./admin/libaed_release_bundle.sh ${WITH_TAG} --tag "${PRTAG}"
+fi
 mkdir tttt
 
 set_tag () {

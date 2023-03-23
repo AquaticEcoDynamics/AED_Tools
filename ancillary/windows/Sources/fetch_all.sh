@@ -14,34 +14,7 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-export ZLIBV=1.2.12
-export FRREETYPE2V=2.12.1
-export JPEGV=9e
-export LIBPNGV=1.6.37
-export GD=gd-2.3.3
-export CURLV=7.83.1
-export SZIPV=2.1.1
-export HDF5V=1.12.0
-export NETCDFV=4.8.1
-export NETCDFFV=4.5.4
-
-#@REM The directory Build has project files to build the libraries using
-#@REM VisualStudio 2017/2019 ; use all_libs.sln. They are set up to
-#@REM access source files from directories in this directory called :
-#@REM 
-#@REM They are available from :
-#@REM 
-#@REM zlib           : http://www.zlib.net/
-#@REM freetype       : http://www.freetype.org/download.html
-#@REM jpeg           : http://www.ijg.org/
-#@REM libpng         : http://www.libpng.org/pub/png/libpng.html
-#@REM libgd          : http://libgd.github.io/
-#@REM curl           : https://curl.haxx.se/download.html
-#@REM szip           : https://support.hdfgroup.org/doc_resource/SZIP/
-#@REM hdf5           : https://www.hdfgroup.org/downloads/hdf5/source-code/
-#@REM netcdf &
-#@REM netcdf-fortran : https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
-#@REM 
+. ./versions.inc
 
 export DSTDIR=msys
 export ZLIB=zlib-${ZLIBV}
@@ -119,7 +92,8 @@ if [ ! -f ${SZIP}.tar.gz ] ; then
 fi
 
 if [ ! -f ${HDF5}.tar.gz ] ; then
-   curl ${MINUS_K} -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
+   #curl ${MINUS_K} -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
+   curl ${MINUS_K} -L "https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_14_0/src/hdf5-1.14.0.tar.gz" -o ${HDF5}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${HDF5}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then

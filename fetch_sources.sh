@@ -110,7 +110,7 @@ fetch_it () {
   fi
 
   if [ -d $dst ] ; then
-    echo "updating $dst from " `grep -w url $dst/.git/config`
+    echo "Updating $dst from " `grep -w url $dst/.git/config`
 
     cd $dst
     BRANCH=`git branch | grep '*' | cut -f2 -d\ `
@@ -120,26 +120,18 @@ fetch_it () {
     echo "fetching $src from ${GITHOST}$src $dst"
 
     git clone ${GITHOST}$src $dst
-
-#   if [ -d $dst ] ; then
-#     cd $dst
-#     git checkout dev
-#     cd ..
-#   fi
   fi
 }
 
 #-------------------------------------------------------------------------------
 
 if [ "$upd_list" != "" ] ; then
-  echo "updating AED_Tools from " `grep -w url .git/config`
+  echo "updating . from " `grep -w url .git/config`
   git pull
-
-  count=0
   for src in $upd_list ; do
     if [ -d $src ] ; then
       count=$((count+1))
-      echo "updating $src from " `grep -w url $src/.git/config`
+      echo "Updating $src from " `grep -w url $src/.git/config`
 
       cd $src
       BRANCH=`git branch | grep '*' | cut -f2 -d\ `
@@ -193,10 +185,10 @@ if [ $count = 0 ] ; then
   echo
   echo "where <repo> can be one or more of :"
   echo "  glm     : get glm [and it's dependancies]"
-  echo "  libaed  : fetch the libaed sources"
+  echo "  libaed  : fetch the libaed-\* sources"
   echo "  libplot : fetch the libplot sources"
   echo "  libutil : fetch the libutil sources"
-  echo "  plus    : fetch the libaed-* plus sources (private repository)"
+  echo "  plus    : fetch the libaed-\* plus sources (private repository)"
   echo "  aed-fv  : fetch the libaed-fv sources"
   echo "  fabm    : fetch the fabm sources (possible dependancy for glm)"
   echo

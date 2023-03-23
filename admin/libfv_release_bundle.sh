@@ -8,7 +8,7 @@
 #
 #     admin/libfv_release_bundle.sh --do-tagging
 #
-# wich will produce a tag based on the version number in the source.
+# which will produce a tag based on the version number in the source.
 
 CWD=`pwd`
 
@@ -27,7 +27,6 @@ while [ $# -gt 0 ] ; do
       export DO_TAG=true
       export WITH_TAG="$1"
       if [ $# -gt 1 ] ; then
-#        if [[ "$2" != "--"* ]] ; then
          if [ "${2#--*}" = "$2" ] ; then
            LFV_VRS="$2"
            shift
@@ -36,9 +35,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --tag)
       if [ $# -gt 1 ] ; then
-#        if [[ "$2" != "--"* ]] ; then
          if [ "${2#--*}" = "$2" ] ; then
-            HAVE_TAG="$2"
+           export HAVE_TAG="$2"
+           shift
          fi
       fi
       ;;
