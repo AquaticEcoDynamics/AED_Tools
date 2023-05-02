@@ -1,5 +1,13 @@
 #!/bin/sh
 
+ARGS=""
+while [ $# -gt 0 ] ; do
+  if [ -f $1 ] ; then
+     ARGS="$ARGS $1"
+  fi
+  shift
+done
+
 # Strip trailing blanks off source files
 
 CWD=`pwd`
@@ -34,7 +42,14 @@ strip_file () {
     fi
 }
 
-for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR} ${GLMEGS} ${UTILDIR} ${PLOTDIR} ${AEDDIR} ${AEDPLS} ${AEDFV} ${AEDEX} ; do
+if [ $ARGS != "" ] ; then
+   for i in $ARGS ; do
+     strip_file $i
+   done
+   exit 0
+fi
+
+for k in ${GLMDIR} ${UTILDIR} ${PLOTDIR} ${AEDDIR} ${AEDPLS} ${AEDFV} ${AEDEX} ; do
    if [ -d $k ] ; then
       cd $k
       for j in 'f90' 'F90' 'F95' 'c' 'h' 'm' 'sln' 'vfproj' 'vcproj' 'vcxproj' 'icproj' 'vcxproj.filters' 'nml' 'csv' 'sed' 'dat' 'sh' 'csh' 'def' 'plist' ; do
