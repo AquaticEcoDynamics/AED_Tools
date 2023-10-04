@@ -8,6 +8,7 @@ export DEBUG=false
 
 export LICENSE=0
 
+export OSTYPE=`uname -s`
 case `uname` in
   "Darwin"|"Linux"|"FreeBSD")
     export OSTYPE=`uname -s`
@@ -48,6 +49,9 @@ while [ $# -gt 0 ] ; do
     --no-rip)
       export NO_RIP=true
       ;;
+    --no-light)
+      export NO_LGT=true
+      ;;
     --no-dev)
       export NO_DEV=true
       ;;
@@ -57,7 +61,6 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-export OSTYPE=`uname -s`
 
 export MAKE=make
 if [ "$OSTYPE" = "FreeBSD" ] ; then
@@ -72,7 +75,11 @@ if [ "$FC" = "" ] ; then
 fi
 
 if [ "$FC" = "ifort" ] ; then
-  export start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
+  if [ "$OSTYPE" = "Msys" ] ; then
+    start_sh="bash"
+  else
+    export start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
+  fi
   # ifort config scripts wont work with /bin/sh
   # so we restart using bash
   if [ "$start_sh" = "/bin/sh" ] ; then
@@ -135,6 +142,15 @@ if [ "${NO_DEMO}" != "true" ] ; then
   echo DMO = $DAEDDMODIR
   PARAMS="${PARAMS} AEDDMODIR=${DAEDDMODIR}"
 fi
+if [ ! -d ${CURDIR}/libaed-light ] ; then NO_LGT=true ; fi
+if [ "${NO_LGT}" != "true" ] ; then
+  echo build libaed-light
+  cd  ${CURDIR}/libaed-light
+  ${MAKE} || exit 1
+  export DAEDLGTDIR=`pwd`
+  echo DEV = $DAEDLGTDIR
+  PARAMS="${PARAMS} AEDLGTDIR=${DAEDLGTDIR}"
+fi
 if [ ! -d ${CURDIR}/libaed-dev ] ; then NO_DEV=true ; fi
 if [ "${NO_DEV}" != "true" ] ; then
   echo build libaed-dev
@@ -194,6 +210,12 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
     if [ $(lsb_release -is) = Ubuntu ] ; then
       BINPATH="binaries/ubuntu/$(lsb_release -rs)"
     fi
+    cd ${AEDFVDIR}
+    if [ -d debian/libaed-tfv ] ; then
+      rm -r debian/libaed-tfv
+    fi
+    fakeroot make -f debian/rules binary || exit 1
+    cd ${CURDIR}
   fi
 
   if [ ! -d ${CURDIR}/${BINPATH} ] ; then
@@ -203,6 +225,19 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
   if [ -d ${AEDFVDIR}/lib ] ; then
     cd ${AEDFVDIR}/lib
     tar czf ${CURDIR}/${BINPATH}/libtuflowfv_external_wq${EXTN}.tar.gz libtuflowfv_external_wq.*
+    if [ "$OSTYPE" = "Linux" ] ; then
+       mv ${CURDIR}/libaed-tfv_*_amd64.deb ${CURDIR}/${BINPATH}
+       if [ -d ${CURDIR}/${BINPATH}/libaed_fv_latest ] ; then
+         rm -r ${CURDIR}/${BINPATH}/libaed_fv_latest
+       fi
+       mkdir ${CURDIR}/${BINPATH}/libaed_fv_latest
+       cd ${AEDFVDIR}/debian/libaed-tfv/usr/local/lib/
+       tar cf - libaed-tfv | (cd ${CURDIR}/${BINPATH}/libaed_fv_latest; tar xf -)
+       export MYPATH=${CURDIR}/${BINPATH}/libaed_fv_latest/libaed-tfv
+       cd ${AEDFVDIR}
+       bin/mk_tuflowfv_libaed > ${CURDIR}/${BINPATH}/libaed_fv_latest/tuflowfv_libaed
+       cd ${CURDIR}
+    fi
   else
     echo \*\*\* packaging failed no directory ${AEDFVDIR}/lib
   fi
