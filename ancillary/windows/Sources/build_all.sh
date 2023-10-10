@@ -16,6 +16,9 @@ while [ $# -gt 0 ] ; do
     --netcdf)
       export DONETCDF=1
       ;;
+    --ignore-certs)
+      export MINUS_K='-k'
+      ;;
     *)
       ;;
   esac
@@ -57,7 +60,7 @@ export NETCDFF=netcdf-fortran-${NETCDFFV}
 
 if [ ! -f ${ZLIB}.tar.gz ] ; then
    echo fetching ${ZLIB}.tar.gz
-   curl http://www.zlib.net/${ZLIB}.tar.gz -o ${ZLIB}.tar.gz
+   curl ${MINUS_K} http://www.zlib.net/${ZLIB}.tar.gz -o ${ZLIB}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${ZLIB}.tar.gz
    fi
@@ -66,7 +69,7 @@ fi
 if [ ${DOLIBGD} != 0 ] ;then
    if [ ! -f ${FREETYPE2}.tar.gz ] ; then
       echo fetching ${FREETYPE2}.tar.gz
-      curl -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
+      curl ${MINUS_K} -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${FREETYPE2}.tar.gz
       fi
@@ -74,7 +77,7 @@ if [ ${DOLIBGD} != 0 ] ;then
 
    if [ ! -f ${JPEG}.tar.gz ] ; then
       echo fetching ${JPEG}.tar.gz
-      curl http://www.ijg.org/files/${JPEG}.tar.gz -o ${JPEG}.tar.gz
+      curl ${MINUS_K} http://www.ijg.org/files/${JPEG}.tar.gz -o ${JPEG}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${JPEG}.tar.gz
       fi
@@ -82,7 +85,7 @@ if [ ${DOLIBGD} != 0 ] ;then
 
    if [ ! -f ${LIBPNG}.tar.gz ] ; then
       echo fetching ${LIBPNG}.tar.gz
-      curl -L http://prdownloads.sourceforge.net/libpng/${LIBPNG}.tar.gz -o ${LIBPNG}.tar.gz
+      curl ${MINUS_K} -L http://prdownloads.sourceforge.net/libpng/${LIBPNG}.tar.gz -o ${LIBPNG}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${LIBPNG}.tar.gz
       fi
@@ -90,7 +93,7 @@ if [ ${DOLIBGD} != 0 ] ;then
 
    if [ ! -f ${LIBGD}.tar.gz ] ; then
       echo fetching ${LIBGD}.tar.gz
-      curl -L https://github.com/libgd/libgd/releases/download/${GD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
+      curl ${MINUS_K} -L https://github.com/libgd/libgd/releases/tag/${LIBGD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${LIBGD}.tar.gz
       fi
@@ -100,7 +103,7 @@ fi
 if [ ${DONETCDF} != 0 ] ;then
    if [ ! -f ${CURL}.tar.gz ] ; then
       echo fetching ${CURL}.tar.gz
-      curl -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
+      curl ${MINUS_K} -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${CURL}.tar.gz
       fi
@@ -108,7 +111,7 @@ if [ ${DONETCDF} != 0 ] ;then
 
    if [ ! -f ${SZIP}.tar.gz ] ; then
       echo fetching ${SZIP}.tar.gz
-      curl https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
+      curl ${MINUS_K} https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${SZIP}.tar.gz
       fi
@@ -121,7 +124,7 @@ if [ ${DONETCDF} != 0 ] ;then
       HDFDV="HDF5_${HVER}_${HMAJ}_${HMIN}"
       HDF5URL="https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/${HDFDV}/src/${HDF5}.tar.gz"
       echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
-      curl -L ${HDF5URL} -o ${HDF5}.tar.gz
+      curl ${MINUS_K}  -L ${HDF5URL} -o ${HDF5}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${HDF5}.tar.gz
       fi
@@ -129,7 +132,8 @@ if [ ${DONETCDF} != 0 ] ;then
 
    if [ ! -f ${NETCDF}.tar.gz ] ; then
       echo fetching ${NETCDF}.tar.gz
-      curl -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz -o ${NETCDF}.tar.gz
+      curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
+     #curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz -o ${NETCDF}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${NETCDF}.tar.gz
       fi
@@ -138,7 +142,8 @@ if [ ${DONETCDF} != 0 ] ;then
    if [ "$FC" != "ifort" ] ; then
      if [ ! -f ${NETCDFF}.tar.gz ] ; then
        echo fetching ${NETCDFF}.tar.gz
-       curl -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz -o ${NETCDFF}.tar.gz
+       curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
+      #curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz -o ${NETCDFF}.tar.gz
        if [ $? != 0 ] ; then
          echo failed to fetch ${NETCDFF}.tar.gz
        fi
