@@ -65,7 +65,7 @@ if [ ! -f ${LIBPNG}.tar.gz ] ; then
 fi
 
 if [ ! -f ${LIBGD}.tar.gz ] ; then
-   curl ${MINUS_K} -L https://github.com/libgd/libgd/releases/tag/${LIBGD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
+   curl ${MINUS_K} -L https://github.com/libgd/libgd/releases/download/${GD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${LIBGD}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then
@@ -92,8 +92,8 @@ if [ ! -f ${SZIP}.tar.gz ] ; then
 fi
 
 if [ ! -f ${HDF5}.tar.gz ] ; then
-  #curl ${MINUS_K} -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
-   curl ${MINUS_K} -L "https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_14_2/src/hdf5-1.14.2.tar.gz" -o ${HDF5}.tar.gz
+   #curl ${MINUS_K} -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
+   curl ${MINUS_K} -L "https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_14_0/src/hdf5-1.14.0.tar.gz" -o ${HDF5}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${HDF5}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then
@@ -102,8 +102,8 @@ if [ ! -f ${HDF5}.tar.gz ] ; then
 fi
 
 if [ ! -f ${NETCDF}.tar.gz ] ; then
-   curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
-  #curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz
+   # curl https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
+   curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${NETCDF}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then
@@ -112,8 +112,8 @@ if [ ! -f ${NETCDF}.tar.gz ] ; then
 fi
 
 if [ ! -f ${NETCDFF}.tar.gz ] ; then
-   curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
-   # curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
+   # curl https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
+   curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${NETCDFF}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then

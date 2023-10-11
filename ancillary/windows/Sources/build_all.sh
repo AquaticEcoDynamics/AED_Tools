@@ -4,8 +4,13 @@ if [ $# -eq 0 ] ; then
   export DOLIBGD=1
   export DONETCDF=1
 else
-  export DOLIBGD=0
-  export DONETCDF=0
+  if [ $# -eq 1 -a "$1" = "--ignore-certs" ] ; then
+    export DOLIBGD=1
+    export DONETCDF=1
+  else
+    export DOLIBGD=0
+    export DONETCDF=0
+  fi
 fi
 
 while [ $# -gt 0 ] ; do
@@ -133,17 +138,15 @@ if [ ${DONETCDF} != 0 ] ;then
    if [ ! -f ${NETCDF}.tar.gz ] ; then
       echo fetching ${NETCDF}.tar.gz
       curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-c/${NETCDFV}/${NETCDF}.tar.gz -o ${NETCDF}.tar.gz
-     #curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz -o ${NETCDF}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${NETCDF}.tar.gz
       fi
    fi
 
-   if [ "$FC" != "ifort" ] ; then
+   if [ "$FC" = "ifort" ] ; then
      if [ ! -f ${NETCDFF}.tar.gz ] ; then
        echo fetching ${NETCDFF}.tar.gz
        curl ${MINUS_K} https://downloads.unidata.ucar.edu/netcdf-fortran/${NETCDFFV}/${NETCDFF}.tar.gz -o ${NETCDFF}.tar.gz
-      #curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz -o ${NETCDFF}.tar.gz
        if [ $? != 0 ] ; then
          echo failed to fetch ${NETCDFF}.tar.gz
        fi
@@ -466,7 +469,7 @@ export LDFLAGS="-L${FINALDIR}/lib"
    cd ..
    echo '****************' done building in $NETCDF
 
-  if [ "$FC" != "ifort" ] ; then
+  if [ "$FC" = "ifort" ] ; then
 # netcdff depends on netcdf
    unpack_src  $NETCDFF
    cd $NETCDFF
@@ -500,4 +503,3 @@ export LDFLAGS="-L${FINALDIR}/lib"
 fi
 
 exit 0
-

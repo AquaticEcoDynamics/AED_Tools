@@ -110,10 +110,8 @@ if [ "$FC" = "ifort" ] ; then
      . /opt/intel/setvars.sh
   elif [ -d /opt/intel/oneapi ] ; then
      . /opt/intel/oneapi/setvars.sh
-  else
-    if [ -d /opt/intel/bin ] ; then
-       . /opt/intel/bin/compilervars.sh intel64
-    fi
+  elif [ -d /opt/intel/bin ] ; then
+     . /opt/intel/bin/compilervars.sh intel64
   fi
   which ifort > /dev/null 2>&1
   if [ $? != 0 ] ; then
@@ -231,6 +229,12 @@ if [ "$OSTYPE" = "FreeBSD" -a -d ancillary/freebsd ] ; then
   echo making flang extras
   cd ancillary/freebsd
   ${MAKE} || exit 1
+#elif [ "$OSTYPE" = "Msys" -a -d ancillary/windows ] ; then
+#  if [ ! -d ancillary/windows/msys ] ; then
+#    echo making windows ancillary extras
+#    cd ancillary/windows/Sources
+#    ./build_all.sh || exit 1
+# fi
 fi
 
 cd "${CURDIR}"
@@ -358,10 +362,16 @@ if [ "$OSTYPE" = "Msys" ] ; then
   fi
   mkdir glm_$VERSION
   cp ancillary/windows/msys/bin/libnetcdf.dll glm_$VERSION
-  for dll in libgfortran-5.dll libgcc_s_seh-1.dll libquadmath-0.dll libwinpthread-1.dll ; do
-    dllp=`find /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/ -name $dll 2> /dev/null | head -1`
-    echo \"$dllp\"
-    cp "$dllp" glm_$VERSION
+# for dll in libgfortran-5.dll libgcc_s_seh-1.dll libquadmath-0.dll libwinpthread-1.dll ; do
+  for dll in libgfortran libgcc_s_seh libquadmath libwinpthread ; do
+#   dllp=`find /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/ -name $dll 2> /dev/null | head -1`
+    dllp=`find /c/ProgramData/chocolatey/ -name $dll\*.dll 2> /dev/null | head -1`
+    if [ "$dllp" != "" ] ; then
+      echo \"$dllp\"
+      cp "$dllp" glm_$VERSION
+    else
+      echo "$dll not found"
+    fi
   done
   /bin/cp "${CURDIR}/glm" glm_$VERSION
   # zip up the bundle
