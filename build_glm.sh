@@ -228,6 +228,7 @@ cd "${CURDIR}/.."
 if [ "$OSTYPE" = "FreeBSD" -a -d ancillary/freebsd ] ; then
   echo making flang extras
   cd ancillary/freebsd
+  ./fetch.sh
   ${MAKE} || exit 1
 #elif [ "$OSTYPE" = "Msys" -a -d ancillary/windows ] ; then
 #  if [ ! -d ancillary/windows/msys ] ; then

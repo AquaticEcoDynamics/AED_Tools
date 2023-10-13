@@ -2,7 +2,7 @@
 #                                                                             #
 # Makefile for flang_extras                                                   #
 #                                                                             #
-#  Copyright 2022 -  The University of Western Australia                      #
+#  Copyright 2022-2023 -  The University of Western Australia                 #
 #                                                                             #
 ###############################################################################
 
@@ -53,4 +53,7 @@ ${objdir}/%.o: ${srcdir}/%.F95
 	flang ${FFLAGS} ${EXTRA_FLAGS} -c $< -o $@
 
 ${objdir}/%.o: ${srcdir}/%.f90
+	flang ${FFLAGS} ${EXTRA_FLAGS} -c $< -o $@
+
+${objdir}/%.o: ${srcdir}/%.F90
 	flang ${FFLAGS} ${EXTRA_FLAGS} -c $< -o $@

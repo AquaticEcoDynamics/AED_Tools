@@ -15,6 +15,6 @@ wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang
 wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang/ieee_exceptions.F95
 wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang/ieee_features.F95
 wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang/iso_c_bind.F95
-wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang/iso_fortran_env.f90
+wget https://raw.githubusercontent.com/flang-compiler/flang/master/runtime/flang/iso_fortran_env.F90
 
 exit 0
