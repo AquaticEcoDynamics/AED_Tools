@@ -30,6 +30,9 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
+# there seems to be issues with certificates on a number of sites
+export MINUS_K='-k'
+
 if [ $DOLIBGD = 0 ] ; then
   if [ $DONETCDF = 0 ] ; then
     echo nothing to do\?
@@ -98,7 +101,7 @@ if [ ${DOLIBGD} != 0 ] ;then
 
    if [ ! -f ${LIBGD}.tar.gz ] ; then
       echo fetching ${LIBGD}.tar.gz
-      curl ${MINUS_K} -L https://github.com/libgd/libgd/releases/tag/${LIBGD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
+      curl ${MINUS_K} -L https://github.com/libgd/libgd/releases/download/${GD}/${LIBGD}.tar.gz -o ${LIBGD}.tar.gz
       if [ $? != 0 ] ; then
          echo failed to fetch ${LIBGD}.tar.gz
       fi
@@ -436,6 +439,10 @@ export LDFLAGS="-L${FINALDIR}/lib"
 # netcdf depends on hdf5 and curl
    unpack_src  $NETCDF
    cd $NETCDF
+   # not sure if this is a bug in windows cmake or in netcdf-c bundle, but 
+   # cmake looks for these
+   mkdir fuzz
+   touch fuzz/CMakeLists.txt
    cmake "." \
         -G "Unix Makefiles" \
                 -DENABLE_DAP=0 \
