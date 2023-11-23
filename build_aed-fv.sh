@@ -236,6 +236,7 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
        export MYPATH=${CURDIR}/${BINPATH}/libaed_fv_latest/libaed-tfv
        cd ${AEDFVDIR}
        bin/mk_tuflowfv_libaed > ${CURDIR}/${BINPATH}/libaed_fv_latest/tuflowfv_libaed
+       chmod +x ${CURDIR}/${BINPATH}/libaed_fv_latest/tuflowfv_libaed
        cd ${CURDIR}
     fi
   else
