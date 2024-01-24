@@ -148,7 +148,7 @@ if [ "${NO_LGT}" != "true" ] ; then
   cd  ${CURDIR}/libaed-light
   ${MAKE} || exit 1
   export DAEDLGTDIR=`pwd`
-  echo DEV = $DAEDLGTDIR
+  echo LGT = $DAEDLGTDIR
   PARAMS="${PARAMS} AEDLGTDIR=${DAEDLGTDIR}"
 fi
 if [ ! -d ${CURDIR}/libaed-dev ] ; then NO_DEV=true ; fi

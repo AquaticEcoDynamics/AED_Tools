@@ -2,6 +2,7 @@
 ._.DS*
 *.diff
 GLM*
+ELCOM
 libaed-*
 libaed2
 libaed2-plus
@@ -25,3 +26,4 @@ schism
 TestSets
 aed_dbase
 sim*
+swan

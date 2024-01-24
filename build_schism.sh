@@ -13,9 +13,6 @@ esac
 #-------------------------------------------------------------------------------
 # Set up some defaults
 
-export WITHFABM="OFF"
-export COSON="OFF"
-export PREC_EVAP="OFF"
 
 export CWD=`pwd`
 export MAKE=make
@@ -35,6 +32,9 @@ fi
 export FC=ifort
 export COSON="ON"
 export WITHFABM="ON"
+#export WITHFABM="OFF"
+#export COSON="OFF"
+export PREC_EVAP="OFF"
 
 # If we're on ubuntu we need to make sure we have :
 #
