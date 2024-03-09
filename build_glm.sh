@@ -181,6 +181,7 @@ if [ "${AED2}" = "true" ] ; then
 fi
 
 if [ "${AED}" = "true" ] ; then
+  echo "build libaed-water"
   cd "${CURDIR}/../libaed-water"
   ${MAKE} || exit 1
   DAEDWATDIR=`pwd`
@@ -216,26 +217,30 @@ if [ "${AED}" = "true" ] ; then
   fi
 fi
 
-if [ "$WITH_PLOTS" = "true" ] ; then
-  cd "${PLOTDIR}"
+if [ -d "${UTILDIR}" ] ; then
+  echo "making libutil"
+  cd "${UTILDIR}"
   ${MAKE} || exit 1
+  cd "${CURDIR}/.."
 fi
 
-cd "${UTILDIR}"
-${MAKE} || exit 1
-
-cd "${CURDIR}/.."
-if [ "$OSTYPE" = "FreeBSD" -a -d ancillary/freebsd ] ; then
+if [ "$OSTYPE" = "FreeBSD" ] ; then
   echo making flang extras
   cd ancillary/freebsd
   ./fetch.sh
   ${MAKE} || exit 1
-#elif [ "$OSTYPE" = "Msys" -a -d ancillary/windows ] ; then
-#  if [ ! -d ancillary/windows/msys ] ; then
-#    echo making windows ancillary extras
-#    cd ancillary/windows/Sources
-#    ./build_all.sh || exit 1
-# fi
+elif [ "$OSTYPE" = "Msys" ] ; then
+  if [ ! -d ancillary/windows/msys ] ; then
+    echo making windows ancillary extras
+    cd ancillary/windows/Sources
+    ./build_all.sh || exit 1
+  fi
+fi
+
+if [ "$WITH_PLOTS" = "true" ] ; then
+  echo "making libplot"
+  cd "${PLOTDIR}"
+  ${MAKE} || exit 1
 fi
 
 cd "${CURDIR}"
@@ -362,11 +367,11 @@ if [ "$OSTYPE" = "Msys" ] ; then
     mkdir -p "${BINPATH}"
   fi
   mkdir glm_$VERSION
+
   cp ancillary/windows/msys/bin/libnetcdf.dll glm_$VERSION
-# for dll in libgfortran-5.dll libgcc_s_seh-1.dll libquadmath-0.dll libwinpthread-1.dll ; do
+  cp ancillary/windows/msys/bin/libgd.dll glm_$VERSION
   for dll in libgfortran libgcc_s_seh libquadmath libwinpthread ; do
-#   dllp=`find /c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/ -name $dll 2> /dev/null | head -1`
-    dllp=`find /c/ProgramData/chocolatey/ -name $dll\*.dll 2> /dev/null | head -1`
+    dllp=`find /c/ProgramData/ -name $dll\*.dll 2> /dev/null | head -1`
     if [ "$dllp" != "" ] ; then
       echo \"$dllp\"
       cp "$dllp" glm_$VERSION
@@ -398,6 +403,9 @@ cd ${CURDIR}/..
 echo Finished build for $OSTYPE
 
 if [ -d ${BINPATH}/glm_$VERSION ] ; then
+  if [ -d ${BINPATH}/glm_latest ] ; then
+    /bin/rm -rf ${BINPATH}/glm_latest
+  fi
   /bin/mv ${BINPATH}/glm_$VERSION ${BINPATH}/glm_latest
 else
   if [ ! -d ${BINPATH}/glm_latest ] ; then
@@ -411,6 +419,9 @@ echo Generating ReleaseInfo.txt for glm
 
 if [ -x ${CURDIR}/glm+ ] ; then
   if [ -d ${BINPATH}/glm+_$VERSION ] ; then
+    if [ -d ${BINPATH}/glm+_latest ] ; then
+      /bin/rm -rf ${BINPATH}/glm+_latest
+    fi
     /bin/mv ${BINPATH}/glm+_$VERSION ${BINPATH}/glm+_latest
   else
     if [ ! -d ${BINPATH}/glm+_latest ] ; then

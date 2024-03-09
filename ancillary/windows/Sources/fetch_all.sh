@@ -24,6 +24,7 @@ export LIBPNG=libpng-${LIBPNGV}
 export LIBGD=lib${GD}
 export CURL=curl-${CURLV}
 export SZIP=szip-${SZIPV}
+export LIBAEC=libaec-${LIBAECV}
 export HDF5=hdf5-${HDF5V}
 export NETCDF=netcdf-c-${NETCDFV}
 export NETCDFF=netcdf-fortran-${NETCDFFV}
@@ -40,7 +41,17 @@ fi
 if [ ! -f ${FREETYPE2}.tar.gz ] ; then
    curl ${MINUS_K} -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
    if [ $? != 0 ] ; then
-      echo failed to fetch ${FREETYPE2}.tar.gz
+      curl  ${MINUS_K} -L https://ixpeering.dl.sourceforge.net/project/freetype/freetype2/${FRREETYPE2V}/${FREETYPE2}.tar.xz -o ${FREETYPE2}.tar.xz
+      if [ $? != 0 ] ; then
+        echo failed to fetch ${FREETYPE2}.tar.gz
+      else
+        tar -xJf ${FREETYPE2}.tar.xz
+        tar -czf ${FREETYPE2}.tar.gz ${FREETYPE2}
+	/bin/rm ${FREETYPE2}.tar.xz
+	if [ "$UNPACK" != "true" ] ; then
+          /bin/rm -rf ${FREETYPE2}
+	fi
+      fi
    elif [ "$UNPACK" = "true" ] ; then
       tar -xzf ${FREETYPE2}.tar.gz
    fi
@@ -82,18 +93,32 @@ if [ ! -f ${CURL}.tar.gz ] ; then
    fi
 fi
 
-if [ ! -f ${SZIP}.tar.gz ] ; then
-   curl ${MINUS_K} https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
+#if [ ! -f ${SZIP}.tar.gz ] ; then
+#   curl ${MINUS_K} https://support.hdfgroup.org/ftp/lib-external/szip/${SZIPV}/src/${SZIP}.tar.gz -o ${SZIP}.tar.gz
+#   if [ $? != 0 ] ; then
+#      echo failed to fetch ${SZIP}.tar.gz
+#   elif [ "$UNPACK" = "true" ] ; then
+#      tar xzf ${SZIP}.tar.gz
+#   fi
+#fi
+if [ ! -f  ${LIBAEC}.tar.gz ] ; then
+   echo curl ${MINUS_K} -L https://gitlab.dkrz.de/k202009/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz -o ${LIBAEC}.tar.gz
+   curl ${MINUS_K} -LJO https://gitlab.dkrz.de/k202009/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
    if [ $? != 0 ] ; then
-      echo failed to fetch ${SZIP}.tar.gz
+      echo failed to fetch ${LIBAEC}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then
-      tar xzf ${SZIP}.tar.gz
+      tar xzf ${LIBAEC}.tar.gz
    fi
 fi
 
 if [ ! -f ${HDF5}.tar.gz ] ; then
-   #curl ${MINUS_K} -L "https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=629d65fd013e61654482429" -o ${HDF5}.tar.gz
-   curl ${MINUS_K} -L "https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_14_0/src/hdf5-1.14.0.tar.gz" -o ${HDF5}.tar.gz
+   HVER=`echo ${HDF5V} | cut -f1 -d\.`
+   HMAJ=`echo ${HDF5V} | cut -f2 -d\.`
+   HMIN=`echo ${HDF5V} | cut -f3 -d\.`
+   HDFDV="HDF5_${HVER}_${HMAJ}_${HMIN}"
+   HDF5URL="https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/${HDFDV}/src/${HDF5}.tar.gz"
+   echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
+   curl ${MINUS_K}  -L ${HDF5URL} -o ${HDF5}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${HDF5}.tar.gz
    elif [ "$UNPACK" = "true" ] ; then
