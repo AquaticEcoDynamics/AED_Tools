@@ -9,7 +9,7 @@
 #                                                                             #
 #      http://aquatic,science.uwa.edu.au/                                     #
 #                                                                             #
-#  Copyright 2013 - 2022 -  The University of Western Australia               #
+#  Copyright 2013 - 2025 -  The University of Western Australia               #
 #                                                                             #
 #   GLM is free software: you can redistribute it and/or modify               #
 #   it under the terms of the GNU General Public License as published by      #
@@ -26,27 +26,26 @@
 #                                                                             #
 ###############################################################################
 
-0) To build a Windows version you will need VisualStudio, Intel Fortran
-   and either Intel-C or Visual-C++ - projects for vs2017 are provided.
-
-   To build on Linux you will need Intel Fortran or gfortran v8 or later.
-
-   You will also need NetCDF libraries and if you wish to support plotting
-   you will need libgd, libpng and libjpeg and for Linux X11 libraries.
-
-   OR
+0w) To build on Windows
 
    Install chocolatey
        then:
-          choco install make
-          choco install mingw
-          choco install git
-          choco install cmake
+          choco install -y make
+          choco install -y mingw
+          choco install -y git
+          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
     Some other support libraries are needed, they can be installed from
     Some other support libraries are needed, they can be installed from
     in the win-3rd-party/Sources directory using the build_all script.
     After which, building is done with the build_glm.sh script.
+
+0l) To build on Linux
+
+   You will need Intel Fortran or gfortran v8 or later.
+
+   You will also need NetCDF libraries and if you wish to support plotting
+   you will need libgd, libpng and libjpeg and for Linux X11 libraries.
 
 1) Get the AED_Tools and unpack it.
        git clone https://github.com/AquaticEcoDynamics/AED_Tools
@@ -113,10 +112,9 @@ As mentioned above, there are a few dependencies.
   -------------
 
      1) XCode - available through the App Store
-     2) Since compiling with gfortran doesn't work, you will need Intel Fortran
-     3) You will need netcdf - this is available from MacPorts - https://www.macports.org
+     2) You will need netcdf - this is available from homebrew - http://brew.sh/
                port install netcdf
-     4) To build the GUI you will need libgd - this is available through MacPorts
-               port install gd2
+     3) To build the GUI you will need libgd - this is available through homebrew
+               brew install gd2
 
 

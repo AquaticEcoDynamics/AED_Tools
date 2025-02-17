@@ -1,0 +1,234 @@
+#!/bin/bash
+
+# It seems tuflow uses v4.4.5 (from Jan 2019)
+. ./versions.inc
+
+export NETCDF=netcdf-c-${NETCDFV}
+export NETCDFF=netcdf-fortran-${NETCDFFV}
+
+# Flag to ingore self-signing of repository
+export MINUS_K='-k'
+
+if [ "$CC" = "" ] ; then
+  export CC=gcc
+fi
+if [ "$FC" = "" ] ; then
+ #export FC=ifort
+  export FC=ifx
+ #export FC=gfortran
+fi
+case `uname` in
+  "Darwin"|"Linux"|"FreeBSD")
+    export OSTYPE=`uname -s`
+    ;;
+  MINGW*)
+    export OSTYPE="Msys"
+    ;;
+esac
+
+if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
+  if [ -x /opt/intel/setvars.sh ] ; then
+     . /opt/intel/setvars.sh
+  elif [ -d /opt/intel/oneapi ] ; then
+     . /opt/intel/oneapi/setvars.sh
+  else
+    if [ -d /opt/intel/bin ] ; then
+       . /opt/intel/bin/compilervars.sh intel64
+    fi
+    which $FC > /dev/null 2>&1
+    if [ $? != 0 ] ; then
+       echo $FC compiler requested, but not found
+       exit 1
+    fi
+  fi
+fi
+
+export F77=$FC
+export F90=$FC
+export F95=$FC
+
+if [ ! -f ${NETCDFF}.tar.gz ] ; then
+   echo fetching ${NETCDFF}
+   curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
+
+   if [ $? != 0 ] ; then
+      echo failed to fetch ${NETCDFF}.tar.gz
+   fi
+fi
+
+#===============================================================================
+
+CWD=`pwd`
+cd ..
+export FINALDIR=`pwd`
+cd "$CWD"
+
+if [ ! -d "${FINALDIR}"/include ] ; then
+  mkdir "${FINALDIR}"/include
+fi
+if [ ! -d "${FINALDIR}"/lib ] ; then
+  mkdir "${FINALDIR}"/lib
+fi
+if [ ! -d "${FINALDIR}"/bin ] ; then
+  mkdir "${FINALDIR}"/bin
+fi
+
+export CFLAGS="-I${FINALDIR}/include"
+export CPPFLAGS="-I${FINALDIR}/include"
+#export LDFLAGS="-static -L${FINALDIR}/lib"
+export LDFLAGS="-L${FINALDIR}/lib"
+
+if [ "$OSTYPE" = "Msys" ] ; then
+  # The following gets around a problem that inside "make" the SHELL var is
+  # "Program Files" somewhere and it cannot be redefined so I define XSHELL
+  # and replace 'SHELL' with 'XSHELL' in the Makefiles 
+  export XSHELL=/usr/bin/sh
+
+  # choco install cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"'
+  # choco install pkgconfiglite
+  export PKG_CONFIG_PATH=/c/ProgramData/chocolatey/bin/
+  alias pkgconfig=pkg-config
+fi
+if [ "$OSTYPE" = "Darwin" ] ; then
+  export CFLAGS="${CFLAGS} -I/opt/local/include"
+  export LDFLAGS="${LDFLAGS} -L/opt/local/lib/lib"
+fi
+
+#----------------------------------------------------------------
+unpack_src () {
+   src=$1
+   if [ ! -d $src ] ; then
+      if [ -f $src.tar.gz ] ; then
+       echo Unpacking $src.tar.gz
+       tar -xzf $src.tar.gz
+     else
+       echo $src.tar.gz not found!
+       exit 1
+     fi
+   fi
+   if [ -d $src ] ; then
+      echo '****************' building in $src
+   else
+     echo no directory for $src
+     exit 1
+   fi
+}
+#----------------------------------------------------------------
+if [ "0" = "1" ] ; then
+
+  echo "====== building $NETCDF"
+
+  \rm -rf $NETCDF
+  tar xzf $NETCDF.tar.gz
+  cd $NETCDF
+  if [ ! -d fuzz ] ; then
+    mkdir fuzz
+    touch fuzz/CMakeLists.txt
+  fi
+
+  mkdir build
+  cd build
+
+  cmake .. -G "Unix Makefiles" \
+           -DCMAKE_FIND_ROOT_PATH="${FINALDIR}"  \
+           -DBUILD_SHARED_LIBS:BOOL=ON \
+           -DCMAKE_BUILD_TYPE:STRING=Release \
+           -DCURL_LIBRARIES=OFF \
+           -DENABLE_TESTS=OFF \
+           -DENABLE_DAP=OFF \
+           -DBUILD_UTILITIES:BOOL=OFF \
+           -DENABLE_BYTERANGE:BOOL=OFF \
+           -DENABLE_NCZARR:BOOL=OFF \
+           -DCMAKE_MODULE_LINKER_FLAGS:STRING=-L"${FINALDIR}/lib" \
+           -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-netcdf-c 2>&1
+
+#          -DZLIB_LIBRARY:PATH="${FINALDIR}/lib/libzlibstatic.a"  \
+#          -DSZIP_LIBRARY:PATH="${FINALDIR}/lib/libsz.a"  \
+
+#          -DBUILD_SHARED_LIBS:BOOL=ON \
+#          -DCMAKE_BUILD_TYPE:STRING=Release \
+#          -DHDF5_C_LIBRARY="${FINALDIR}" \
+#          -DHDF5_ROOT="${FINALDIR}" \
+#          -DSZIP_ROOT="${FINALDIR}" \
+#          -DZLIB_ROOT="${FINALDIR}" \
+#          -DHDF5_DIR="${FINALDIR}/cmake/hdf5" \
+#          -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
+  
+  if [ $? != 0 ] ; then
+    echo cmake $NETCDF failed
+    exit 1
+  fi
+
+  cmake --build . --clean-first --config Release #--target INSTALL
+  if [ $? != 0 ] ; then
+    echo $NETCDF build failed
+    exit 1
+  fi
+  cmake -P cmake_install.cmake
+
+  cd $CWD
+fi
+
+#----------------------------------------------------------------
+
+# netcdff depends on netcdf
+   echo "====== building $NETCDFF"
+
+   export PATH="$PATH:${FINALDIR}/bin"
+   unpack_src  $NETCDFF
+   cd $NETCDFF
+   if [ -d build ] ; then
+     /bin/rm -rf build
+   fi
+   mkdir build
+   cd build
+
+   export FCFLAGS="$FCFLAGS -I${FINALDIR}/include"
+   export FFLAGS="$FFLAGS -I${FINALDIR}/include"
+   export CPPFLAGS="-I${FINALDIR}/include"
+   export LDFLAGS="-L${FINALDIR}/lib"
+
+   cmake ..  -G "Unix Makefiles" \
+             -DCMAKE_FIND_ROOT_PATH=${FINALDIR} \
+             -DBUILD_SHARED_LIBS:BOOL=OFF  \
+             -DCMAKE_BUILD_TYPE:STRING=Release \
+             -DENABLE_TESTS=OFF \
+             -DBUILD_TESTING:BOOL=OFF \
+             -DBUILD_UTILITIES:BOOL=OFF \
+             -DBUILD_EXAMPLES:BOOL=OFF \
+             -DNETCDF_INCLUDE_DIR="${FINALDIR}/include" \
+             -DCMAKE_INSTALL_PREFIX="${FINALDIR}"
+
+#  export LDFLAGS="-static -L${FINALDIR}/lib"
+#  export LIBS="-L${FINALDIR}/lib -lnetcdf -lhdf5_hl -lhdf5 -lm -lz -lsz -lxml2 -lcurl"
+#  export LIBS="-L/opt/local/lib -lnetcdf"
+   export LIBS="-lnetcdf"
+
+   if [ $? != 0 ] ; then
+     echo $NETCDFF cmake failed
+     exit 1
+   fi
+
+#  ./configure --prefix=${FINALDIR} --enable-static --disable-shared
+   cmake --build . --clean-first --config Release #--target INSTALL
+   if [ $? != 0 ] ; then
+     echo $NETCDFF build failed
+     exit 1
+   fi
+   cmake -P cmake_install.cmake
+   if [ $? != 0 ] ; then
+     echo $NETCDFF install failed
+     exit 1
+   fi
+   if [ -d "${FINALDIR}/include/Release" ] ; then
+     mv "${FINALDIR}/include/Release/"* "${FINALDIR}/include/"
+     rmdir "${FINALDIR}/include/Release"
+   fi
+   if [ ! -f /include/netcdf.inc ] ; then
+     cp ../fortran/netcdf3.inc ${FINALDIR}/include/netcdf.inc
+   fi
+
+   cd $CWD
+   echo '****************' done building in $NETCDFF
+
+exit 0

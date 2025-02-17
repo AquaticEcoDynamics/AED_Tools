@@ -16,10 +16,11 @@ GETFABM="false"
 GETPLUS="false"
 GETAEDFV="false"
 GET_EGS="false"
+GETELC="false"
 
 if [ $# = 0 ] ; then
   # The default case is to just update
-  upd_list="libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libaed-light libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
+  upd_list="libaed-api libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libaed-light libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
 fi
 
 #-------------------------------------------------------------------------------
@@ -59,14 +60,14 @@ while [ $# -gt 0 ] ; do
     libutil)
       GETUTIL="true"
       ;;
-    plus)
-      GETPLUS="true"
-      ;;
     fabm)
       GETFABM="true"
       ;;
     examples)
       GET_EGS="true"
+      ;;
+    elcom)
+      GETELC="true"
       ;;
     -g|--githost)
       GITHOST="$2"
@@ -80,7 +81,7 @@ done
 
 if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
 if [ "$GETAEDFV" = "true" ] ; then rep_list="$rep_list libaed-fv" ; fi
-if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-water libaed-benthic libaed-demo" ; fi
+if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-api libaed-api libaed-water libaed-benthic libaed-demo" ; fi
 if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed-riparian libaed-dev libaed-light" ; fi
 if [ "$GETAED2" = "true" ]  ; then
     rep_list="$rep_list libaed2"
@@ -89,6 +90,7 @@ fi
 if [ "$GETPLOT" = "true" ]  ; then rep_list="$rep_list libplot" ; fi
 if [ "$GETUTIL" = "true" ]  ; then rep_list="$rep_list libutil" ; fi
 if [ "$GET_EGS" = "true" ]  ; then rep_list="$rep_list GLM_Examples" ; fi
+if [ "$GETELC" = "true" ]  ; then rep_list="$rep_list ELCOM" ; fi
 
 #-------------------------------------------------------------------------------
 
@@ -183,6 +185,8 @@ if [ $count = 0 ] ; then
   echo "  libutil : fetch the libutil sources"
   echo "  plus    : fetch the libaed-\* plus sources (private repository)"
   echo "  aed-fv  : fetch the libaed-fv sources"
+  echo
+  echo "  elcom   : fetch the ELCOM sources"
   echo
   echo "  all     : fetch them all"
   echo

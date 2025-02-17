@@ -9,13 +9,14 @@ export JPEG=jpegsrc.v${JPEGV}
 export LIBPNG=libpng-${LIBPNGV}
 export LIBGD=lib${GD}
 export CURL=curl-${CURLV}
+export LIBAEC="libaec-${LIBAECV}"
 export SZIP=szip-${SZIPV}
 export HDF5=hdf5-${HDF5V}
 export NETCDF=netcdf-c-${NETCDFV}
 export NETCDFF=netcdf-fortran-${NETCDFFV}
 
 
-for i in $SZIP $ZLIB $HDF5 $LIBPNG $CURL $FREETYPE2 ; do
+for i in $SZIP $ZLIB $HDF5 $LIBPNG $LIBAEC $CURL $FREETYPE2 ; do
    if [ -d $i ] ; then
       rm -rf $i
    fi

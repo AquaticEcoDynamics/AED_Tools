@@ -1,6 +1,7 @@
 #!/bin/sh
 
 CWD=`pwd`
+DO_ANC="no"
 
 if [ "$FC" = "" ] ; then
   export FC=gfortran
@@ -12,29 +13,38 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
 fi
 
-for i in water benthic riparian demo dev light fv ; do
-   echo clean libaed-$i
+for i in api water benthic riparian demo dev light fv fv2 ; do
    if [ -d libaed-$i ] ; then
-     cd  libaed-$i
+     echo clean libaed-$i
+     cd libaed-$i
      ${MAKE} distclean
-     cd $CWD
+     cd "$CWD"
    fi
 done
 
-for i in libaed2 libaed2-plus libplot libutil GLM ; do
-   echo clean $i
+for i in libaed2 libaed2-plus libplot libutil GLM zeroD ; do
    if [ -d $i ] ; then
-     cd  $i
+     echo clean $i
+     cd $i
      ${MAKE} distclean
-     cd $CWD
+     cd "$CWD"
    fi
 done
 
-if [ "$OSTYPE" = "FreeBSD" ] ; then
-  cd ancillary/freebsd
-  ${MAKE} distclean
-  # the rest are currently not supported on FreeBSD anyway
-  exit 0
+# if [ "$OSTYPE" = "FreeBSD" ] ; then
+#   cd ancillary/freebsd
+#   ${MAKE} distclean
+#   # the rest are currently not supported on FreeBSD anyway
+#   exit 0
+# fi
+
+if [ -d fabm-git ] ; then
+  echo clean fabm-git
+  cd fabm-git
+  if [ -d build ] ; then
+    /bin/rm -rf build
+  fi
+  cd "$CWD"
 fi
 
 if [ -d gotm-git ] ; then
@@ -43,7 +53,14 @@ if [ -d gotm-git ] ; then
   export FORTRAN_COMPILER=IFORT
   cd gotm-git
   ${MAKE} distclean
-  cd $CWD
+  cd "$CWD"
+fi
+
+if [ -d swan ] ; then
+  echo cleaning in swan
+  cd swan
+  cmake -P clobber.cmake
+  cd "$CWD"
 fi
 
 if [ -d tuflowfv-svn ] ; then
@@ -61,21 +78,34 @@ if [ -d tuflowfv-svn ] ; then
     cd ${CWD}/tuflowfv-svn/platform/${PLATFORM}
     ${MAKE} clean
   fi
-fi
-if [ -d ancillary/ifort/lib ] ; then
-  /bin/rm -rf ancillary/ifort/lib
-fi
-if [ -d ancillary/ifort/include ] ; then
-  /bin/rm -rf ancillary/ifort/include
-fi
-if [ -d ancillary/ifort/bin ] ; then
-  /bin/rm -rf ancillary/ifort/bin
-fi
-if [ -d ancillary/ifort/share ] ; then
-  /bin/rm -rf ancillary/ifort/share
+  cd "$CWD"
 fi
 
-cd $CWD
+if [ -d ELCOM ] ; then
+  echo cleaning ELCOM
+  cd ELCOM
+  ./clean.sh
+  cd "$CWD"
+fi
+
+if [ "$DO_ANC" = "yes" ] ; then
+for fc in ifort ifx gfortran ; do
+  if [ -d ancillary/${fc}/lib ] ; then
+    /bin/rm -rf ancillary/${fc}/lib
+  fi
+  if [ -d ancillary/${fc}/include ] ; then
+    /bin/rm -rf ancillary/${fc}/include
+  fi
+  if [ -d ancillary/${fc}/bin ] ; then
+    /bin/rm -rf ancillary/${fc}/bin
+  fi
+  if [ -d ancillary/${fc}/share ] ; then
+    /bin/rm -rf ancillary/${fc}/share
+  fi
+done
+fi
+
+cd "$CWD"
 if [ -d schism ] ; then
   if [ -d schism/build ] ; then
     echo cleaning schism
@@ -88,7 +118,20 @@ if [ -d schism ] ; then
     ${MAKE} clean
     cd ../mk
     /bin/rm Make.defs.aed Make.defs.local
-    cd $CWD
+    cd "$CWD"
+  fi
+  if [ -f schism/src/AED/CMakeLists.txt ] ; then
+    /bin/rm schism/src/AED/CMakeLists.txt
+  fi
+fi
+
+cd "$CWD"
+if [ -d phreeqcrm ] ; then
+  cd phreeqcrm
+  if [ -d build ] ; then
+    echo cleaning phreeqcrm
+    /bin/rm -rf build
+    git checkout .
   fi
 fi
 

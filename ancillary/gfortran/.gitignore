@@ -1,0 +1,8 @@
+netcdf-c-*
+netcdf-fortran*
+netcdf_*
+cmake-info-*
+include
+lib
+share
+bin

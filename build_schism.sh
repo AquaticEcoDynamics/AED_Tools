@@ -1,5 +1,16 @@
 #!/bin/bash
 
+#export WITH_FABM="ON"
+#export WITH_AED="ON"
+export FABMDIR=fabm-schism
+export WITH_AED_PLUS=false
+
+export CWD=`pwd`
+export MAKE=make
+export BFLAG='-j8'
+export ERROR=0
+export MDEBUG=false
+
 # Start by figuring out what system we're on
 case `uname` in
   "Darwin"|"Linux"|"FreeBSD")
@@ -13,12 +24,6 @@ esac
 #-------------------------------------------------------------------------------
 # Set up some defaults
 
-
-export CWD=`pwd`
-export MAKE=make
-export BFLAG='-j8'
-export ERROR=0
-
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
   export CC=clang
@@ -29,20 +34,13 @@ else
   export MAKE=make
 fi
 
-export FC=ifort
-export COSON="ON"
-export WITHFABM="ON"
-#export WITHFABM="OFF"
-#export COSON="OFF"
-export PREC_EVAP="OFF"
-
 # If we're on ubuntu we need to make sure we have :
 #
 #    libnetcdf-dev and cmake
 #
 # and if we're using gfortran we need :
 #
-#    libopenmpi-dev openmpi-bin netcdff-dev
+#    libopenmpi-dev openmpi-bin libnetcdff-dev
 #
 if [ "$OSTYPE" = "Linux" ] ; then
   dpkg --list cmake > /dev/null 2>& 1
@@ -50,11 +48,11 @@ if [ "$OSTYPE" = "Linux" ] ; then
     ERROR=1
     echo 'schism requires cmake installed to build'
   fi
-  dpkg --list libnetcdf-dev > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires libnetcdf-dev installed to build'
-  fi
+# dpkg --list libnetcdf-dev > /dev/null 2>& 1
+# if [ $? -ne 0 ] ; then
+#   ERROR=1
+#   echo 'schism requires libnetcdf-dev installed to build'
+# fi
 fi
 
 #
@@ -75,11 +73,17 @@ while [ $# -gt 0 ] ; do
     --debug)
       export DEBUG=true
       ;;
+    --mdebug)
+      export MDEBUG=true
+      ;;
     --fence)
       export FENCE=true
       ;;
     --gfort)
       export FC=gfortran
+      ;;
+    --ifx)
+      export FC=ifx
       ;;
     --ifort)
       export FC=ifort
@@ -87,49 +91,172 @@ while [ $# -gt 0 ] ; do
     --flang)
       export FC=flang
       ;;
+    --with-aed)
+      export WITH_AED="ON"
+      ;;
+    --with-aed-plus)
+      export WITH_AED="ON"
+      export WITH_AED_PLUS=true
+      ;;
     --with-fabm)
-      export WITHFABM="ON"
+      export WITH_FABM="ON"
       ;;
 
-# set (PREC_EVAP OFF CACHE BOOLEAN "Include precipitation and evaporation calculation")
-    --prec-evap-on)
-      export PREC_EVAP="ON"
+    --with-no-parmetis)
+      export WITH_NO_PARMETIS="ON"
       ;;
-# set (USE_BULK_FAIRALL OFF CACHE BOOLEAN "Enable Fairall bulk scheme for air-sea exchange")
-# set (IMPOSE_NET_FLUX  OFF CACHE BOOLEAN "Specify net heat and salt fluxes in sflux")
-# ##Older versions of GOTM (3.*) have issues with netcdf v4, so are not maintained
-# set (USE_GOTM OFF CACHE BOOLEAN \
-#     "Use GOTM turbulence model. This just enables the build -- GOTM must still be selected in param.nml")
-# set (USE_HA OFF CACHE BOOLEAN "Enable harmonic analysis output modules")
-# set( USE_MARSH OFF CACHE BOOLEAN "Use marsh module")
-# set( USE_PAHM OFF CACHE BOOLEAN "Use PaHM module")
-#
-# #   Enable/Disable Modules
-# set( USE_SED2D OFF CACHE BOOLEAN "Use 2D sediment module")
-# set( USE_WWM OFF CACHE BOOLEAN "Use wind-wave module")
-# ##Coupling to WW3, either via ESMF or hard coupling (in dev)
-# set( USE_WW3 OFF CACHE BOOLEAN "Use Wave Watch III")
-# set( USE_ICE OFF CACHE BOOLEAN "Use 1-class ICE module")
-# set( USE_MICE OFF CACHE BOOLEAN "Use multi-class ICE module")
-#
-# #Tracer models
-# set( USE_GEN OFF CACHE BOOLEAN "Use generic tracer module")
-# set( USE_AGE OFF CACHE BOOLEAN "Use age module")
-# set( USE_ECO OFF   CACHE BOOLEAN "Use ECO-SIM module")
-# set( USE_ICM OFF  CACHE BOOLEAN "Use ICM module")
+    --with-oldio)
+      export WITH_OLDIO="ON"
+      ;;
+    --with-atmos)
+      export WITH_ATMOS="ON"
+      ;;
+    --with-nwm-bmi)
+      export WITH_NWM_BMI="ON"
+      ;;
+    --with-prec-evap)
+      export WITH_PREC_EVAP="ON"
+      ;;
+    --with-bulk-fairall)
+      export WITH_BULK_FAIRALL="ON"
+      ;;
+    --with-gotm)
+      export WITH_GOTM="ON"
+      ;;
+    --with-ha)
+      export WITH_HA="ON"
+      ;;
+    --with-marsh)
+      export WITH_MARSH="ON"
+      ;;
+    --with-pahm)
+      export WITH_PAHM="ON"
+      ;;
+    --with-wwm)
+      export WITH_WWM="ON"
+      ;;
+    --with-ww3)
+      export WITH_WW3="ON"
+      ;;
+    --with-ice)
+      export WITH_ICE="ON"
+      ;;
+    --with-mice)
+      export WITH_MICE="ON"
+      ;;
+    --with-gen)
+      export WITH_GEN="ON"
+      ;;
+    --with-age)
+      export WITH_AGE="ON"
+      ;;
+    --with-eco)
+      export WITH_ECO="ON"
+      ;;
+    --with-icm)
+      export WITH_ICM="ON"
+      ;;
+    --with-cosine)
+      export WITH_COSINE="ON"
+      ;;
+    --with-fib)
+      export WITH_FIB="ON"
+      ;;
+    --with-sed)
+      export WITH_SED="ON"
+      ;;
+    --with-dvd)
+      export WITH_DVD="ON"
+      ;;
+    --with-debug)
+      export WITH_DEBUG="ON"
+      ;;
+    --with-analysis)
+      export WITH_ANALYSIS="ON"
+      ;;
 
     --try-mods)
-      export COSON="ON"
+      export WITH_AED="ON"
+#     export WITH_FABM="ON"
+      export WITH_GOTM="ON"
+      export WITH_NO_PARMETIS="ON"
+#     export WITH_OLDIO="ON"
+      export WITH_ATMOS="ON"
+      export WITH_NWM_BMI="ON"
+      export WITH_PREC_EVAP="ON"
+      export WITH_BULK_FAIRALL="ON"
+#     export WITH_HA="ON"
+#     export WITH_MARSH="ON"
+#     export WITH_PAHM="ON"
+#     export WITH_WWM="ON"
+#     export WITH_WW3="ON"
+      export WITH_ICE="ON"
+      export WITH_MICE="ON"
+      export WITH_GEN="ON"
+      export WITH_AGE="ON"
+#     export WITH_ECO="ON"
+#     export WITH_ICM="ON"
+#     export WITH_COSINE="ON"
+      export WITH_FIB="ON"
+      export WITH_SED="ON"
+      export WITH_DVD="ON"
+      export WITH_DEBUG="ON"
+      export WITH_ANALYSIS="ON"
       ;;
-    --cosine-on)
-      export COSON="ON"
-      ;;
-
-# set( USE_FIB OFF   CACHE BOOLEAN "Use fecal indicating bacteria module")
-# set( USE_SED OFF   CACHE BOOLEAN "Use sediment module")
 
     --verbose)
       export BFLAG="${BFLAG} VERBOSE=1"
+      ;;
+    --help)
+      echo "build_schism accepts the following flags:"
+      echo "  --debug          : build with debugging symbols"
+      echo "  --gfort          : use the gfortran compiler"
+      echo "  --ifort          : use the older intel fortran compiler"
+      echo "  --ifx            : use the newer intel fortran compiler"
+#     echo "  --flang          : use the flang compiler"
+      echo "  --verbose        : turn on the verbose make flag"
+      echo
+      echo "  --with-aed       : build with aed enabled (default)"
+      echo "  --with-aed-plus  : build with aed and aed-plus enabled"
+      echo
+      echo "  --with-fabm      : build with fabm enabled"
+      echo "  --with-gotm      : fabm and gotm cannot be used together"
+      echo
+      echo "  --with-prec-evap : Include precipitation and evaporation calculation"
+      echo "  --with-cosine    : turn on cosine model                (DOESNT COMPILE)"
+      echo "  --with-no-parmetis"
+      echo "  --with-oldio"
+      echo "  --with-atmos"
+      echo "  --with-nwm-bmi"
+      echo "  --with-bulk-fairall : Enable Fairall bulk scheme for air-sea exchange"
+      echo "  --with-ha        : Enable harmonic analysis output modules (DOESNT COMPILE)"
+      echo "  --with-marsh     : Use marsh module                    (DOESNT COMPILE)"
+      echo "  --with-pahm      : Use PaHM module                     (DOESNT COMPILE)"
+      echo "  --with-wwm       : Use wind-wave module                (DOESNT COMPILE)"
+      echo "  --with-ww3       : Use Wave Watch III                  (DOESNT COMPILE)"
+      echo "  --with-ice       : Use 1-class ICE module"
+      echo "  --with-mice      : Use multi-class ICE module          (DOESNT COMPILE)"
+      echo
+      echo " #Tracer models:"
+      echo "  --with-gen       : Use generic tracer module"
+      echo "  --with-age       : Use age module"
+      echo "  --with-eco       : Use ECO-SIM module                  (DOESNT COMPILE)"
+      echo "  --with-icm       : Use ICM module                      (DOESNT COMPILE)"
+      echo "  --with-fib       : Use fecal indicating bacteria module"
+      echo "  --with-sed       : Use sediment module"
+      echo "  --with-dvd"
+      echo
+      echo "  --with-debug"
+      echo "  --with-analysis"
+      echo
+      echo "  --try-mods  : turn on all modules"
+      echo "                except fabm, oldio and any marked as not compilable"
+      echo
+      echo " DOESNT COMPILE in most cases seems to be mpi related. It looks like"
+      echo " schism using gfortran originally used mpich rather than openmpi and"
+      echo " it hasn't been updated."
+
+      exit 0
       ;;
     *)
       echo "Unknown option \"$1\""
@@ -140,112 +267,19 @@ while [ $# -gt 0 ] ; do
 done
 
 #-------------------------------------------------------------------------------
-export NETCDF_C_HOME=/usr
 
-if [ "$FC" = "ifort" ] ; then
-  if [ "$OSTYPE" = "Linux" ] ; then
-    export start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
-    # ifort config scripts wont work with /bin/sh
-    # so we restart using bash
-    if [ "$start_sh" = "/bin/sh" ] ; then
-      /bin/bash $0 $ARGS
-      exit $?
-    fi
-  fi
+. ${CWD}/build_env.inc
 
-# this seems to work on the link stage to make linking look in these directories
-# before the default (/usr/lib ) specifically to solve MPI problem.
-# Sadly, the include part doesn't work because the compile stage puts this after
-#  something that specifies /usr/include which stuffs up netcdf if we also have
-#  the gfortran version installed
-# export FFLAGS="-I/opt/intel/include"
-  export LDFLAGS="-L/opt/intel/lib -L/opt/intel/oneapi/mpi/latest/lib -L/opt/intel/oneapi/mpi/latest/lib/release"
-
-  if [ -x /opt/intel/setvars.sh ] ; then
-    . /opt/intel/setvars.sh
-  elif [ -d /opt/intel/oneapi ] ; then
-    . /opt/intel/oneapi/setvars.sh
-  else
-    if [ -d /opt/intel/bin ] ; then
-       . /opt/intel/bin/compilervars.sh intel64
-    fi
-  fi
-  which ifort > /dev/null 2>&1
-  if [ $? != 0 ] ; then
-     echo ifort compiler requested, but not found
-     exit 1
-  fi
-  IFORT_PATH=`which ifort`
-
-# export NETCDF_HOME=/opt/intel
-  export NETCDF_FORTRAN_HOME=/opt/intel
-  export FCB=ifort
-
-  dpkg --list libnetcdff-dev > /dev/null 2>& 1
-  if [ $? -eq 0 ] ; then
-    ERROR=1
-    echo 'schism cannot have libnetcdff-dev installed if using intel fortran'
-  fi
-elif [ "$FC" = "gfortran" ] ; then
-  export NETCDF_FORTRAN_HOME=/usr
-  export FCB=gfortran
-else
-  export NETCDF_FORTRAN_HOME=/usr
-  export FCB=gfortran
-fi
-if [ "$FC" = "gfortran" ] ; then
-  dpkg --list openmpi-bin > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires openmpi-bin installed to build'
-  fi
-  dpkg --list libopenmpi-dev > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires libopenmpi-dev installed to build'
-  fi
-  dpkg --list libnetcdff-dev > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires libnetcdff-dev installed to build'
-  fi
-fi
-if [ $ERROR -ne 0 ] ; then
-  exit 1
-fi
-
-echo "FFLAGS=\"$FFLAGS\""
-echo "LDFLAGS=\"$LDFLAGS\""
-#exit
-
+export F77=$FC
+export F90=$FC
+export F95=$FC
 
 #-------------------------------------------------------------------------------
 
-if [ ! -d schism ] ; then
-  git clone https://github.com/schism-dev/schism
-patch -p0 << EOF
---- schism/src/Hydro/schism_step.F90-orig	2023-02-07 13:09:28.554078199 +0800
-+++ schism/src/Hydro/schism_step.F90	2023-02-07 13:09:03.177407840 +0800
-@@ -618,9 +618,11 @@
- #endif
-             enddo !i
- !\$OMP       end do
-+!\$OMP end parallel
- 
-             !Turn off precip near land bnd
-             if(iprecip_off_bnd/=0) then
-+!\$OMP parallel default(shared) private(i,j)
- !\$OMP         do
-               loop_prc: do i=1,np
-                 if(isbnd(1,i)==-1) then
-EOF
-fi
+if [ "$WITH_FABM" = "ON" ] ; then
+  if [ ! -d ${FABMDIR} ] ; then
+    git clone https://github.com/josephzhang8/fabm.git ${FABMDIR}
 
-#-------------------------------------------------------------------------------
-
-if [ "$WITHFABM" = "ON" ] ; then
-  if [ ! -d fabm-schism ] ; then
-    git clone https://github.com/josephzhang8/fabm.git fabm-schism
     patch -p0 << EOF
 diff --git fabm-schism-orig/src/drivers/schism/fabm_driver.h fabm-schism/src/drivers/schism/fabm_driver.h
 --- fabm-schism-orig/src/drivers/schism/fabm_driver.h
@@ -260,8 +294,23 @@ diff --git fabm-schism-orig/src/drivers/schism/fabm_driver.h fabm-schism/src/dri
  #include "fabm.h"
 EOF
   fi
+
+  cd ${FABMDIR}
+  if [ ! -d build ] ; then
+    mkdir build
+  fi
+  cd build
+  cmake .. || exit 1
+  ${MAKE} || exit 1
+
+  cd ${CWD}
 fi
 
+#-------------------------------------------------------------------------------
+
+if [ "$WITH_AED" = "ON" ] ; then
+  . ${CWD}/build_aedlibs.inc
+fi
 
 #-------------------------------------------------------------------------------
 #
@@ -274,113 +323,197 @@ cd schism
 #
 # First specify the compiler setup
 #
-if [ "$FC" = "ifort" ] ; then
+#---------------------------------
+if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
+  FFLAGS_RELEASE="-O2 -fpp -qoverride-limits -qopenmp-link=static"
+
+  #-------------------------------
   cat << EOF > cmake/SCHISM.local.aed
-# what follows is a simple configuration for Ubuntu using ifort and gcc
+# what follows is a simple configuration for Ubuntu
 
 set(CMAKE_Fortran_COMPILER ${FC} CACHE PATH "Path to serial Fortran compiler")
 set(CMAKE_C_COMPILER gcc CACHE PATH "Path to serial C compiler")
-set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -qoverride-limits -qopenmp-link=static" CACHE STRING "Fortran flags" FORCE)
+set(CMAKE_Fortran_FLAGS_RELEASE "${FFLAGS_RELEASE}" CACHE STRING "Fortran flags" FORCE)
 
 set(NetCDF_PARALLEL "FALSE")
 #
-#set(NetCDF_DIR "${NETCDF_HOME}" CACHE PATH "Default Path to NetCDF")
+set(NetCDF_DIR "${NETCDFHOME}" CACHE PATH "Default Path to NetCDF")
 
-set(NetCDF_Fortran_DIR "${NETCDF_FORTRAN_HOME}" CACHE PATH "Path to NetCDF Fortran library")
-set(NetCDF_Fortran_CONFIG_EXECUTABLE "${NETCDF_FORTRAN_HOME}/bin/nf-config" CACHE PATH "Path to NetCDF Fortran Executable")
-# set(NetCDF_Fortran_LIBRARY "${NETCDF_FORTRAN_HOME}/lib/libnetcdff.a" CACHE PATH "Path to NetCDF Fortran library")
-# set(NetCDF_Fortran_INCLUDE "${NETCDF_FORTRAN_HOME}/include/netcdf.mod" CACHE PATH "Path to NetCDF Fortran Include File")
+set(NetCDF_Fortran_DIR "${NCDFFBASE}" CACHE PATH "Path to NetCDF Fortran library")
+set(NetCDF_Fortran_CONFIG_EXECUTABLE "${NCDFFBASE}/bin/nf-config" CACHE PATH "Path to NetCDF Fortran Executable")
+#set(NetCDF_Fortran_LIBRARY "${NCDFFBASE}/lib -lnetcdff" CACHE PATH "Path to NetCDF Fortran library")
+set(NetCDF_Fortran_INCLUDE "${NCDFFBASE}/include" CACHE PATH "Path to NetCDF Fortran Include File")
 
-set(NetCDF_C_DIR "/usr" CACHE PATH "Path to NetCDF C")
-set(NetCDF_C_CONFIG_EXECUTABLE "/usr/bin/nc-config" CACHE PATH "Path to NetCDF C Executable")
-# set(NetCDF_C_LIBRARY "/usr/lib/x86_64-linux-gnu/libnetcdf.so" CACHE PATH "Path to NetCDF C library")
-# set(NetCDF_C_INCLUDE "/usr/include/netcdf.h" CACHE PATH "Path to NetCDF C include file")
+set(NetCDF_C_DIR "${NCDFCBASE}" CACHE PATH "Path to NetCDF C")
+set(NetCDF_C_CONFIG_EXECUTABLE "${NCDFCBASE}/bin/nc-config" CACHE PATH "Path to NetCDF C Executable")
+#set(NetCDF_C_LIBRARY "/usr/lib/x86_64-linux-gnu" CACHE PATH "Path to NetCDF C library")
+set(NetCDF_C_INCLUDE "/usr/include" CACHE PATH "Path to NetCDF C include file")
 
 # Doesn't seem to get used
-#set(MPI_Fortran_LINK_FLAGS "-L/opt/intel/oneapi/mpi/latest/lib/release -static" CACHE_PATH "Path to MPI")
+#set(MPI_ROOT "${CWD}/ancillary/${FC}"  CACHE PATH "Root dir of MPI")
 
 EOF
+#---------------------------------
 else
-  cp cmake/SCHISM.local.ubuntu cmake/SCHISM.local.aed
+  FFLAGS_RELEASE="-O2 -ffree-line-length-none -static-libgfortran -finit-local-zero"
+  if [ "$OSTYPE" = "Darwin" ] ; then
+    cp cmake/SCHISM.homebrew.gcc-openmpi cmake/SCHISM.local.aed
+  else
+    cp cmake/SCHISM.local.ubuntu cmake/SCHISM.local.aed
+  fi
+fi
+#---------------------------------
+
+#-------------------------------------------------------------------------------
+# Here is where we turn on/off various modules
+#-------------------------------------------------------------------------------
+cp cmake/SCHISM.local.build cmake/SCHISM.local.build.aed
+echo 'set( USE_AED OFF CACHE BOOLEAN "AED module interface")' >> cmake/SCHISM.local.build.aed
+
+if [ "$WITH_NO_PARMETIS" = "ON" ] ; then
+  sed -i -e "s^NO_PARMETIS OFF^NO_PARMETIS ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_OLDIO" = "ON" ] ; then
+  sed -i -e "s^OLDIO OFF^OLDIO ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_ATMOS" = "ON" ] ; then
+  sed -i -e "s^USE_ATMOS OFF^USE_ATMOS ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_NWM_BMI" = "ON" ] ; then
+  sed -i -e "s^USE_NWM_BMI OFF^USE_NWM_BMI ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_PREC_EVAP" = "ON" ] ; then
+  sed -i -e "s^PREC_EVAP OFF^PREC_EVAP ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_BULK_FAIRALL" = "ON" ] ; then
+  sed -i -e "s^USE_BULK_FAIRALL OFF^USE_BULK_FAIRALL ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_GOTM" = "ON" ] ; then
+  sed -i -e "s^USE_GOTM OFF^USE_GOTM ON^" cmake/SCHISM.local.build.aed
+# sed -i -e "s^##set( GOTM_BASE /work2/03473/seatonc/frontera/GOTM5.2/code^set( GOTM_BASE ${CWD}/gotm-git^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_HA" = "ON" ] ; then
+  sed -i -e "s^USE_HA OFF^USE_HA ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_MARSH" = "ON" ] ; then
+  sed -i -e "s^USE_MARSH OFF^USE_MARSH ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_PAHM" = "ON" ] ; then
+  sed -i -e "s^USE_PAHM OFF^USE_PAHM ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_WWM" = "ON" ] ; then
+  sed -i -e "s^USE_WWM OFF^USE_WWM ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_WW3" = "ON" ] ; then
+  sed -i -e "s^USE_WW3 OFF^USE_WW3 ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_ICE" = "ON" ] ; then
+  sed -i -e "s^USE_ICE OFF^USE_ICE ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_MICE" = "ON" ] ; then
+  sed -i -e "s^USE_MICE OFF^USE_MICE ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_GEN" = "ON" ] ; then
+  sed -i -e "s^USE_GEN OFF^USE_GEN ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_AGE" = "ON" ] ; then
+  sed -i -e "s^USE_AGE OFF^USE_AGE ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_ECO" = "ON" ] ; then
+  sed -i -e "s^USE_ECO OFF^USE_ECO ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_ICM" = "ON" ] ; then
+  sed -i -e "s^USE_ICM OFF^USE_ICM ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_COSINE" = "ON" ] ; then
+  sed -i -e "s^USE_COSINE OFF^USE_COSINE ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_FIB" = "ON" ] ; then
+  sed -i -e "s^USE_FIB OFF^USE_FIB ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_SED" = "ON" ] ; then
+  sed -i -e "s^USE_SED OFF^USE_SED ON^" cmake/SCHISM.local.build.aed
+fi
+
+if [ "$WITH_FABM" = "ON" ] ; then
+  sed -i -e "s^USE_FABM OFF^USE_FABM ON^" cmake/SCHISM.local.build.aed
+  sed -i -e "s^/sciclone/home10/wangzg/fabm^${CWD}/${FABMDIR}^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_AED" = "ON" ] ; then
+  sed -i -e "s^USE_AED OFF^USE_AED ON^" cmake/SCHISM.local.build.aed
+# sed -i -e "s^/home/anonymous/libaed-api^${CWD}/libaed-api^" cmake/SCHISM.local.build.aed
+# sed -i -e "s^/home/anonymous/libaed-water^${CWD}/libaed-water^" cmake/SCHISM.local.build.aed
+ #sed    -e "s^/home/anonymous/libaed-^${CWD}/libaed-^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
+  sed    -e "s^/home/anonymous/lib^${CWD}/lib^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
+fi
+if [ "$WITH_DVD" = "ON" ] ; then
+  sed -i -e "s^USE_DVD OFF^USE_DVD ON^" cmake/SCHISM.local.build.aed
+fi
+
+if [ "$WITH_DEBUG" = "ON" ] ; then
+  sed -i -e "s^DEBUG OFF^DEBUG ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_ANALYSIS" = "ON" ] ; then
+  sed -i -e "s^USE_ANALYSIS OFF^USE_ANALYSIS ON^" cmake/SCHISM.local.build.aed
 fi
 
 #-------------------------------------------------------------------------------
-
-cat << EOF > cmake/SCHISM.local.build.aed
-######################### SCHISM COMPONENTS #########################
-#  This is AED test cache initialization file for choosing the SCHISM modules and algorithm settings
-# It is taken from cmake/SCHISM.local.build
-
-#   For purposes of clarity and re-usability, the configuration examples have been separated into
-#   system locations and compilers (see SCHISM.local.system) and module/algorithm choices (e.g. USE_SED,TVD_LIM).
-#   This file is an example of the latter.
-
-#   In practice, you don't have to separate them. If you do,
-#   cmake works fine with two init files: cmake -C<system_init> -C<build_init>
-#
-#   PETSc status: discussions with PETSc developers indicate older versions are not actively supported with cmake,
-#   so use gnu make instead.
-#####################################################################
-#
-#Default is NO_PARMETIS=OFF, i.e. use ParMETIS
-set(NO_PARMETIS OFF CACHE BOOLEAN "Turn off ParMETIS")
-
-#   Algorithm choices
-# TVD_LIM must be one of SB, VL, MM or OS for Superbee, Van Leer, Minmod, or Osher.")
-set (TVD_LIM VL CACHE STRING "Flux limiter")
-#Turn OLDIO off to use the new scribe based I/O
-set (OLDIO OFF CACHE BOOLEAN "Old nc output (each rank dumps its own data)")
-
-set (PREC_EVAP OFF CACHE BOOLEAN "Include precipitation and evaporation calculation")
-set (USE_BULK_FAIRALL OFF CACHE BOOLEAN "Enable Fairall bulk scheme for air-sea exchange")
-set (IMPOSE_NET_FLUX  OFF CACHE BOOLEAN "Specify net heat and salt fluxes in sflux")
-##Older versions of GOTM (3.*) have issues with netcdf v4, so are not maintained
-set (USE_GOTM OFF CACHE BOOLEAN "Use GOTM turbulence model. This just enables the build -- GOTM must still be selected in param.nml")
-set (USE_HA OFF CACHE BOOLEAN "Enable harmonic analysis output modules")
-set( USE_MARSH OFF CACHE BOOLEAN "Use marsh module")
-set( USE_PAHM OFF CACHE BOOLEAN "Use PaHM module")
-
-#   Enable/Disable Modules
-set( USE_SED2D OFF CACHE BOOLEAN "Use 2D sediment module")
-set( USE_WWM OFF CACHE BOOLEAN "Use wind-wave module")
-##Coupling to WW3, either via ESMF or hard coupling (in dev)
-set( USE_WW3 OFF CACHE BOOLEAN "Use Wave Watch III")
-set( USE_ICE OFF CACHE BOOLEAN "Use 1-class ICE module")
-set( USE_MICE OFF CACHE BOOLEAN "Use multi-class ICE module")
-
-#Tracer models
-set( USE_GEN OFF CACHE BOOLEAN "Use generic tracer module")
-set( USE_AGE OFF CACHE BOOLEAN "Use age module")
-set( USE_ECO OFF   CACHE BOOLEAN "Use ECO-SIM module")
-set( USE_ICM OFF  CACHE BOOLEAN "Use ICM module")
-set( USE_COSINE ${COSON}   CACHE BOOLEAN "Use CoSiNE module")
-set( USE_FIB OFF   CACHE BOOLEAN "Use fecal indicating bacteria module")
-set( USE_SED OFF   CACHE BOOLEAN "Use sediment module")
-
-set( USE_FABM ${WITHFABM}   CACHE BOOLEAN "FABM BGC model interface")
-#If FABM is on, need to set FABM_BASE (after cloning from Joseph's fork: https://github.com/josephzhang8/fabm.git).
-#Use master branch of the fork
-#set( FABM_BASE /sciclone/home10/wangzg/fabm CACHE STRING "Path to FABM base")
-set( FABM_BASE ${CWD}/fabm-schism/ CACHE STRING "Path to FABM base")
-
-set( USE_DVD OFF CACHE BOOLEAN "DVD module interface")
-
-set (DEBUG OFF CACHE BOOLEAN "Enable diagnostic output")
-set (USE_ANALYSIS OFF CACHE BOOLEAN "Enable (somewhat costly) derviation of derived flow/stress quantities")
-
-EOF
-
-#-------------------------------------------------------------------------------
 # Here's the actual building stuff
+#-------------------------------------------------------------------------------
 
 mkdir build
 cd build
+
+if [ "$DEBUG" = "true" ] ; then
+  export CFLAGS="$CFLAGS -g"
+  export FFLAGS="$FFLAGS -g -fcheck=all,no-array-temps"
+  export LDFLAGS="$LDFLAGS -lefence"
+fi
+if [ "$MDEBUG" = "true" ] ; then
+  export CFLAGS="$CFLAGS -g -fsanitize=address"
+  export FFLAGS="$FFLAGS -g -fcheck=all,no-array-temps -fsanitize=address"
+fi
+if [ "${WITH_AED_PLUS}" = "true" ] ;then
+  export WITH_AED_PLUS=${WITH_AED_PLUS}
+fi
+
 # cmake generates a bunch of developer warnings and says to use -Wno-dev to supress
 # them, but adding it here doesn't seem to do anything
-cmake -Wno-dev -C ../cmake/SCHISM.local.build.aed -C ../cmake/SCHISM.local.aed ../src/ || exit 1
+cmake -Wno-dev -G "Unix Makefiles" \
+      -C ../cmake/SCHISM.local.build.aed \
+      -C ../cmake/SCHISM.local.aed ../src/ || exit 1
 
-${MAKE} $BFLAG pschism || exit 1
+# On MacOS we have something like (it still didn't work, though) :
+#
+# export MPI_HOME="${CWD}/ancillary/${FC}"
+# export MPIEXEC_EXECUTABLE="${CWD}/ancillary/${FC}/bin/mpiexec"
+# export MPI_CXX_COMPILER="${CWD}/ancillary/${FC}/bin/mpicxx"
+# export MPI_CXX_HEADER_DIR="${CWD}/ancillary/${FC}/include"
+# export MPI_CXX_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
+# export MPI_C_COMPILER="${CWD}/ancillary/${FC}/bin/mpicc"
+# export MPI_C_HEADER_DIR="${CWD}/ancillary/${FC}/include"
+# export MPI_C_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
+# export MPI_Fortran_COMPILER="${CWD}/ancillary/${FC}/bin/mpifort"
+# export MPI_Fortran_F77_HEADER_DIR="${CWD}/ancillary/${FC}/include"
+# export MPI_Fortran_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
+#
+# cmake -Wno-dev -G "Unix Makefiles" \
+#     -DMPI_HOME=${MPI_HOME} \
+#     -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} \
+#     -DMPI_CXX_COMPILER=${MPI_CXX_COMPILER} \
+#     -DMPI_CXX_HEADER_DIR=${MPI_CXX_HEADER_DIR} \
+#     -DMPI_CXX_LIB_NAMES=${MPI_CXX_LIB_NAMES} \
+#     -DMPI_C_COMPILER=${MPI_C_COMPILER} \
+#     -DMPI_C_HEADER_DIR=${MPI_C_HEADER_DIR} \
+#     -DMPI_C_LIB_NAMES=${MPI_C_LIB_NAMES} \
+#     -DMPI_Fortran_COMPILER=${MPI_Fortran_COMPILER} \
+#     -DMPI_Fortran_HEADER_DIR=${MPI_Fortran_HEADER_DIR} \
+#     -DMPI_Fortran_LIB_NAMES=${MPI_Fortran_LIB_NAMES} \
+#     -C ../cmake/SCHISM.local.build.aed \
+#     -C ../cmake/SCHISM.local.aed ../src/ || exit 1
 
+
+${MAKE} $BFLAG || exit 1
 
 #-------------------------------------------------------------------------------
 

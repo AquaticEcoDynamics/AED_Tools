@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export MINUS_K='-k'
+
 while [ $# -gt 0 ] ; do
    case $1 in
     --unpack)
@@ -116,7 +118,7 @@ if [ ! -f ${HDF5}.tar.gz ] ; then
    HMAJ=`echo ${HDF5V} | cut -f2 -d\.`
    HMIN=`echo ${HDF5V} | cut -f3 -d\.`
    HDFDV="HDF5_${HVER}_${HMAJ}_${HMIN}"
-   HDF5URL="https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/${HDFDV}/src/${HDF5}.tar.gz"
+   HDF5URL="https://support.hdfgroup.org/releases/hdf5/v${HVER}_${HMAJ}/v${HVER}_${HMAJ}_${HMIN}/downloads/${HDF5}.tar.gz"
    echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
    curl ${MINUS_K}  -L ${HDF5URL} -o ${HDF5}.tar.gz
    if [ $? != 0 ] ; then

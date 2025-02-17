@@ -30,6 +30,9 @@ while [ $# -gt 0 ] ; do
     --debug)
       export DEBUG=true
       ;;
+    --checks)
+      export WITH_CHECKS=true
+      ;;
     --mdebug)
       export MDEBUG=true
       ;;
@@ -41,6 +44,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --gfort)
       export FC=gfortran
+      ;;
+    --ifx)
+      export FC=ifx
       ;;
     --ifort)
       export FC=ifort
@@ -58,73 +64,11 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-if [ "$OSTYPE" = "Darwin" ] ; then
-  if [ "$HOMEBREW" = "" ] ; then
-    brew -v > /dev/null 2>&1
-    if [ $? != 0 ] ; then
-      which port > /dev/null 2>&1
-      if [ $? != 0 ] ; then
-        echo no ports and no brew
-      else
-        export MACPORTS=true
-      fi
-    else
-      export HOMEBREW=true
-    fi
-  fi
-fi
-
-# see if FC is defined, if not look for gfortran at least v8
-if [ "$FC" = "" ] ; then
-  gfortran -v > /dev/null 2>&1
-  if [ $? != 0 ] ; then
-    export FC=ifort
-  else
-    VERS=`gfortran -dumpversion | cut -d\. -f1`
-    if [ $VERS -ge 8 ] ; then
-      export FC=gfortran
-    else
-      gfortran-8 -v > /dev/null 2>&1
-      if [ $? != 0 ] ; then
-        export FC=ifort
-      else
-        export gfortran-8
-      fi
-    fi
-  fi
-fi
-
-if [ "$FC" = "ifort" ] ; then
-  if [ "$OSTYPE" = "Linux" ] ; then
-    start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')"
-    # ifort config scripts wont work with /bin/sh
-    # so we restart using bash
-    if [ "$start_sh" = "/bin/sh" ] ;  then
-       echo Restart using bash because ifort cant use /bin/sh
-       /bin/bash $0 $ARGS
-       exit $?
-    fi
-  fi
-
-  if [ -x /opt/intel/setvars.sh ] ; then
-     . /opt/intel/setvars.sh
-  elif [ -d /opt/intel/oneapi ] ; then
-     . /opt/intel/oneapi/setvars.sh
-  elif [ -d /opt/intel/bin ] ; then
-     . /opt/intel/bin/compilervars.sh intel64
-  fi
-  which ifort > /dev/null 2>&1
-  if [ $? != 0 ] ; then
-     echo ifort compiler requested, but not found
-     exit 1
-  fi
-fi
-
 export F77=$FC
 export F90=$FC
 export F95=$FC
 
-export MPI=OPENMPI
+. ${CWD}/build_env.inc
 
 if [ "$AED2DIR" = "" ] ; then
   export AED2DIR=../libaed2
@@ -158,11 +102,11 @@ if [ "$FABM" = "true" ] ; then
     mkdir build
   fi
   cd build
-  export FFLAGS+=-fPIC
+# export FFLAGS="$FFLAGS -fPIC"
   if [ "${USE_DL}" = "true" ] ; then
-    cmake ${FABMDIR}/src -DBUILD_SHARED_LIBS=1 || exit 1
+    cmake ${FABMDIR} -DBUILD_SHARED_LIBS=1 || exit 1
   else
-    cmake ${FABMDIR}/src || exit 1
+    cmake ${FABMDIR} || exit 1
   fi
   ${MAKE} || exit 1
 fi
@@ -180,41 +124,9 @@ if [ "${AED2}" = "true" ] ; then
   fi
 fi
 
-if [ "${AED}" = "true" ] ; then
-  echo "build libaed-water"
-  cd "${CURDIR}/../libaed-water"
-  ${MAKE} || exit 1
-  DAEDWATDIR=`pwd`
-  if [ -d "${CURDIR}/../libaed-benthic" ] ; then
-    echo build libaed-benthic
-    cd "${CURDIR}/../libaed-benthic"
-    ${MAKE} || exit 1
-    DAEDBENDIR=`pwd`
-  fi
-  if [ -d "${CURDIR}/../libaed-demo" ] ; then
-    echo build libaed-demo
-    cd "${CURDIR}/../libaed-demo"
-    ${MAKE} || exit 1
-    DAEDDMODIR=`pwd`
-  fi
-  if [ -d "${CURDIR}/../libaed-riparian" ] ; then
-    echo build libaed-riparian
-    cd "${CURDIR}/../libaed-riparian"
-    ${MAKE} || exit 1
-    DAEDRIPDIR=`pwd`
-  fi
-  if [ -d "${CURDIR}/../libaed-light" ] ; then
-    echo build libaed-light
-    cd "${CURDIR}/../libaed-light"
-    ${MAKE} || exit 1
-    DAEDLGTDIR=`pwd`
-  fi
-  if [ -d "${CURDIR}/../libaed-dev" ] ; then
-    echo build libaed-dev
-    cd "${CURDIR}/../libaed-dev"
-    ${MAKE} || exit 1
-    DAEDDEVDIR=`pwd`
-  fi
+if [ "${AED}" = "true" ] || [ "${API}" = "true" ] ; then
+  export WITH_AED_PLUS='true'
+  . ${CWD}/build_aedlibs.inc
 fi
 
 if [ -d "${UTILDIR}" ] ; then
@@ -225,10 +137,10 @@ if [ -d "${UTILDIR}" ] ; then
 fi
 
 if [ "$OSTYPE" = "FreeBSD" ] ; then
-  echo making flang extras
-  cd ancillary/freebsd
-  ./fetch.sh
-  ${MAKE} || exit 1
+  echo not making flang extras
+  # cd ancillary/freebsd
+  # ./fetch.sh
+  # ${MAKE} || exit 1
 elif [ "$OSTYPE" = "Msys" ] ; then
   if [ ! -d ancillary/windows/msys ] ; then
     echo making windows ancillary extras
@@ -249,7 +161,11 @@ if [ -f obj/aed_external.o ] ; then
 fi
 
 # Update versions in resource files
-VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
+if [ -f src/glm.h ] ; then
+  VERSION=`grep GLM_VERSION src/glm.h | cut -f2 -d\"`
+else
+  VERSION=`grep GLM_VERSION include/glm.h | cut -f2 -d\"`
+fi
 cd "${CURDIR}/win"
 ${CURDIR}/vers.sh $VERSION
 #cd ${CURDIR}/win-dll
@@ -261,7 +177,7 @@ if [ "${DAEDDEVDIR}" != "" ] ; then
   if [ -d "${DAEDDEVDIR}" ] ; then
     echo now build plus version
     /bin/rm obj/aed_external.o
-    ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR AEDDEVDIR=$DAEDDEVDIR || exit 1
+    ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR || exit 1
   fi
 fi
 
@@ -307,7 +223,7 @@ fi
 
 # ****************************** MacOS ********************************
 if [ "$OSTYPE" = "Darwin" ] ; then
-  MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' '/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf'`
+  MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' "/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf"`
   # pre Lion :   MOSNAME=`echo ${MOSLINE} | awk -F 'Mac OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
   # pre Sierra : MOSNAME=`echo ${MOSLINE} | awk -F 'OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
   MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
@@ -360,7 +276,8 @@ fi
 if [ "$OSTYPE" = "Msys" ] ; then
   cd ${CURDIR}/..
 
-  VERSION=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
+# VERSION=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
+# the above should alread exist
   BINPATH="binaries/windows"
 
   if [ ! -d "${BINPATH}" ] ; then
