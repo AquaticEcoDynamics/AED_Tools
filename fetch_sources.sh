@@ -7,6 +7,8 @@ rep_list=""
 upd_list=""
 count=0
 
+GITHOST=git@github.com:AquaticEcoDynamics/
+
 GET_GLM="false"
 GETAED="false"
 GETAED2="false"
@@ -17,6 +19,8 @@ GETPLUS="false"
 GETAEDFV="false"
 GET_EGS="false"
 GETELC="false"
+GETSWN="false"
+GETSHZ="false"
 
 if [ $# = 0 ] ; then
   # The default case is to just update
@@ -69,6 +73,12 @@ while [ $# -gt 0 ] ; do
     elcom)
       GETELC="true"
       ;;
+    swan)
+      GETSWN="true"
+      ;;
+    schism)
+      GETSHZ="true"
+      ;;
     -g|--githost)
       GITHOST="$2"
       shift # skip argument
@@ -81,7 +91,7 @@ done
 
 if [ "$GET_GLM" = "true" ]  ; then rep_list="$rep_list GLM" ; fi
 if [ "$GETAEDFV" = "true" ] ; then rep_list="$rep_list libaed-fv" ; fi
-if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-api libaed-api libaed-water libaed-benthic libaed-demo" ; fi
+if [ "$GETAED" = "true" ]  ; then rep_list="$rep_list libaed-api libaed-water libaed-benthic libaed-demo" ; fi
 if [ "$GETPLUS" = "true" ]  ; then rep_list="$rep_list libaed-riparian libaed-dev libaed-light" ; fi
 if [ "$GETAED2" = "true" ]  ; then
     rep_list="$rep_list libaed2"
@@ -114,7 +124,11 @@ fetch_it () {
   else
     echo "fetching $src from ${GITHOST}$src $dst"
 
-    git clone ${GITHOST}$src $dst
+    if [ "$src" = "schism" ] ; then
+      git clone --recurse-submodules ${GITHOST}$src $dst
+    else
+      git clone ${GITHOST}$src $dst
+    fi
   fi
 }
 
@@ -172,6 +186,34 @@ if [ "$GETFABM" = "true" ] ; then
   fi
 fi
 
+if [ "$GETSWN" = "true" ] ; then
+  count=$((count+1))
+  if [ ! -d swan ] ; then
+    GITHOST=https://gitlab.tudelft.nl/citg/wavemodels/
+    fetch_it swan
+  else
+    src='swan'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd swan
+    git pull
+    cd ..
+  fi
+fi
+
+if [ "$GETSHZ" = "true" ] ; then
+  count=$((count+1))
+  if [ ! -d schism ] ; then
+    GITHOST=https://github.com/schism-dev/
+    fetch_it schism
+  else
+    src='schism'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd schism
+    git pull
+    cd ..
+  fi
+fi
+
 #-------------------------------------------------------------------------------
 if [ $count = 0 ] ; then
   echo "There do not seem to be any repositories requested or present"
@@ -187,6 +229,8 @@ if [ $count = 0 ] ; then
   echo "  aed-fv  : fetch the libaed-fv sources"
   echo
   echo "  elcom   : fetch the ELCOM sources"
+  echo "  swan    : fetch the swan sources from delftU"
+  echo "  schism  : fetch the schism sources from github"
   echo
   echo "  all     : fetch them all"
   echo

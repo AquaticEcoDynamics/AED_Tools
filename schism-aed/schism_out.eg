@@ -1,0 +1,356 @@
+ schism_aed_configure_models: Hello World
+     link options configured between SCHISM & AED - 
+         link_ext_par       :   F
+         link_water_clarity :   F
+         link_surface_drag  :   F  (not implemented)
+         link_bottom_drag   :   F
+         link_wave_stress   :   F
+         link_solar_shade   :   T
+         link_rain_loss     :   F
+         link_particle_bgc  :   F  (under development)
+         link_water_density :   F  (not implemented)
+ schism_aed_configure_models-3
+     aed_api built using gfortran version           13 .           3 .           0
+     libaed enabled.... aed_configure_models processing: aed.nml
+      ---------- AED API config : start ----------
+     libaed-water version 2.1.5
+     libaed built using gfortran version           13 .           3 .           0
+     libaed-ben version 2.1.5
+     libaed built using gfortran version           13 .           3 .           0
+     libaed-demo version 2.1.5
+     libaed built using gfortran version           13 .           3 .           0
+     libaed-riparian not included 
+     libaed-lighting not included
+     libaed-dev not included
+      Processing aed_models config from aed.nml
+         aed_dummy initialization
+         aed_environ configuration
+       ... nml file parsing completed.
+
+  ---------------------- AED Variables Summary ----------------------
+ Var name           | Module           | Type | ID | Usage (ie who linked to me)
+
+ ENVIRONMENT:
+ yearday              ???                 2D   ---   ENV
+ temperature          ???                 3D   ---   ENV
+ salinity             ???                 3D   ---   ENV
+ density              ???                 3D   ---   ENV
+ layer_ht             ???                 3D   ---   ENV
+ layer_area           ???                 3D   ---   ENV
+ depth                ???                 3D   ---   ENV
+ extc_coef            ???                 3D   ---   ENV
+ tss                  ???                 3D   ---   ENV
+ ss1                  ???                 3D   ---   ENV
+ ss2                  ???                 3D   ---   ENV
+ ss3                  ???                 3D   ---   ENV
+ ss4                  ???                 3D   ---   ENV
+ pressure             ???                 3D   ---   ENV
+ sed_zones            ???                 3D   ---   ENV
+ biodrag              ???                 3D   ---   ENV
+ bioextc              ???                 3D   ---   ENV
+ nir                  ???                 3D   ---   ENV
+ par                  ???                 3D   ---   ENV
+ uva                  ???                 3D   ---   ENV
+ uvb                  ???                 3D   ---   ENV
+ par_sf               ???                 2D   ---   ENV
+ wind_speed           ???                 2D   ---   ENV
+ air_temp             ???                 2D   ---   ENV
+ air_pres             ???                 2D   ---   ENV
+ rain                 ???                 2D   ---   ENV
+ evap                 ???                 2D   ---   ENV
+ humidity             ???                 2D   ---   ENV
+ longwave             ???                 2D   ---   ENV
+ taub                 ???                 2D   ---   ENV
+ col_depth            ???                 2D   ---   ENV
+ col_num              ???                 2D   ---   ENV
+ sed_zone             ???                 2D   ---   ENV
+ longitude            ???                 2D   ---   ENV
+ latitude             ???                 2D   ---   ENV
+ timestep             ???                 2D   ---   ENV
+ solarshade           ???                 2D   ---   ENV
+ windshade            ???                 2D   ---   ENV
+ bathy                ???                 2D   ---   ENV
+ rainloss             ???                 2D   ---   ENV
+
+ STATE:
+ OXY_oxy              aed_dummy           3D
+ OXY_sed_oxy          aed_dummy           2D
+
+ DIAGNOSTIC:
+ OXY_sat              aed_dummy           3D
+ OXY_atm_oxy_flux     aed_dummy           2D
+ DUM_vol_sine         aed_dummy           3D
+ DUM_sine             aed_dummy           2D
+ ENV_temperature      aed_environ         3D   ENV
+ ENV_salinity         aed_environ         3D   ENV
+ ENV_density          aed_environ         3D   ENV
+ ENV_layer_ht         aed_environ         3D   ENV
+ ENV_layer_area       aed_environ         3D   ENV
+ ENV_depth            aed_environ         3D   ENV
+ ENV_extc_coef        aed_environ         3D   ENV
+ ENV_tss              aed_environ         3D   ENV
+ ENV_ss1              aed_environ         3D   ENV
+ ENV_ss2              aed_environ         3D   ENV
+ ENV_ss3              aed_environ         3D   ENV
+ ENV_ss4              aed_environ         3D   ENV
+ ENV_cell_vel         aed_environ         3D   ENV
+ ENV_pressure         aed_environ         3D   ENV
+ ENV_sed_zones        aed_environ         3D   ENV
+ ENV_biodrag          aed_environ         3D   ENV
+ ENV_bioextc          aed_environ         3D   ENV
+ ENV_nir              aed_environ         3D   ENV
+ ENV_par              aed_environ         3D   ENV
+ ENV_uva              aed_environ         3D   ENV
+ ENV_uvb              aed_environ         3D   ENV
+ ENV_par_sf           aed_environ         2D   ENV
+ ENV_wind_speed       aed_environ         2D   ENV
+ ENV_air_temp         aed_environ         2D   ENV
+ ENV_air_pres         aed_environ         2D   ENV
+ ENV_rain             aed_environ         2D   ENV
+ ENV_evap             aed_environ         2D   ENV
+ ENV_humidity         aed_environ         2D   ENV
+ ENV_longwave         aed_environ         2D   ENV
+ ENV_taub             aed_environ         2D   ENV
+ ENV_col_depth        aed_environ         2D   ENV
+ ENV_col_num          aed_environ         2D   ENV
+ ENV_sed_zone         aed_environ         2D   ENV
+ ENV_longitude        aed_environ         2D   ENV
+ ENV_latitude         aed_environ         2D   ENV
+ ENV_yearday          aed_environ         2D   ENV
+ ENV_timestep         aed_environ         2D   ENV
+ ENV_solarshade       aed_environ         2D   ENV
+ ENV_windshade        aed_environ         2D   ENV
+ ENV_bathy            aed_environ         2D   ENV
+ ENV_rainloss         aed_environ         2D   ENV
+
+  -------------------------------------------------------------------
+
+
+     AED : n_aed_vars  =  87 ; MaxLayers         =   -1
+     AED : n_vars      =   1 ; n_vars_ben        =    1
+     AED : n_vars_diag =  23 ; n_vars_diag_sheet =   22
+
+      ----------  AED API config : end  ----------
+ model initied with           87           1           1          23          22
+ schism_aed_configure_models done; ntracers =            1
+ schism_aed_init_models with        38960  columns each with           54 layers
+ aed_set_up_schism_env
+ aed_set_up_schism_env-1
+ aed_set_up_schism_env-2
+ aed_set_up_schism_env-3
+ aed_set_up_schism_env-4
+ aed_set_up_schism_env done
+     Configured AED variables to simulate:
+       S(   1) water column variable     : OXY_oxy
+       B(   1) bottom variable           + OXY_sed_oxy
+       D(   1) water column diagnostic   > OXY_sat
+       D(   2) water column diagnostic   > DUM_vol_sine
+       D(   3) water column diagnostic   > ENV_temperature
+       D(   4) water column diagnostic   > ENV_salinity
+       D(   5) water column diagnostic   > ENV_density
+       D(   6) water column diagnostic   > ENV_layer_ht
+       D(   7) water column diagnostic   > ENV_layer_area
+       D(   8) water column diagnostic   > ENV_depth
+       D(   9) water column diagnostic   > ENV_extc_coef
+       D(  10) water column diagnostic   > ENV_tss
+       D(  11) water column diagnostic   > ENV_ss1
+       D(  12) water column diagnostic   > ENV_ss2
+       D(  13) water column diagnostic   > ENV_ss3
+       D(  14) water column diagnostic   > ENV_ss4
+       D(  15) water column diagnostic   > ENV_cell_vel
+       D(  16) water column diagnostic   > ENV_pressure
+       D(  17) water column diagnostic   > ENV_sed_zones
+       D(  18) water column diagnostic   > ENV_biodrag
+       D(  19) water column diagnostic   > ENV_bioextc
+       D(  20) water column diagnostic   > ENV_nir
+       D(  21) water column diagnostic   > ENV_par
+       D(  22) water column diagnostic   > ENV_uva
+       D(  23) water column diagnostic   > ENV_uvb
+       D(   1) bottom/surface diagnostic ~ OXY_atm_oxy_flux
+       D(   2) bottom/surface diagnostic ~ DUM_sine
+       D(   3) bottom/surface diagnostic ~ ENV_par_sf
+       D(   4) bottom/surface diagnostic ~ ENV_wind_speed
+       D(   5) bottom/surface diagnostic ~ ENV_air_temp
+       D(   6) bottom/surface diagnostic ~ ENV_air_pres
+       D(   7) bottom/surface diagnostic ~ ENV_rain
+       D(   8) bottom/surface diagnostic ~ ENV_evap
+       D(   9) bottom/surface diagnostic ~ ENV_humidity
+       D(  10) bottom/surface diagnostic ~ ENV_longwave
+       D(  11) bottom/surface diagnostic ~ ENV_taub
+       D(  12) bottom/surface diagnostic ~ ENV_col_depth
+       D(  13) bottom/surface diagnostic ~ ENV_col_num
+       D(  14) bottom/surface diagnostic ~ ENV_sed_zone
+       D(  15) bottom/surface diagnostic ~ ENV_longitude
+       D(  16) bottom/surface diagnostic ~ ENV_latitude
+       D(  17) bottom/surface diagnostic ~ ENV_yearday
+       D(  18) bottom/surface diagnostic ~ ENV_timestep
+       D(  19) bottom/surface diagnostic ~ ENV_solarshade
+       D(  20) bottom/surface diagnostic ~ ENV_windshade
+       D(  21) bottom/surface diagnostic ~ ENV_bathy
+       D(  22) bottom/surface diagnostic ~ ENV_rainloss
+ schism_aed_init_models done...
+ schism_aed_create_output
+ schism_aed_init_concentrations
+schism_aed_do        1 :        2.806 seconds. (diff    2.806)
+schism_aed_doD      11 :       62.081 seconds. (diff    7.032)
+ values at col=        5249 which is active  
+ yearday=   0.0000000000000000      longitude=   0.0000000000000000      latitude=   0.0000000000000000     
+ V:  1        OXY_oxy <=>      0.01103539     0.99988492 : ()
+ v:  1    OXY_sed_oxy <=>      0.00000000     0.00000000 : ()
+ D:  1        OXY_sat <=>      0.00000000     0.00000000 : ()
+ d:  1 OXY_atm_oxy_fl <=>      0.00000000     0.00000000 : ()
+ D:  2   DUM_vol_sine <=>      0.00104585     0.99988376 : (no units)
+ d:  2       DUM_sine <=>      0.50000000     0.50000000 : (no units)
+ D:  3 ENV_temperatur <=>      0.00000000     0.00000000 : ()
+ D:  4   ENV_salinity <=>     20.00000000    20.00000000 : ()
+ D:  5    ENV_density <=>    -99.00000000   -99.00000000 : ()
+ D:  6   ENV_layer_ht <=>      0.00000000     0.00000000 : ()
+ D:  7 ENV_layer_area <=>      0.00000000     0.00000000 : ()
+ D:  8      ENV_depth <=>      0.00000000     0.00000000 : ()
+ D:  9  ENV_extc_coef <=>      0.00000000     0.00000000 : ()
+ D: 10        ENV_tss <=>      0.00000000     0.00000000 : ()
+ D: 11        ENV_ss1 <=>      0.00000000     0.00000000 : ()
+ D: 12        ENV_ss2 <=>      0.00000000     0.00000000 : ()
+ D: 13        ENV_ss3 <=>      0.00000000     0.00000000 : ()
+ D: 14        ENV_ss4 <=>      0.00000000     0.00000000 : ()
+ D: 15   ENV_cell_vel <=>  -9999.00000000 -9999.00000000 : ()
+ D: 16   ENV_pressure <=>     10.19364086  3110.86597204 : ()
+ D: 17  ENV_sed_zones <=>      0.00000000     0.00000000 : ()
+ D: 18    ENV_biodrag <=>      0.00000000     6.13123485 : ()
+ D: 19    ENV_bioextc <=>      0.00000000*************** : ()
+ D: 20        ENV_nir <=>      0.00000000     0.00000000 : ()
+ D: 21        ENV_par <=>      0.00000000     0.00000000 : ()
+ D: 22        ENV_uva <=>      0.00000000     0.00000000 : ()
+ D: 23        ENV_uvb <=>      0.00000000     0.00000000 : ()
+ d:  3     ENV_par_sf <=>      0.00000000     0.00000000 : ()
+ d:  4 ENV_wind_speed <=>      0.09439930    11.51914770 : ()
+ d:  5   ENV_air_temp <=>      5.02748994    12.35818262 : ()
+ d:  6   ENV_air_pres <=> 101420.29756038102034.47339589 : ()
+ d:  7       ENV_rain <=>      0.00000000     0.00000000 : ()
+ d:  8       ENV_evap <=>     -0.00000175    -0.00000175 : ()
+ d:  9   ENV_humidity <=>      0.00432569     0.00721760 : ()
+ d: 10   ENV_longwave <=>    261.02216313   261.02216313 : ()
+ d: 11       ENV_taub <=>     -0.00000284    -0.00000284 : ()
+ d: 12  ENV_col_depth <=>    -10.00000000  4488.93110367 : ()
+ d: 13    ENV_col_num <=>      1.00000000 38960.00000000 : ()
+ d: 14   ENV_sed_zone <=>      0.00000000     0.00000000 : ()
+ d: 15  ENV_longitude <=>      0.00000000     0.00000000 : ()
+ d: 16   ENV_latitude <=>      0.00000000     0.00000000 : ()
+ d: 17    ENV_yearday <=>      0.00000000     0.00000000 : ()
+ d: 18   ENV_timestep <=>      0.00000000     0.00000000 : ()
+ d: 19 ENV_solarshade <=>      0.00000000     0.00000000 : ()
+ d: 20  ENV_windshade <=>      0.00000000     0.00000000 : ()
+ d: 21      ENV_bathy <=>      0.00000000     0.00000000 : ()
+ d: 22   ENV_rainloss <=>      0.00000000     0.00000000 : ()
+ E:  1    temperature <=>        0.000000       0.000000 : temp => tr_el(1,:,col)
+ E:  2       salinity <=>       20.000000      20.000000 : salt => tr_el(2,:,col)
+ E:  3        density <=>      -99.000000     -99.000000 : rho  => erho(:,:)
+ E:  4       velocity <=>        0.074163       0.074163 : cvel(:,col) = sqrt(SCHISM_N2E_VALS(uu2,:)**2 + SCHISM_N2E_VALS(vv2,:)**2)
+ E:  5          depth <=>        0.000000       0.000000 : depth calculated from dpe and ze
+ E:  6       pressure <=>       10.160789      10.160789 : pres calculated from rho0 and grav
+ E:  7          thick <=>        0.000000       0.000000 : dz calculated from dpe and ze
+ E:  8           area <=>        0.000000       0.000000 : area_ extended from 'area' to 3D
+ E:  9           extc <=>        0.000000       0.000000 : extc NOT FOUND
+ E: 10   I_0 (par_sf) <=>        0.000000       0.000000 : I_0(col) = SCHISM_N2E_VAL(srad)
+ E: 11            par <=>        0.000000       0.000000 : par(:,col) = I_0(col) * par_frac * EXP(-(Kw+localext)*1e-6*dz(:,col))
+ E: 12            nir <=>        0.000000       0.000000 : nir(:,col) = (par(:,col)/par_frac) * nir_frac
+ E: 13            uva <=>        0.000000       0.000000 : uva(:,col) = (par(:,col)/par_frac) * uva_frac
+ E: 14            uvb <=>        0.000000       0.000000 : uvb(:,col) = (par(:,col)/par_frac) * uvb_frac
+ E: 15            tss <=>        0.000000       0.000000 : tss NOT FOUND
+ E: 16            ss1 <=>        0.000000       0.000000 : ss1 NOT FOUND
+ E: 17            ss2 <=>        0.000000       0.000000 : ss2 NOT FOUND
+ E: 18            ss3 <=>        0.000000       0.000000 : ss3 NOT FOUND
+ E: 19            ss4 <=>        0.000000       0.000000 : ss4 NOT FOUND
+ E: 20       air_pres <=>   101420.297560  102034.473396 : air_pres(col) = SCHISM_N2E_VAL(pr)
+ E: 21       air_temp <=>        5.027490      12.358183 : air_temp(col) = SCHISM_N2E_VAL(airt1)
+ E: 22           rain <=>        0.000000       0.000000 : rain(col) = SCHISM_N2E_VAL(prec_rain)
+ E: 23           wind <=>        0.094399      11.519148 : wind(col) = sqrt(SCHISM_N2E_VAL(windx)**2 + SCHISM_N2E_VAL(windy)**2)
+ E: 24       humidity <=>        0.004326       0.007218 : humidity(col) = SCHISM_N2E_VAL(shum1)
+ E: 25           evap <=>       -0.000002      -0.000002 : evap = SCHISM_N2E_VAL(fluxevp)
+ E: 26      col_depth <=>      -10.000000    4488.931104 : col_depth calculated from dpe and ze
+ E: 27   layer_stress <=>       -0.000003      -0.000003 : layer_stress = SCHISM_N2E_VALS(tau_bot_node,1) ? bottom_stress?
+ E: 28       longwave <=>      261.022163     261.022163 : longwave = SCHISM_N2E_VAL(hradd)
+ E: 29      ustar_bed <=>        0.000000       0.000000 : ustar_bed NOT FOUND
+ E: 30        wv_uorb <=>        0.000000       0.000000 : wv_orb NOT FOUND
+ E: 31           wv_t <=>        0.000000       0.000000 : wv_t NOT FOUND
+schism_aed_doD      21 :      123.587 seconds. (diff    6.989)
+ values at col=        5249 which is active  
+ yearday=   0.0000000000000000      longitude=   0.0000000000000000      latitude=   0.0000000000000000     
+ V:  1        OXY_oxy <=>      0.01103539     0.99988492 : ()
+ v:  1    OXY_sed_oxy <=>      0.00000000     0.00000000 : ()
+ D:  1        OXY_sat <=>      0.00000000     0.00000000 : ()
+ d:  1 OXY_atm_oxy_fl <=>      0.00000000     0.00000000 : ()
+ D:  2   DUM_vol_sine <=>      0.00104585     0.99988376 : (no units)
+ d:  2       DUM_sine <=>      0.50000000     0.50000000 : (no units)
+ D:  3 ENV_temperatur <=>      0.00000000     0.00000000 : ()
+ D:  4   ENV_salinity <=>     20.00000000    20.00000000 : ()
+ D:  5    ENV_density <=>    -99.00000000   -99.00000000 : ()
+ D:  6   ENV_layer_ht <=>      0.00000000     0.00000000 : ()
+ D:  7 ENV_layer_area <=>      0.00000000     0.00000000 : ()
+ D:  8      ENV_depth <=>      0.00000000     0.00000000 : ()
+ D:  9  ENV_extc_coef <=>      0.00000000     0.00000000 : ()
+ D: 10        ENV_tss <=>      0.00000000     0.00000000 : ()
+ D: 11        ENV_ss1 <=>      0.00000000     0.00000000 : ()
+ D: 12        ENV_ss2 <=>      0.00000000     0.00000000 : ()
+ D: 13        ENV_ss3 <=>      0.00000000     0.00000000 : ()
+ D: 14        ENV_ss4 <=>      0.00000000     0.00000000 : ()
+ D: 15   ENV_cell_vel <=>  -9999.00000000 -9999.00000000 : ()
+ D: 16   ENV_pressure <=>     10.19348766  3110.89558379 : ()
+ D: 17  ENV_sed_zones <=>      0.00000000     0.00000000 : ()
+ D: 18    ENV_biodrag <=>      0.00000000     6.13123485 : ()
+ D: 19    ENV_bioextc <=>      0.00000000*************** : ()
+ D: 20        ENV_nir <=>      0.00000000     0.00000000 : ()
+ D: 21        ENV_par <=>      0.00000000     0.00000000 : ()
+ D: 22        ENV_uva <=>      0.00000000     0.00000000 : ()
+ D: 23        ENV_uvb <=>      0.00000000     0.00000000 : ()
+ d:  3     ENV_par_sf <=>      0.00000000     0.00000000 : ()
+ d:  4 ENV_wind_speed <=>      0.00877320    11.55144523 : ()
+ d:  5   ENV_air_temp <=>      4.88706614    12.34544969 : ()
+ d:  6   ENV_air_pres <=> 101408.52716796102025.90086481 : ()
+ d:  7       ENV_rain <=>      0.00000000     0.00000000 : ()
+ d:  8       ENV_evap <=>     -0.00000168    -0.00000168 : ()
+ d:  9   ENV_humidity <=>      0.00432390     0.00722560 : ()
+ d: 10   ENV_longwave <=>    261.39896471   261.39896471 : ()
+ d: 11       ENV_taub <=>     -0.00002774    -0.00002774 : ()
+ d: 12  ENV_col_depth <=>    -10.00000000  4488.95261629 : ()
+ d: 13    ENV_col_num <=>      1.00000000 38960.00000000 : ()
+ d: 14   ENV_sed_zone <=>      0.00000000     0.00000000 : ()
+ d: 15  ENV_longitude <=>      0.00000000     0.00000000 : ()
+ d: 16   ENV_latitude <=>      0.00000000     0.00000000 : ()
+ d: 17    ENV_yearday <=>      0.00000000     0.00000000 : ()
+ d: 18   ENV_timestep <=>      0.00000000     0.00000000 : ()
+ d: 19 ENV_solarshade <=>      0.00000000     0.00000000 : ()
+ d: 20  ENV_windshade <=>      0.00000000     0.00000000 : ()
+ d: 21      ENV_bathy <=>      0.00000000     0.00000000 : ()
+ d: 22   ENV_rainloss <=>      0.00000000     0.00000000 : ()
+ E:  1    temperature <=>        0.000000       0.000000 : temp => tr_el(1,:,col)
+ E:  2       salinity <=>       20.000000      20.000000 : salt => tr_el(2,:,col)
+ E:  3        density <=>      -99.000000     -99.000000 : rho  => erho(:,:)
+ E:  4       velocity <=>        0.205925       0.205925 : cvel(:,col) = sqrt(SCHISM_N2E_VALS(uu2,:)**2 + SCHISM_N2E_VALS(vv2,:)**2)
+ E:  5          depth <=>        0.000000       0.000000 : depth calculated from dpe and ze
+ E:  6       pressure <=>       10.161385      10.161385 : pres calculated from rho0 and grav
+ E:  7          thick <=>        0.000000       0.000000 : dz calculated from dpe and ze
+ E:  8           area <=>        0.000000       0.000000 : area_ extended from 'area' to 3D
+ E:  9           extc <=>        0.000000       0.000000 : extc NOT FOUND
+ E: 10   I_0 (par_sf) <=>        0.000000       0.000000 : I_0(col) = SCHISM_N2E_VAL(srad)
+ E: 11            par <=>        0.000000       0.000000 : par(:,col) = I_0(col) * par_frac * EXP(-(Kw+localext)*1e-6*dz(:,col))
+ E: 12            nir <=>        0.000000       0.000000 : nir(:,col) = (par(:,col)/par_frac) * nir_frac
+ E: 13            uva <=>        0.000000       0.000000 : uva(:,col) = (par(:,col)/par_frac) * uva_frac
+ E: 14            uvb <=>        0.000000       0.000000 : uvb(:,col) = (par(:,col)/par_frac) * uvb_frac
+ E: 15            tss <=>        0.000000       0.000000 : tss NOT FOUND
+ E: 16            ss1 <=>        0.000000       0.000000 : ss1 NOT FOUND
+ E: 17            ss2 <=>        0.000000       0.000000 : ss2 NOT FOUND
+ E: 18            ss3 <=>        0.000000       0.000000 : ss3 NOT FOUND
+ E: 19            ss4 <=>        0.000000       0.000000 : ss4 NOT FOUND
+ E: 20       air_pres <=>   101408.527168  102025.900865 : air_pres(col) = SCHISM_N2E_VAL(pr)
+ E: 21       air_temp <=>        4.887066      12.345450 : air_temp(col) = SCHISM_N2E_VAL(airt1)
+ E: 22           rain <=>        0.000000       0.000000 : rain(col) = SCHISM_N2E_VAL(prec_rain)
+ E: 23           wind <=>        0.008773      11.551445 : wind(col) = sqrt(SCHISM_N2E_VAL(windx)**2 + SCHISM_N2E_VAL(windy)**2)
+ E: 24       humidity <=>        0.004324       0.007226 : humidity(col) = SCHISM_N2E_VAL(shum1)
+ E: 25           evap <=>       -0.000002      -0.000002 : evap = SCHISM_N2E_VAL(fluxevp)
+ E: 26      col_depth <=>      -10.000000    4488.952616 : col_depth calculated from dpe and ze
+ E: 27   layer_stress <=>       -0.000028      -0.000028 : layer_stress = SCHISM_N2E_VALS(tau_bot_node,1) ? bottom_stress?
+ E: 28       longwave <=>      261.398965     261.398965 : longwave = SCHISM_N2E_VAL(hradd)
+ E: 29      ustar_bed <=>        0.000000       0.000000 : ustar_bed NOT FOUND
+ E: 30        wv_uorb <=>        0.000000       0.000000 : wv_orb NOT FOUND
+ E: 31           wv_t <=>        0.000000       0.000000 : wv_t NOT FOUND

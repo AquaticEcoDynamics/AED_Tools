@@ -1,0 +1,234 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index a78ed3c4..d90bed7b 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
+ add_module(EcoSim   USE_ECO   OFF)
+ add_module(Sediment USE_SED   OFF)
+ add_module(Sed2d    USE_SED2D OFF)
++add_module(AED      USE_AED   OFF)
+ add_module(Hydro    USE_HYDRO ON)
+ add_module(Core     USE_SCHISM ON)
+ 
+diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
+index 97d674e9..f8bf567d 100644
+--- a/src/Core/schism_glbl.F90
++++ b/src/Core/schism_glbl.F90
+@@ -79,7 +79,7 @@ module schism_glbl
+                       ubs0,ubs1,ubs2,ubs4,ubs5,ubs6, &
+                       a2_cm03,schk,schpsi
+ 
+-  integer,parameter :: natrm=12 !# of _available_ tracer models at the moment (including T,S)
++  integer,parameter :: natrm=13 !# of _available_ tracer models at the moment (including T,S)
+   integer,parameter :: mntracers=30 !max # of tracers, used only for dimensioning btrack arrays. Must >=ntracers
+ 
+   !Parameters from param.nml
+diff --git a/src/Core/scribe_io.F90 b/src/Core/scribe_io.F90
+index e9f84333..ccf8ebc5 100644
+--- a/src/Core/scribe_io.F90
++++ b/src/Core/scribe_io.F90
+@@ -677,6 +677,19 @@
+       enddo !j
+ #endif/*USE_FABM*/
+ 
++#ifdef USE_AED
++      DO j=1,ntrs(13)
++
++  !   subroutine scribe_recv_write(it,imode,ivs,itotal,icount_out_name)
++  !   !imode: 1/2/3 for node/elem/side; ivs: 1 (scalar) or 2 (vector)
++  !   integer, intent(in) :: it,imode,ivs
++  !   integer, intent(inout) :: itotal,icount_out_name !global counters
++  !
++        CALL scribe_recv_write(it,1,1,itotal,icount_out_name)
++  !
++      ENDDO
++#endif/* USE_AED */
++
+ #ifdef USE_ANALYSIS
+       if(iof_ana(14)==1) call scribe_recv_write(it,1,1,itotal,icount_out_name)
+ !        itotal=itotal+1
+diff --git a/src/Hydro/schism_finalize.F90 b/src/Hydro/schism_finalize.F90
+index 85ac2f6c..b7c6d91b 100644
+--- a/src/Hydro/schism_finalize.F90
++++ b/src/Hydro/schism_finalize.F90
+@@ -25,6 +25,10 @@
+       USE fabm_schism, only: fabm_schism_close_output_netcdf
+ #endif
+ 
++#ifdef USE_AED
++      USE schism_aed
++#endif
++
+ #ifdef USE_PETSC
+       USE petsc_schism
+ #endif
+@@ -143,6 +147,12 @@
+       call date_and_time(date,timestamp)
+       if(myrank==0) write(16,'(/4a)') 'Run completed successfully at ',date,', ',timestamp
+ 
++#ifdef USE_AED
++      !# put here because putting it after the file closing loop below would mean our nc file was closed
++      !# before we get to see it and any messages printed would go to files "fort.6" or "fort.16"
++      CALL schism_aed_finalise()
++#endif
++
+ !     Close file handles - may have problem on some systems
+       do i=1,2000
+         close(i)
+diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
+index 0427279a..9c724751 100644
+--- a/src/Hydro/schism_init.F90
++++ b/src/Hydro/schism_init.F90
+@@ -106,6 +106,10 @@
+ 
+ #endif
+ 
++#ifdef USE_AED
++      USE schism_aed
++#endif
++
+       implicit none
+       include 'mpif.h'
+  
+@@ -341,6 +345,7 @@
+ !    10: TIMOR
+ !    11: FABM
+ !    12: DVD numerical mixing analysis of Klingbeit
++!    13: AED
+ 
+       !Init. # of tracers in models 1:natrm
+       !A tracer model is activated iff ntrs()>0
+@@ -417,6 +422,11 @@
+       tr_mname(12)='DVD'
+ #endif
+ 
++#ifdef USE_AED
++      CALL schism_aed_configure_models(ntracers=ntrs(13))
++      tr_mname(13)='AED' !3-char
++#endif
++
+       !Total # of tracers (including T,S)
+       !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
+       !The order of each tracer modules can be seen above
+@@ -5012,6 +5022,11 @@
+       call init_flmud
+ #endif /*USE_TIMOR*/
+ 
++#ifdef USE_AED
++      CALL schism_aed_init_models()
++      CALL schism_aed_create_output()
++#endif
++
+ #ifdef USE_FIB
+       ! Fecal Indicator Bacteria model
+       if(myrank==0) write(16,*) 'FIB model invoked'
+@@ -6571,6 +6586,10 @@
+       enddo !i
+ #endif
+ 
++#ifdef USE_AED
++      CALL schism_aed_name_2D_scribes(out_name, iout_23d, counter_out_name, ncount_2delem)
++#endif
++
+ #ifdef USE_ICE
+       if(iof_ice(1)==1) then
+         ncount_2delem=ncount_2delem+1
+@@ -6806,6 +6825,12 @@
+       enddo !i
+ #endif/*USE_FABM*/
+ 
++#ifdef USE_AED
++      IF (schism_aed_name_3D_scribes(out_name, iout_23d, counter_out_name, ncount_3dnode) > ntrs(13) ) THEN
++         write(16,*) "WARNING: More AED variable names than expected"
++      ENDIF
++#endif
++
+ #ifdef USE_ANALYSIS
+       if(iof_ana(14)==1) then
+         ncount_3dnode=ncount_3dnode+1
+diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
+index 45f3bb21..a07d4f0d 100644
+--- a/src/Hydro/schism_step.F90
++++ b/src/Hydro/schism_step.F90
+@@ -47,6 +47,10 @@
+       USE fabm_schism, only: fabm_schism_write_output_netcdf
+ #endif
+ 
++#ifdef USE_AED
++      USE schism_aed
++#endif
++
+ #ifdef USE_ICM
+       use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
+ #endif
+@@ -7829,6 +7833,10 @@
+         if(myrank==0) write(16,*) 'Done FABM calculations'
+ #endif
+ 
++#ifdef USE_AED
++        CALL schism_aed_do(it)
++#endif
++
+ #ifdef USE_ICM
+         itmp1=irange_tr(1,7)
+         itmp2=irange_tr(2,7)
+@@ -9241,6 +9249,9 @@
+         noutput=noutput+1
+ #endif
+ 
++#ifdef USE_AED
++        CALL aed_writeout(id_out_var, noutput,npa,tr_nd)
++#endif
+ 
+ #ifdef USE_SED2D
+         if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
+@@ -9802,6 +9813,14 @@
+         enddo !i
+ #endif
+ 
++#ifdef USE_AED
++        DO i=1,n_vars_ben
++           icount=icount+1
++           IF (icount > ncount_2delem) CALL parallel_abort('STEP: icount>nscribes(1.2)')
++           varout_2delem(icount,:)=cc_hz(i, 1:ne)
++        ENDDO
++#endif
++
+ #ifdef USE_ICE
+         if(iof_ice(1)==1) then
+           icount=icount+1
+@@ -10099,6 +10118,12 @@
+         enddo !i
+ #endif
+ 
++#ifdef USE_AED
++        DO i=1,ntrs(13)
++           CALL savensend3D_scribe(icount,1,1,nvrt,np,tr_nd(irange_tr(1,13)-1+i,:,1:np))
++        ENDDO
++#endif
++
+ #ifdef USE_ANALYSIS
+       if(iof_ana(14)==1) then
+         call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
+@@ -10201,7 +10226,7 @@
+       enddo !i
+ #endif /*USE_ANALYSIS*/
+ 
+-        
++
+       !Check total # of vars
+       if(icount/=ncount_3dside) then
+         write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
+@@ -10279,6 +10304,12 @@
+       end if
+ #endif
+ 
++#ifdef USE_AED
++      IF (mod(it,nspool)==0) THEN
++        CALL schism_aed_write_output(time=time)
++      ENDIF
++#endif
++
+ !     Open new global output files and write header data
+ !#ifdef OLDIO
+ !      if(nc_out>0.and.mod(it,ihfskip)==0) then

@@ -1,0 +1,57 @@
+# The aed_changes.xdiff file should be applied from the top level schism directory
+#
+# This diff patches :
+#
+#       src/Core/schism_glbl.F90
+#
+#       src/Hydro/schism_init.F90
+#       src/Hydro/schism_step.F90
+#       src/Hydro/schism_finalize.F90
+#
+#       cmake/SCHISM.local.build
+#       src/CMakeLists.txt
+#
+# schism_glbl.F90 patches the number of available tracers from 12 to 13 to support AED.
+# The other 3 source patches add calls so the aed for initialisation, execution, and cleanup
+#
+# It may be that there are more points for useful entry, these so far were drived using
+# cosine and fabm as examples.
+#
+# Other changes to the schism source tree are made from the build_schism.sh file which patches
+# cmake input files to turn on/off modules.
+#
+#                          -------------------------------
+#
+# the main AED stufff then lives in src/AED/ which has two files (for now) :
+#
+#            CMakeLists.txt.m   and   schism_aed.F90
+#
+# CMakeLists.txt.m is modified by the build script to correct the paths listed in it, writing
+# the modified file to CMakeLists.txt for the cmake system to use.
+#  [it turned out the gnu-make files were worse than the cmake files  a bit disappointing]
+#
+# schism_aed.F90 contains :
+#
+#   schism_aed_init_model(ntracers=ntrs(13))
+#     At this stage most variables are not yet set - so we dont know, for example, how many 
+#     columns there are, nor how many layers.  This is a good place to read the aed.nml file
+#     to set global configuration values
+#
+#   schism_aed_init_stage2()
+#     So now we have ne (or nea) for the number of column, and, presumably a bunch of
+#     other useful bits so we can build arrays etc.
+#
+#   schism_aed_do()
+#     The main doing stuff routine - currently doesnt seem to get called, but thats
+#     kind of OK because it still needs a fair bit of work, and until the init stage
+#     works properly...
+#
+#   schism_aed_write_output_netcdf(time=time)
+#   schism_aed_close_output_netcdf()
+#     Not sure what happened to the netcdf creation, I thought I had it in there....
+#
+# The current iteration of this file uses the libaed-api which is the simplified
+# interface to the aed libraries. Unfortunately it has had an issue where some allocated memory
+# is being used beyond its bounds and breaks malloc. This is proving difficult to track down.
+# To get around this issue I am currently working on a version of schism_aed that goes directly
+# to the libaed stuff which is more complicated and untidy but hopefully will get us moving again.

@@ -21,6 +21,10 @@ case `uname` in
     ;;
 esac
 
+# defaults for schism qld proj
+export WITH_PREC_EVAP="ON"
+export WITH_AED="ON"
+
 #-------------------------------------------------------------------------------
 # Set up some defaults
 
@@ -48,11 +52,11 @@ if [ "$OSTYPE" = "Linux" ] ; then
     ERROR=1
     echo 'schism requires cmake installed to build'
   fi
-# dpkg --list libnetcdf-dev > /dev/null 2>& 1
-# if [ $? -ne 0 ] ; then
-#   ERROR=1
-#   echo 'schism requires libnetcdf-dev installed to build'
-# fi
+  dpkg --list libnetcdf-dev > /dev/null 2>& 1
+  if [ $? -ne 0 ] ; then
+    ERROR=1
+    echo 'schism requires libnetcdf-dev installed to build'
+  fi
 fi
 
 #
@@ -443,7 +447,7 @@ if [ "$WITH_AED" = "ON" ] ; then
   sed -i -e "s^USE_AED OFF^USE_AED ON^" cmake/SCHISM.local.build.aed
 # sed -i -e "s^/home/anonymous/libaed-api^${CWD}/libaed-api^" cmake/SCHISM.local.build.aed
 # sed -i -e "s^/home/anonymous/libaed-water^${CWD}/libaed-water^" cmake/SCHISM.local.build.aed
- #sed    -e "s^/home/anonymous/libaed-^${CWD}/libaed-^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
+# sed    -e "s^/home/anonymous/libaed-^${CWD}/libaed-^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
   sed    -e "s^/home/anonymous/lib^${CWD}/lib^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
 fi
 if [ "$WITH_DVD" = "ON" ] ; then
