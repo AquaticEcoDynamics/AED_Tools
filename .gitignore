@@ -9,8 +9,6 @@ libaed2-plus
 libplot
 libutil
 binaries
-fabm-git
-fabm-schism
 gotm-*
 *-bak
 *.mod
@@ -22,7 +20,10 @@ gotm-*
 .*.swp
 tuflowfv-svn*
 tuflowfv-lib*
+fabm-git
+fabm-schism
 schism
+schism-orig
 TestSets
 aed_dbase
 sim*

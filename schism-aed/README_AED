@@ -1,15 +1,15 @@
-# The aed_changes.xdiff file should be applied from the top level schism directory
+# The aed-schism.xdiff file should be applied from the AED_Tools directory
 #
 # This diff patches :
 #
-#       src/Core/schism_glbl.F90
+#       schism/src/Core/schism_glbl.F90
 #
-#       src/Hydro/schism_init.F90
-#       src/Hydro/schism_step.F90
-#       src/Hydro/schism_finalize.F90
+#       schism/src/Hydro/schism_init.F90
+#       schism/src/Hydro/schism_step.F90
+#       schism/src/Hydro/schism_finalize.F90
 #
-#       cmake/SCHISM.local.build
-#       src/CMakeLists.txt
+#       schism/cmake/SCHISM.local.build
+#       schism/src/CMakeLists.txt
 #
 # schism_glbl.F90 patches the number of available tracers from 12 to 13 to support AED.
 # The other 3 source patches add calls so the aed for initialisation, execution, and cleanup.

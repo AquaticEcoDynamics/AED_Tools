@@ -1,0 +1,10 @@
+Building SCHISM-AED
+===================
+
+git clone git@github.com:AquaticEcoDynamics/AED_Tools
+cd AED_Tools
+./fetch_sources.sh libaed schism
+patch -p0 < schism-aed/aed-schism.xdiff 
+cp -r schism-aed/src/AED schism/src
+./build_schism.sh 
+
