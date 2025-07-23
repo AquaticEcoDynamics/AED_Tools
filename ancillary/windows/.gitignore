@@ -1,6 +1,6 @@
-Win32-Release*
-Win32-Debug*
-x64-Release*
-x64-Debug*
-MinGW*
-msys
+cmake*
+include
+lib
+share
+bin
+etc

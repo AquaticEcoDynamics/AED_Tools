@@ -21,7 +21,7 @@ case `uname` in
     ;;
 esac
 
-# defaults for schism qld proj
+# defaults for schism for now
 export WITH_PREC_EVAP="ON"
 export WITH_AED="ON"
 

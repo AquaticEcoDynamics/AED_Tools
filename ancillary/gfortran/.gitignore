@@ -1,8 +1,6 @@
-netcdf-c-*
-netcdf-fortran*
-netcdf_*
-cmake-info-*
+cmake*
 include
 lib
 share
 bin
+etc

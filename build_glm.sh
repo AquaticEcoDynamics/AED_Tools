@@ -3,6 +3,7 @@
 cd GLM
 . ./GLM_CONFIG
 cd ..
+export CWD=`pwd`
 
 case `uname` in
   "Darwin"|"Linux"|"FreeBSD")
@@ -51,6 +52,9 @@ while [ $# -gt 0 ] ; do
     --ifort)
       export FC=ifort
       ;;
+    --flang-new)
+      export FC=flang-new
+      ;;
     --flang)
       export FC=flang
       ;;
@@ -64,11 +68,13 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
+. ${CWD}/build_env.inc
+
 export F77=$FC
 export F90=$FC
 export F95=$FC
 
-. ${CWD}/build_env.inc
+export MPI=OPENMPI
 
 if [ "$AED2DIR" = "" ] ; then
   export AED2DIR=../libaed2
@@ -142,10 +148,10 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   # ./fetch.sh
   # ${MAKE} || exit 1
 elif [ "$OSTYPE" = "Msys" ] ; then
-  if [ ! -d ancillary/windows/msys ] ; then
+  if [ ! -d ancillary/windows ] ; then
     echo making windows ancillary extras
-    cd ancillary/windows/Sources
-    ./build_all.sh || exit 1
+    cd ancillary/windows
+    ./build.sh || exit 1
   fi
 fi
 
@@ -223,10 +229,11 @@ fi
 
 # ****************************** MacOS ********************************
 if [ "$OSTYPE" = "Darwin" ] ; then
-  MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' "/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf"`
+  # MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' "/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf"`
   # pre Lion :   MOSNAME=`echo ${MOSLINE} | awk -F 'Mac OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
   # pre Sierra : MOSNAME=`echo ${MOSLINE} | awk -F 'OS X ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
-  MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
+  # MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
+  MOSNAME=`cat "/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf" | awk -F 'macOS ' '/SOFTWARE LICENSE AGREEMENT FOR/ {print $NF}' | tr -d '\\' | tr ' ' '_'`
 
   BINPATH="binaries/macos/${MOSNAME}"
   if [ ! -d "${BINPATH}" ] ; then
@@ -285,8 +292,8 @@ if [ "$OSTYPE" = "Msys" ] ; then
   fi
   mkdir glm_$VERSION
 
-  cp ancillary/windows/msys/bin/libnetcdf.dll glm_$VERSION
-  cp ancillary/windows/msys/bin/libgd.dll glm_$VERSION
+  cp ancillary/windows/bin/libnetcdf.dll glm_$VERSION
+  cp ancillary/windows/bin/libgd.dll glm_$VERSION
   for dll in libgfortran libgcc_s_seh libquadmath libwinpthread ; do
     dllp=`find /c/ProgramData/ -name $dll\*.dll 2> /dev/null | head -1`
     if [ "$dllp" != "" ] ; then

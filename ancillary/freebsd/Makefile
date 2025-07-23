@@ -2,7 +2,7 @@
 #                                                                             #
 # Makefile for flang_extras                                                   #
 #                                                                             #
-#  Copyright 2022-2023 -  The University of Western Australia                 #
+#  Copyright 2022-2024 -  The University of Western Australia                 #
 #                                                                             #
 ###############################################################################
 
@@ -24,7 +24,8 @@ OBJS=${objdir}/iso_c_bind.o      \
      ${objdir}/iso_fortran_env.o \
      ${objdir}/ieee_exceptions.o \
      ${objdir}/ieee_features.o   \
-     ${objdir}/ieee_arithmetic.o
+     ${objdir}/ieee_arithmetic.o \
+     ${objdir}/omp_lib.o
 
 all: ${libdir}/libflang_extra.a
 

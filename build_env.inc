@@ -19,22 +19,42 @@ fi
 # Are we using intel fortran (no longer supported on mac)
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
   if [ "$OSTYPE" = "Linux" ] ; then
-    export start_sh="$(ps -p "$$" -o  command= | awk '{print $1}')" ;
+    export start_sh="$(ps -p $$ -o command= | awk '{print $1}')" ;
     # ifort config scripts wont work with /bin/sh
     # so we restart using bash
     if [ "$start_sh" = "/bin/sh" ] ; then
       /bin/bash $0 $ARGS
       exit $?
     fi
-  fi
 
-  # different releases put setup script in different places
-  if [ -x /opt/intel/setvars.sh ] ; then
-    . /opt/intel/setvars.sh
-  elif [ -d /opt/intel/oneapi ] ; then
-    . /opt/intel/oneapi/setvars.sh
-  elif [ -d /opt/intel/bin ] ; then
-    . /opt/intel/bin/compilervars.sh intel64
+    # different releases put setup script in different places
+    if [ -x /opt/intel/setvars.sh ] ; then
+      . /opt/intel/setvars.sh
+    elif [ -d /opt/intel/oneapi ] ; then
+      . /opt/intel/oneapi/setvars.sh
+    elif [ -d /opt/intel/bin ] ; then
+      . /opt/intel/bin/compilervars.sh intel64
+    fi
+  fi
+  if [ "$OSTYPE" = "Msys" ] ; then
+    if [ "$MY_PS" = "" ] ; then
+      export MY_PS=$$
+    fi
+    if [ "$MY_PS" = "$$" ] ; then
+      which ${FC} > /dev/null 2>&1
+      if [ $? != 0 ] ; then
+
+        cat << EOF | cmd
+@echo off
+
+@"C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+@"C:\Program Files\Git\bin\bash.exe" -c "$0 $ARGS"
+
+EOF
+        echo
+        exit $?
+      fi
+    fi
   fi
 
   which ${FC} > /dev/null 2>&1
@@ -81,16 +101,16 @@ if [ "${NCDFFBASE}" = "" ]; then
     fi
   fi
   if [ "$OSTYPE" = "Msys" ] ; then
-    if [ ! -f ${BASEDIR}/ancillary/windows/msys/include/netcdf.mod ] ; then
+    if [ ! -f ${BASEDIR}/ancillary/windows/include/netcdf.mod ] ; then
       echo making windows ancillary extras
-      cd ${BASEDIR}/ancillary/windows/Sources
-      ./build_all.sh || exit 1
+      cd ${BASEDIR}/ancillary/windows
+      ./build.sh || exit 1
     fi
-    export NCDFFBASE=${BASEDIR}/ancillary/windows/msys/
+    export NCDFFBASE=${BASEDIR}/ancillary/windows/
   else
     if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.mod ] ; then
-      cd ${BASEDIR}/ancillary/${FC}/src
-      ./build_netcdf_f.sh
+      cd ${BASEDIR}/ancillary/${FC}
+      ./build.sh
     fi
     export NCDFFBASE=${BASEDIR}/ancillary/${FC}
   fi

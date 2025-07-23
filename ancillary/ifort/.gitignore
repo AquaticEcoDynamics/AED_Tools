@@ -1,5 +1,6 @@
-netcdf-fortran-*
+cmake*
 include
 lib
 share
 bin
+etc
