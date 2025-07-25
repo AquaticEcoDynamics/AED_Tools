@@ -223,8 +223,10 @@ MODULE schism_aed
    INTEGER ::                 n_vars_diag = 0, n_vars_diag_sheet = 0
 
    !# These are just to get it compiling for now
-   INTEGER :: split_factor, benthic_mode, rain_factor, sw_factor, friction
-   AED_REAL :: Kw, Ksed
+   INTEGER :: split_factor, benthic_mode
+   AED_REAL,TARGET ::  rain_factor, sw_factor, friction
+   AED_REAL,TARGET :: Kw
+!  AED_REAL :: Ksed
    LOGICAL :: mobility_off, bioshade_feedback, repair_state
    AED_REAL,TARGET :: timestep, yearday
 
@@ -353,7 +355,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
    inited = .TRUE.
 
    Kw = base_par_extinction
-   Ksed = tss_par_extinction
+!  Ksed = tss_par_extinction
 
    cpl%par_fraction =  par_frac
    cpl%nir_fraction =  nir_frac
@@ -370,12 +372,12 @@ SUBROUTINE schism_aed_configure_models(ntracers)
    cpl%split_factor = split_factor
    cpl%benthic_mode = benthic_mode
 
-   cpl%rain_factor = rain_factor
-   cpl%sw_factor = sw_factor
-   cpl%friction = friction
+   cpl%rain_factor => rain_factor
+   cpl%sw_factor => sw_factor
+   cpl%friction => friction
 
-   cpl%Kw = Kw
-   cpl%Ksed = Ksed
+   cpl%Kw => Kw
+!  cpl%Ksed = Ksed
 
    print *,'    link options configured between SCHISM & AED - '
    print *,'        link_ext_par       :  ',link_ext_par

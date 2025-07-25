@@ -1,7 +1,8 @@
-diff -NaBur -x .git schism-orig/src/CMakeLists.txt schism/src/CMakeLists.txt
---- schism-orig/src/CMakeLists.txt	2025-06-18 13:46:12.183719724 +0800
-+++ schism/src/CMakeLists.txt	2025-06-18 13:49:43.022632750 +0800
-@@ -232,6 +232,7 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index a78ed3c4..d90bed7b 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
  add_module(EcoSim   USE_ECO   OFF)
  add_module(Sediment USE_SED   OFF)
  add_module(Sed2d    USE_SED2D OFF)
@@ -9,10 +10,11 @@ diff -NaBur -x .git schism-orig/src/CMakeLists.txt schism/src/CMakeLists.txt
  add_module(Hydro    USE_HYDRO ON)
  add_module(Core     USE_SCHISM ON)
  
-diff -NaBur -x .git schism-orig/src/Core/schism_glbl.F90 schism/src/Core/schism_glbl.F90
---- schism-orig/src/Core/schism_glbl.F90	2025-06-18 13:46:12.185719675 +0800
-+++ schism/src/Core/schism_glbl.F90	2025-06-18 13:49:43.022632750 +0800
-@@ -79,7 +79,7 @@
+diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
+index fc172466..92c50b95 100644
+--- a/src/Core/schism_glbl.F90
++++ b/src/Core/schism_glbl.F90
+@@ -79,7 +79,7 @@ module schism_glbl
                        ubs0,ubs1,ubs2,ubs4,ubs5,ubs6, &
                        a2_cm03,schk,schpsi
  
@@ -21,9 +23,10 @@ diff -NaBur -x .git schism-orig/src/Core/schism_glbl.F90 schism/src/Core/schism_
    integer,parameter :: mntracers=30 !max # of tracers, used only for dimensioning btrack arrays. Must >=ntracers
  
    !Parameters from param.nml
-diff -NaBur -x .git schism-orig/src/Core/scribe_io.F90 schism/src/Core/scribe_io.F90
---- schism-orig/src/Core/scribe_io.F90	2025-06-18 13:46:12.185719675 +0800
-+++ schism/src/Core/scribe_io.F90	2025-06-18 13:49:43.022632750 +0800
+diff --git a/src/Core/scribe_io.F90 b/src/Core/scribe_io.F90
+index e9f84333..ccf8ebc5 100644
+--- a/src/Core/scribe_io.F90
++++ b/src/Core/scribe_io.F90
 @@ -677,6 +677,19 @@
        enddo !j
  #endif/*USE_FABM*/
@@ -44,9 +47,10 @@ diff -NaBur -x .git schism-orig/src/Core/scribe_io.F90 schism/src/Core/scribe_io
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) call scribe_recv_write(it,1,1,itotal,icount_out_name)
  !        itotal=itotal+1
-diff -NaBur -x .git schism-orig/src/Hydro/schism_finalize.F90 schism/src/Hydro/schism_finalize.F90
---- schism-orig/src/Hydro/schism_finalize.F90	2025-06-18 13:46:12.200719310 +0800
-+++ schism/src/Hydro/schism_finalize.F90	2025-06-18 13:49:43.022632750 +0800
+diff --git a/src/Hydro/schism_finalize.F90 b/src/Hydro/schism_finalize.F90
+index 35db5919..586ea3d4 100644
+--- a/src/Hydro/schism_finalize.F90
++++ b/src/Hydro/schism_finalize.F90
 @@ -25,6 +25,10 @@
        USE fabm_schism, only: fabm_schism_close_output_netcdf
  #endif
@@ -71,9 +75,10 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_finalize.F90 schism/src/Hydro/s
  !     Close file handles - may have problem on some systems
        do i=1,2000
          close(i)
-diff -NaBur -x .git schism-orig/src/Hydro/schism_init.F90 schism/src/Hydro/schism_init.F90
---- schism-orig/src/Hydro/schism_init.F90	2025-06-18 13:46:12.200719310 +0800
-+++ schism/src/Hydro/schism_init.F90	2025-06-18 13:49:43.023632726 +0800
+diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
+index af000c64..aa0e205c 100644
+--- a/src/Hydro/schism_init.F90
++++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
  
  #endif
@@ -105,7 +110,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_init.F90 schism/src/Hydro/schis
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -5012,6 +5022,11 @@
+@@ -5014,6 +5024,11 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
@@ -117,7 +122,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_init.F90 schism/src/Hydro/schis
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6571,6 +6586,10 @@
+@@ -6579,6 +6594,10 @@
        enddo !i
  #endif
  
@@ -128,7 +133,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_init.F90 schism/src/Hydro/schis
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6806,6 +6825,12 @@
+@@ -6814,6 +6833,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -141,9 +146,10 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_init.F90 schism/src/Hydro/schis
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
-diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schism_step.F90
---- schism-orig/src/Hydro/schism_step.F90	2025-06-18 13:46:12.201719286 +0800
-+++ schism/src/Hydro/schism_step.F90	2025-06-18 13:49:43.023632726 +0800
+diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
+index 31ccec4e..73b0faf5 100644
+--- a/src/Hydro/schism_step.F90
++++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
        USE fabm_schism, only: fabm_schism_write_output_netcdf
  #endif
@@ -155,7 +161,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
  #ifdef USE_ICM
        use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
  #endif
-@@ -7681,6 +7685,10 @@
+@@ -7684,6 +7688,10 @@
          if(myrank==0) write(16,*) 'Done FABM calculations'
  #endif
  
@@ -166,7 +172,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9093,6 +9101,9 @@
+@@ -9097,6 +9105,9 @@
          noutput=noutput+1
  #endif
  
@@ -176,7 +182,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9654,6 +9665,14 @@
+@@ -9658,6 +9669,14 @@
          enddo !i
  #endif
  
@@ -191,7 +197,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -9951,6 +9970,12 @@
+@@ -9955,6 +9974,12 @@
          enddo !i
  #endif
  
@@ -204,7 +210,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10053,7 +10078,7 @@
+@@ -10057,7 +10082,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -213,7 +219,7 @@ diff -NaBur -x .git schism-orig/src/Hydro/schism_step.F90 schism/src/Hydro/schis
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10131,6 +10156,12 @@
+@@ -10135,6 +10160,12 @@
        end if
  #endif
  
