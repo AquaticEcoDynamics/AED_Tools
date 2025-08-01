@@ -7,7 +7,8 @@ rep_list=""
 upd_list=""
 count=0
 
-GITHOST=git@github.com:AquaticEcoDynamics/
+#GITHOST=git@github.com:AquaticEcoDynamics/
+GITHOST=https://github.com/AquaticEcoDynamics/
 
 GET_GLM="false"
 GETAED="false"
