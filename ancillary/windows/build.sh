@@ -33,7 +33,23 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
   fi
 fi
 
+if [ ! -d lib ] ; then
+  BFLAGS=--all
+else
+  BFLAGS=
+  if [ ! -f lib/libnetcdf.dll.a ] ; then
+    BFLAGS=$BFLAGS --need-netcdf_c --need_netcdf_c
+  fi
+  if [ ! -f bin/libgd.dll ] ; then
+    BFLAGS=$BFLAGS --need-netcdf_f
+  fi
+  if [ ! -f bin/libgd.dll ] ; then
+    BFLAGS=$BFLAGS --need-gd
+  fi
+fi
+
 cd ../sources
+. ./versions.inc
 
 #./build_all.sh --need-ncdfc-extras --need-netcdf_c --need-netcdf_f --need-openmpi --need-gd
 ./build_all.sh --all

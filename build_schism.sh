@@ -21,9 +21,9 @@ case `uname` in
     ;;
 esac
 
-# defaults for schism for now
-export WITH_PREC_EVAP="ON"
-export WITH_AED="ON"
+# # defaults for schism for now
+# #export WITH_PREC_EVAP="ON"
+# #export WITH_AED="ON"
 
 #-------------------------------------------------------------------------------
 # Set up some defaults
@@ -105,7 +105,6 @@ while [ $# -gt 0 ] ; do
     --with-fabm)
       export WITH_FABM="ON"
       ;;
-
     --with-no-parmetis)
       export WITH_NO_PARMETIS="ON"
       ;;
@@ -189,18 +188,18 @@ while [ $# -gt 0 ] ; do
       export WITH_NWM_BMI="ON"
       export WITH_PREC_EVAP="ON"
       export WITH_BULK_FAIRALL="ON"
-#     export WITH_HA="ON"
-#     export WITH_MARSH="ON"
-#     export WITH_PAHM="ON"
-#     export WITH_WWM="ON"
-#     export WITH_WW3="ON"
+      export WITH_HA="ON"
+      export WITH_MARSH="ON"
+      export WITH_PAHM="ON"
+      export WITH_WWM="ON"
+      export WITH_WW3="ON"
       export WITH_ICE="ON"
       export WITH_MICE="ON"
       export WITH_GEN="ON"
       export WITH_AGE="ON"
-#     export WITH_ECO="ON"
-#     export WITH_ICM="ON"
-#     export WITH_COSINE="ON"
+      export WITH_ECO="ON"
+      export WITH_ICM="ON"
+      export WITH_COSINE="ON"
       export WITH_FIB="ON"
       export WITH_SED="ON"
       export WITH_DVD="ON"
@@ -214,10 +213,9 @@ while [ $# -gt 0 ] ; do
     --help)
       echo "build_schism accepts the following flags:"
       echo "  --debug          : build with debugging symbols"
-      echo "  --gfort          : use the gfortran compiler"
+      echo "  --gfort          : use the gfortran compiler (default)"
       echo "  --ifort          : use the older intel fortran compiler"
       echo "  --ifx            : use the newer intel fortran compiler"
-#     echo "  --flang          : use the flang compiler"
       echo "  --verbose        : turn on the verbose make flag"
       echo
       echo "  --with-aed       : build with aed enabled (default)"
@@ -227,38 +225,34 @@ while [ $# -gt 0 ] ; do
       echo "  --with-gotm      : fabm and gotm cannot be used together"
       echo
       echo "  --with-prec-evap : Include precipitation and evaporation calculation"
-      echo "  --with-cosine    : turn on cosine model                (DOESNT COMPILE)"
+      echo "  --with-cosine    : turn on cosine model"
       echo "  --with-no-parmetis"
       echo "  --with-oldio"
       echo "  --with-atmos"
       echo "  --with-nwm-bmi"
       echo "  --with-bulk-fairall : Enable Fairall bulk scheme for air-sea exchange"
-      echo "  --with-ha        : Enable harmonic analysis output modules (DOESNT COMPILE)"
-      echo "  --with-marsh     : Use marsh module                    (DOESNT COMPILE)"
-      echo "  --with-pahm      : Use PaHM module                     (DOESNT COMPILE)"
-      echo "  --with-wwm       : Use wind-wave module                (DOESNT COMPILE)"
-      echo "  --with-ww3       : Use Wave Watch III                  (DOESNT COMPILE)"
+      echo "  --with-ha        : Enable harmonic analysis output modules"
+      echo "  --with-marsh     : Use marsh module"
+      echo "  --with-pahm      : Use PaHM module"
+      echo "  --with-wwm       : Use wind-wave module"
+      echo "  --with-ww3       : Use Wave Watch III"
       echo "  --with-ice       : Use 1-class ICE module"
-      echo "  --with-mice      : Use multi-class ICE module          (DOESNT COMPILE)"
+      echo "  --with-mice      : Use multi-class ICE module"
       echo
       echo " #Tracer models:"
       echo "  --with-gen       : Use generic tracer module"
       echo "  --with-age       : Use age module"
-      echo "  --with-eco       : Use ECO-SIM module                  (DOESNT COMPILE)"
-      echo "  --with-icm       : Use ICM module                      (DOESNT COMPILE)"
+      echo "  --with-eco       : Use ECO-SIM module"
+      echo "  --with-icm       : Use ICM module"
       echo "  --with-fib       : Use fecal indicating bacteria module"
       echo "  --with-sed       : Use sediment module"
       echo "  --with-dvd"
       echo
-      echo "  --with-debug"
+      echo "  --with-debug     : turn on debugging - also provides -g symbols"
       echo "  --with-analysis"
       echo
-      echo "  --try-mods  : turn on all modules"
-      echo "                except fabm, oldio and any marked as not compilable"
+      echo "  --try-mods  : turn on all modules except fabm, oldio"
       echo
-      echo " DOESNT COMPILE in most cases seems to be mpi related. It looks like"
-      echo " schism using gfortran originally used mpich rather than openmpi and"
-      echo " it hasn't been updated."
 
       exit 0
       ;;
@@ -270,13 +264,18 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-#-------------------------------------------------------------------------------
+if [ "$ERROR" != "0" ] ; then
+   echo ERRORs in request
+   exit 1
+fi
 
-. ${CWD}/build_env.inc
+#-------------------------------------------------------------------------------
 
 export F77=$FC
 export F90=$FC
 export F95=$FC
+
+. ${CWD}/build_env.inc
 
 #-------------------------------------------------------------------------------
 
@@ -323,6 +322,7 @@ fi
 #-------------------------------------------------------------------------------
 
 cd schism
+get_commit_id >> ${CWD}/cur_state.log
 
 #
 # First specify the compiler setup
@@ -371,8 +371,10 @@ fi
 #-------------------------------------------------------------------------------
 # Here is where we turn on/off various modules
 #-------------------------------------------------------------------------------
-cp cmake/SCHISM.local.build cmake/SCHISM.local.build.aed
-echo 'set( USE_AED OFF CACHE BOOLEAN "AED module interface")' >> cmake/SCHISM.local.build.aed
+#cp cmake/SCHISM.local.build cmake/SCHISM.local.build.aed
+# rather than copy, run through sed to replace "BOOLEAN" with "STRING" to remove the cmake warnings
+sed -e "s/BOOLEAN/STRING/" < cmake/SCHISM.local.build > cmake/SCHISM.local.build.aed
+echo 'set( USE_AED OFF CACHE STRING "AED module interface")' >> cmake/SCHISM.local.build.aed
 
 if [ "$WITH_NO_PARMETIS" = "ON" ] ; then
   sed -i -e "s^NO_PARMETIS OFF^NO_PARMETIS ON^" cmake/SCHISM.local.build.aed
@@ -394,7 +396,6 @@ if [ "$WITH_BULK_FAIRALL" = "ON" ] ; then
 fi
 if [ "$WITH_GOTM" = "ON" ] ; then
   sed -i -e "s^USE_GOTM OFF^USE_GOTM ON^" cmake/SCHISM.local.build.aed
-# sed -i -e "s^##set( GOTM_BASE /work2/03473/seatonc/frontera/GOTM5.2/code^set( GOTM_BASE ${CWD}/gotm-git^" cmake/SCHISM.local.build.aed
 fi
 if [ "$WITH_HA" = "ON" ] ; then
   sed -i -e "s^USE_HA OFF^USE_HA ON^" cmake/SCHISM.local.build.aed
@@ -445,10 +446,10 @@ if [ "$WITH_FABM" = "ON" ] ; then
 fi
 if [ "$WITH_AED" = "ON" ] ; then
   sed -i -e "s^USE_AED OFF^USE_AED ON^" cmake/SCHISM.local.build.aed
-# sed -i -e "s^/home/anonymous/libaed-api^${CWD}/libaed-api^" cmake/SCHISM.local.build.aed
-# sed -i -e "s^/home/anonymous/libaed-water^${CWD}/libaed-water^" cmake/SCHISM.local.build.aed
-# sed    -e "s^/home/anonymous/libaed-^${CWD}/libaed-^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
   sed    -e "s^/home/anonymous/lib^${CWD}/lib^" src/AED/CMakeLists.txt.m > src/AED/CMakeLists.txt
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
+    echo 'set( WITH_AED_PLUS ON CACHE STRING "AED+ module interface")' >> cmake/SCHISM.local.build.aed
+  fi
 fi
 if [ "$WITH_DVD" = "ON" ] ; then
   sed -i -e "s^USE_DVD OFF^USE_DVD ON^" cmake/SCHISM.local.build.aed
@@ -477,9 +478,9 @@ if [ "$MDEBUG" = "true" ] ; then
   export CFLAGS="$CFLAGS -g -fsanitize=address"
   export FFLAGS="$FFLAGS -g -fcheck=all,no-array-temps -fsanitize=address"
 fi
-if [ "${WITH_AED_PLUS}" = "true" ] ;then
-  export WITH_AED_PLUS=${WITH_AED_PLUS}
-fi
+#if [ "${WITH_AED_PLUS}" = "true" ] ; then
+#  export WITH_AED_PLUS=${WITH_AED_PLUS}
+#fi
 
 # cmake generates a bunch of developer warnings and says to use -Wno-dev to supress
 # them, but adding it here doesn't seem to do anything
@@ -554,6 +555,9 @@ cd ${CWD}
 if [ ! -d ${BINPATH} ] ; then
    mkdir -p ${BINPATH}
 fi
+nm=`/bin/ls schism/build/bin/pschism* | head -1`
+bn=`basename $nm`
+cp cur_state.log ${BINPATH}/$bn.versions
 cp schism/build/bin/pschism* ${BINPATH}/
 
 exit 0

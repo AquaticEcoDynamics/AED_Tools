@@ -9,6 +9,9 @@ libaed2-plus
 libplot
 libutil
 binaries
+fabm-git
+fabm-schism
+schism
 gotm-*
 *-bak
 *.mod
@@ -18,13 +21,13 @@ gotm-*
 *.dylib
 *.i90
 .*.swp
+*.log
 tuflowfv-svn*
 tuflowfv-lib*
-fabm-git
-fabm-schism
-schism
-schism-orig
+tuflowfv
 TestSets
 aed_dbase
 sim*
 swan
+phreeqcrm
+cur_state.log

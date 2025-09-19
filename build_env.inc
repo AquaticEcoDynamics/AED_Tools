@@ -1,5 +1,5 @@
 #
-# Source this file in build scripts
+# Source this file in build scripts after setting FC
 #
 
 # Work out what system type we are operating on
@@ -15,6 +15,17 @@ esac
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export MAKE=gmake
 fi
+
+
+#---------------
+get_commit_id () {
+  cid=`git log -1 | head -1 | cut -f2 -d\ `
+  me=`grep -w url .git/config | head -1 | cut -f3 -d\ `
+  stat=`git status -s --untracked-files=no | wc -l`
+  echo "$cid from $me with $stat changes"
+}
+#---------------
+
 
 # Are we using intel fortran (no longer supported on mac)
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
@@ -77,9 +88,22 @@ if [ "$BINDIR" != "" ] ; then
   BINDIR=`dirname $BINDIR`
   NCDFCBASE=`dirname $BINDIR`
 fi
-BINDIR=`which nf-config`
+unset BINDIR
+if [ "$FC" = "ifort"  ] ; then
+  if [ -d /opt/intel/bin ] ; then
+    BINDIR="/opt/intel/bin"
+  fi
+elif [ "$FC" = "ifx" ] ; then
+  if [ -d ancillary/ifx/bin ] ; then
+    BINDIR="ancillary/ifx/bin"
+  fi
+fi
+if [ "$BINDIR" = "" ] ; then
+  BINDIR=`which nf-config`
+  BINDIR=`dirname $BINDIR`
+fi
 if [ "$BINDIR" != "" ] ; then
-  NF_FC=`nf-config --fc`
+  NF_FC=`$BINDIR/nf-config --fc`
   if [ `basename $NF_FC` = ${FC} ] ; then
     BINDIR=`dirname $BINDIR`
     NCDFFBASE=`dirname $BINDIR`
@@ -101,14 +125,14 @@ if [ "${NCDFFBASE}" = "" ]; then
     fi
   fi
   if [ "$OSTYPE" = "Msys" ] ; then
-    if [ ! -f ${BASEDIR}/ancillary/windows/include/netcdf.mod ] ; then
+    if [ ! -f ${BASEDIR}/ancillary/windows/include/netcdf.h ] ; then
       echo making windows ancillary extras
       cd ${BASEDIR}/ancillary/windows
       ./build.sh || exit 1
     fi
     export NCDFFBASE=${BASEDIR}/ancillary/windows/
   else
-    if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.mod ] ; then
+    if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.h ] ; then
       cd ${BASEDIR}/ancillary/${FC}
       ./build.sh
     fi
@@ -143,5 +167,5 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 fi
 
-#echo basic info OMPIBASE=$OMPIBASE  NCDFCBASE=$NCDFCBASE NCDFFBASE=$NCDFFBASE
+echo basic info OMPIBASE=$OMPIBASE  NCDFCBASE=$NCDFCBASE NCDFFBASE=$NCDFFBASE
 

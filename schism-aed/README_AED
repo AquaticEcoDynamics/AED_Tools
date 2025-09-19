@@ -24,7 +24,7 @@
 #
 #                          -------------------------------
 #
-# The main AED stufff then lives in src/AED/ which has two files (for now) :
+# The main AED stuff then lives in src/AED/ which has two files (for now) :
 #
 #            CMakeLists.txt.m   and   schism_aed.F90
 #

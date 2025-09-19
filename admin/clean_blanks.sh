@@ -13,7 +13,7 @@ done
 CWD=`pwd`
 OSTYPE=`uname -s`
 
-AEDDIR="libaed-water libaed-benthic libaed-demo"
+AEDDIR="libaed-water libaed-benthic libaed-demo libaed-api"
 AEDPLS="libaed-riparian libaed-light libaed-dev"
 FABMDIR=fabm-git
 UTILDIR=libutil

@@ -20,7 +20,7 @@ done
 for dir in gfortran ifort ifx windows ; do
 
   cd $dir
-  /bin/rm -rf include bin lib share etc
+  /bin/rm -rf include bin lib share etc cmake\*
   cd ..
 
 done

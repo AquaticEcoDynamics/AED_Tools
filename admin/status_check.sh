@@ -25,25 +25,13 @@ git status
 REPO=`cat .git/config | grep -w url | head -n 1 | cut -f2 -d=`
 if [ $verbose ] ; then check_remote $REPO; fi
 
-for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed-fv libaed2 libaed2-plus GLM ; do
+for src in libplot libutil libaed-api libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed-fv libaed2 libaed2-plus GLM gotm-git ELCOM ; do
   if [ -d $src ] ; then
-#   if [ "$src" = "tuflowfv-svn" ] ; then
-#     echo "===================================================="
-#     svn --version > /dev/null 2>&1
-#     if [ $? = 0 ] ; then
-#       echo "*** checking status for [$src]"
-#       cd $src
-#       svn status | grep '^M'
-#     else
-#       echo "*** cannot check status for [$src]"
-#     fi
-#   else
       REPO=`cat $src/.git/config | grep -w url | head -n 1 | cut -f2 -d=`
       echo "===================================================="
       echo "*** checking status for [$src] from $REPO"
       cd $src
       git status
-#   fi
     if [ $verbose ] ; then check_remote $REPO; fi
     cd $CWD
   else

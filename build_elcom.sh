@@ -4,10 +4,12 @@ if [ ! -d ELCOM ] ; then
   echo "no ELCOM directory"
   exit 1
 fi
+
 CWD=`pwd`
 CURDIR=${CWD}/ELCOM
 
 export DEBUG=false
+
 export FC=gfortran
 export CC=gcc
 export MAKE=make
@@ -45,7 +47,6 @@ while [ $# -gt 0 ] ; do
 done
 
 . ${CWD}/build_env.inc
-cd ELCOM
 
 export F77=$FC
 export F90=$FC

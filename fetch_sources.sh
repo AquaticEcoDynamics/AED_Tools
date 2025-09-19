@@ -7,8 +7,10 @@ rep_list=""
 upd_list=""
 count=0
 
+# get host out of our .git/config file
 #GITHOST=git@github.com:AquaticEcoDynamics/
-GITHOST=https://github.com/AquaticEcoDynamics/
+HOST=`grep 'url = ' .git/config | sed -e 's/url = //' | sed -e 's/AquaticEcoDynamics/\n/' | head -1`
+GITHOST="$HOST/AquaticEcoDynamics/"
 
 GET_GLM="false"
 GETAED="false"
@@ -19,13 +21,16 @@ GETFABM="false"
 GETPLUS="false"
 GETAEDFV="false"
 GET_EGS="false"
+GET_TFV="false"
+GETGOTM="false"
 GETELC="false"
 GETSWN="false"
+GETPHQ="false"
 GETSHZ="false"
 
 if [ $# = 0 ] ; then
   # The default case is to just update
-  upd_list="libaed-api libaed-water libaed-benthic libaed-demo libaed-riparian libaed-dev libaed-light libplot libutil GLM libaed-fv libaed2 libaed2-plus fabm-git"
+  upd_list="libaed-api libaed-water libaed-benthic libaed-riparian libaed-demo libaed-dev libaed-light libplot libutil libaed-fv libaed2 libaed2-plus GLM ELCOM"
 fi
 
 #-------------------------------------------------------------------------------
@@ -40,14 +45,14 @@ while [ $# -gt 0 ] ; do
       GETPLOT="true"
       GETUTIL="true"
       GETAEDFV="true"
-      GETAED2="true"
+      GETPLUS="true"
+      GETPHQ="true"
       ;;
     GLM|glm)
       GET_GLM="true"
       GETAED="true"
       GETPLOT="true"
       GETUTIL="true"
-      GETAED2="true"
       ;;
     aed-fv)
       GETAEDFV="true"
@@ -65,11 +70,25 @@ while [ $# -gt 0 ] ; do
     libutil)
       GETUTIL="true"
       ;;
+    plus)
+      GETPLUS="true"
+      GETPHQ="true"
+      ;;
     fabm)
       GETFABM="true"
       ;;
     examples)
       GET_EGS="true"
+      ;;
+    TUFLOWFV|tuflowfv)
+      GET_TFV="true"
+      GETGOTM="true"
+      GETAEDFV="true"
+      GETAED="true"
+      GETSWN="true"
+      ;;
+    gotm)
+      GETGOTM="true"
       ;;
     elcom)
       GETELC="true"
@@ -79,6 +98,12 @@ while [ $# -gt 0 ] ; do
       ;;
     schism)
       GETSHZ="true"
+      ;;
+    aed2)
+      GETAED2="true"
+      ;;
+    phreeqcrm)
+      GETPHQ="true"
       ;;
     -g|--githost)
       GITHOST="$2"
@@ -187,6 +212,29 @@ if [ "$GETFABM" = "true" ] ; then
   fi
 fi
 
+if [ "$GETGOTM" = "true" ] ; then
+  count=$((count+1))
+  if [ ! -d gotm-git ] ; then
+# Two possible places :
+#   1) GOTM git repository
+#   2) AED's internal git copy of old
+#
+#   1)
+#   git clone git://git.code.sf.net/p/gotm/code gotm-git
+#   git clone https://github.com/gotm-model/code gotm-git
+
+#   2)
+    GITHOST=git@githost.aed-net.science.uwa.edu.au:
+    fetch_it gotm-git
+  else
+    src='gotm-git'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd gotm-git
+    git pull
+    cd ..
+  fi
+fi
+
 if [ "$GETSWN" = "true" ] ; then
   count=$((count+1))
   if [ ! -d swan ] ; then
@@ -196,6 +244,20 @@ if [ "$GETSWN" = "true" ] ; then
     src='swan'
     echo "Updating $src from " `grep -w url $src/.git/config`
     cd swan
+    git pull
+    cd ..
+  fi
+fi
+
+if [ "$GETPHQ" = "true" ] ; then
+  count=$((count+1))
+  if [ ! -d phreeqcrm ] ; then
+    GITHOST=https://github.com/usgs-coupled/
+    fetch_it phreeqcrm
+  else
+    src='phreeqcrm'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd phreeqcrm
     git pull
     cd ..
   fi
@@ -215,6 +277,38 @@ if [ "$GETSHZ" = "true" ] ; then
   fi
 fi
 
+if [ "$GET_TFV" = "true" ] ; then
+  count=$((count+1))
+  # ME=`hostname -f`
+  # WHEREAMI=`echo $ME | cut -d. -f2-`
+  # if [ "$WHEREAMI" != "aed-net.science.uwa.edu.au" ] ; then
+  #    echo "It looks like you are not in the aed network, you probably can't get tuflowfv sources"
+  # fi
+  if [ -d tuflowfv-lib ] ; then
+    src='tuflowfv-lib'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd tuflowfv-lib
+    git pull
+    cd ..
+  else
+    GITHOST=git@githost.aed-net.science.uwa.edu.au:
+    fetch_it tuflowfv-lib
+  fi
+  # This may need tweaking
+  if [ "`hostname`" = "phyto" ] ; then
+    if [ -d tuflowfv-svn ] ; then
+      src='tuflowfv-svn'
+      echo "Updating $src from " `grep -w url $src/.git/config`
+      cd tuflowfv-svn
+      git pull
+      cd ..
+    else
+      GITHOST=git@githost.aed-net.science.uwa.edu.au:
+      fetch_it tuflowfv-aed tuflowfv-svn
+    fi
+  fi
+fi
+
 #-------------------------------------------------------------------------------
 if [ $count = 0 ] ; then
   echo "There do not seem to be any repositories requested or present"
@@ -222,18 +316,19 @@ if [ $count = 0 ] ; then
   echo "  fetch_sources.sh [-g <githost>] <repo>"
   echo
   echo "where <repo> can be one or more of :"
-  echo "  glm     : get glm [and it's dependancies]"
-  echo "  libaed  : fetch the libaed-\* sources"
-  echo "  libplot : fetch the libplot sources"
-  echo "  libutil : fetch the libutil sources"
-  echo "  plus    : fetch the libaed-\* plus sources (private repository)"
-  echo "  aed-fv  : fetch the libaed-fv sources"
+  echo "  glm       : get glm [and it's dependancies]"
+  echo "  libaed    : fetch the libaed-\* sources"
+  echo "  libplot   : fetch the libplot sources"
+  echo "  libutil   : fetch the libutil sources"
+  echo "  plus      : fetch the libaed-\* plus sources (private repository)"
+  echo "  aed-fv    : fetch the libaed-fv sources"
   echo
-  echo "  elcom   : fetch the ELCOM sources"
-  echo "  swan    : fetch the swan sources from delftU"
-  echo "  schism  : fetch the schism sources from github"
+  echo "  elcom     : fetch the ELCOM sources"
+  echo "  swan      : fetch the swan sources from delftU"
+  echo "  phreeqcrm : fetch the phreeqcrm sources from water.usgs.gov"
+  echo "  schism    : fetch the schism sources from github"
   echo
-  echo "  all     : fetch them all"
+  echo "  all       : fetch them all"
   echo
   echo "  -g|--githost <githost> : allows you to specify a different githost"
   echo "          The default is https://github.com/AquaticEcoDynamics/"

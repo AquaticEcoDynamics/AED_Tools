@@ -1,7 +1,41 @@
 #!/bin/sh
 
 CWD=`pwd`
-DO_ANC="no"
+DO_ANC="false"
+SQUEEKY=false
+
+while [ $# -gt 0 ] ; do
+  case $1 in
+    --debug)
+      export DEBUG=true
+      ;;
+    --squeeky)
+      export SQUEEKY=true
+      export DO_ANC=true
+      ;;
+    --ancillary)
+      export DO_ANC=true
+      ;;
+    --gfort)
+      export FC=gfortran
+      ;;
+    --ifx)
+      export FC=ifx
+      ;;
+    --ifort)
+      export FC=ifort
+      ;;
+    --flang)
+      export FC=flang
+      ;;
+    *)
+      echo "unknown option \"$1\""
+      ;;
+  esac
+  shift
+done
+
+/bin/rm cur_state.log
 
 if [ "$FC" = "" ] ; then
   export FC=gfortran
@@ -31,12 +65,17 @@ for i in libaed2 libaed2-plus libplot libutil GLM zeroD ; do
    fi
 done
 
-# if [ "$OSTYPE" = "FreeBSD" ] ; then
-#   cd ancillary/freebsd
-#   ${MAKE} distclean
-#   # the rest are currently not supported on FreeBSD anyway
-#   exit 0
-# fi
+cd "$CWD"
+if [ -d phreeqcrm ] ; then
+  echo cleaning in phreeqcrm
+  cd phreeqcrm
+  if [ -d build ] ; then
+    echo cleaning phreeqcrm
+    /bin/rm -rf build
+    git checkout .
+  fi
+  cd "$CWD"
+fi
 
 if [ -d fabm-git ] ; then
   echo clean fabm-git
@@ -64,6 +103,7 @@ if [ -d swan ] ; then
 fi
 
 if [ -d tuflowfv-svn ] ; then
+  echo cleaning in tuflowfv-svn
   if [ "${OSTYPE}" = "Linux" ] ; then
     PLATFORM=linux_ifort
   elif [ "${OSTYPE}" = "Darwin" ] ; then
@@ -88,21 +128,14 @@ if [ -d ELCOM ] ; then
   cd "$CWD"
 fi
 
-if [ "$DO_ANC" = "yes" ] ; then
-for fc in ifort ifx gfortran ; do
-  if [ -d ancillary/${fc}/lib ] ; then
-    /bin/rm -rf ancillary/${fc}/lib
+if [ "$DO_ANC" = "true" ] ; then
+  cd ancillary
+  if [ "$SQUEEKY" = "true" ] ; then
+    ./clean_anc.sh --squeeky
+  else
+    ./clean_anc.sh
   fi
-  if [ -d ancillary/${fc}/include ] ; then
-    /bin/rm -rf ancillary/${fc}/include
-  fi
-  if [ -d ancillary/${fc}/bin ] ; then
-    /bin/rm -rf ancillary/${fc}/bin
-  fi
-  if [ -d ancillary/${fc}/share ] ; then
-    /bin/rm -rf ancillary/${fc}/share
-  fi
-done
+  cd "$CWD"
 fi
 
 cd "$CWD"
@@ -126,12 +159,10 @@ if [ -d schism ] ; then
 fi
 
 cd "$CWD"
-if [ -d phreeqcrm ] ; then
-  cd phreeqcrm
-  if [ -d build ] ; then
-    echo cleaning phreeqcrm
-    /bin/rm -rf build
-    git checkout .
+if [ -d swan ] ; then
+  if [ -d swan/build ] ; then
+    echo cleaning swan
+    /bin/rm -rf swan/build
   fi
 fi
 

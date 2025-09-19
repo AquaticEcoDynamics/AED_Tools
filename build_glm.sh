@@ -68,13 +68,13 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-. ${CWD}/build_env.inc
-
 export F77=$FC
 export F90=$FC
 export F95=$FC
 
 export MPI=OPENMPI
+
+. ${CWD}/build_env.inc
 
 if [ "$AED2DIR" = "" ] ; then
   export AED2DIR=../libaed2
@@ -148,7 +148,7 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   # ./fetch.sh
   # ${MAKE} || exit 1
 elif [ "$OSTYPE" = "Msys" ] ; then
-  if [ ! -d ancillary/windows ] ; then
+  if [ ! -d ancillary/windows/lib ] ; then
     echo making windows ancillary extras
     cd ancillary/windows
     ./build.sh || exit 1
@@ -177,13 +177,18 @@ ${CURDIR}/vers.sh $VERSION
 #cd ${CURDIR}/win-dll
 #${CURDIR}/vers.sh $VERSION
 cd "${CURDIR}"
+get_commit_id >> ${CWD}/cur_state.log
 
+export LIBRARY_PATH=$LIB
 ${MAKE} AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
 if [ "${DAEDDEVDIR}" != "" ] ; then
   if [ -d "${DAEDDEVDIR}" ] ; then
     echo now build plus version
     /bin/rm obj/aed_external.o
-    ${MAKE} glm+ AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR || exit 1
+    /bin/rm obj/glm_main.o
+    ${MAKE} glm+ WITH_AED_PLUS=1 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
+                                 AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR \
+                                 AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR || exit 1
   fi
 fi
 
@@ -336,6 +341,7 @@ else
     /bin/mkdir ${BINPATH}/glm_latest
   fi
 fi
+cp cur_state.log ${BINPATH}/glm_latest/glm_source.versions
 echo "glm_$VERSION" > ${BINPATH}/glm_latest/VERSION
 /bin/cp ${CURDIR}/glm ${BINPATH}/glm_latest
 echo Generating ReleaseInfo.txt for glm
@@ -352,6 +358,7 @@ if [ -x ${CURDIR}/glm+ ] ; then
       /bin/mkdir ${BINPATH}/glm+_latest
     fi
   fi
+  cp cur_state.log ${BINPATH}/glm+_latest/glm+_source.versions
   echo "glm+_$VERSION" > ${BINPATH}/glm+_latest/VERSION
   /bin/cp ${CURDIR}/glm+ ${BINPATH}/glm+_latest
   echo Generating ReleaseInfo.txt for glm+

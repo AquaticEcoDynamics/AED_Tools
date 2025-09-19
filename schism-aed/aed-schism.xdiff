@@ -1,5 +1,5 @@
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index a78ed3c4..d90bed7b 100644
+index bcbe80ff..9d0d26cb 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
@@ -10,8 +10,18 @@ index a78ed3c4..d90bed7b 100644
  add_module(Hydro    USE_HYDRO ON)
  add_module(Core     USE_SCHISM ON)
  
+@@ -326,6 +327,9 @@ endforeach()
+ string(CONCAT mod_tag ${all_use_mod_defs})
+ string(REPLACE USE_ _ mod_tag_rev ${mod_tag})
+ string(REPLACE _HYDRO_SCHISM "" mod_tag_rev ${mod_tag_rev})
++if (WITH_AED_PLUS)
++  string(REPLACE _AED _AED+ mod_tag_rev ${mod_tag_rev})
++endif()
+
+
+ ######## Tests ##################
 diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
-index fc172466..92c50b95 100644
+index 5c171490..2bedf1b4 100644
 --- a/src/Core/schism_glbl.F90
 +++ b/src/Core/schism_glbl.F90
 @@ -79,7 +79,7 @@ module schism_glbl
@@ -76,7 +86,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index af000c64..aa0e205c 100644
+index 045a4cbd..db203750 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -110,7 +120,17 @@ index af000c64..aa0e205c 100644
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -5014,6 +5024,11 @@
+@@ -1765,7 +1775,9 @@
+       wwave_force=0.d0
+       diffmin=1.d-6; diffmax=1.d0
+       deta1_dxy_elem=0.d0
++#ifdef MARSH
+       age_marsh=0.d0
++#endif
+       stemp=0.d0 !init for output
+
+ !Tsinghua group
+@@ -5053,6 +5065,11 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
@@ -122,7 +142,7 @@ index af000c64..aa0e205c 100644
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6579,6 +6594,10 @@
+@@ -6644,6 +6661,10 @@
        enddo !i
  #endif
  
@@ -133,7 +153,7 @@ index af000c64..aa0e205c 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6814,6 +6833,12 @@
+@@ -6879,6 +6900,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -147,7 +167,7 @@ index af000c64..aa0e205c 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 31ccec4e..73b0faf5 100644
+index 22494fcb..dc05e5d3 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -172,7 +192,7 @@ index 31ccec4e..73b0faf5 100644
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9097,6 +9105,9 @@
+@@ -9136,6 +9144,9 @@
          noutput=noutput+1
  #endif
  
@@ -182,7 +202,7 @@ index 31ccec4e..73b0faf5 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9658,6 +9669,14 @@
+@@ -9701,6 +9712,14 @@
          enddo !i
  #endif
  
@@ -197,7 +217,7 @@ index 31ccec4e..73b0faf5 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -9955,6 +9974,12 @@
+@@ -9998,6 +10017,12 @@
          enddo !i
  #endif
  
@@ -210,7 +230,7 @@ index 31ccec4e..73b0faf5 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10057,7 +10082,7 @@
+@@ -10100,7 +10125,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -219,7 +239,7 @@ index 31ccec4e..73b0faf5 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10135,6 +10160,12 @@
+@@ -10178,6 +10203,12 @@
        end if
  #endif
  

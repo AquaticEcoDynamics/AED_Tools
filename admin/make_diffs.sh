@@ -40,7 +40,10 @@ do_diffs_here () {
     SIZE=`wc -l $CWD/$diff_f.diff`
     SIZE=`echo $SIZE | cut -f1 -d\ `
     #echo "SIZE of $CWD/$diff_f.diff is $SIZE"
-    if [ "$SIZE" = "0" ] ; then /bin/rm $CWD/$diff_f.diff ; fi
+    if [ "$SIZE" = "0" ] ; then
+      /bin/rm $CWD/$diff_f.diff
+      echo none found
+    fi
   else
     echo "*** Not a git repository (.git not found) in $diff_f"
   fi
@@ -49,7 +52,7 @@ do_diffs_here () {
 # This should be the AED_Tools directory
 do_diffs_here tools
 
-for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed2 libaed2-plus libaed-fv GLM ; do
+for src in libplot libutil libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed-api libaed2 libaed2-plus libaed-fv GLM ; do
   echo "===================================================="
   if [ -d $src ] ; then
     cd $src

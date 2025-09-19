@@ -36,8 +36,9 @@
 
 !#----------------------------------------------------------------------------#!
 !# CAB: Some DEBUG bits want DEBUG to be non-zero ; some want > 1
-#define DEBUG  1
-#define TRACE  1
+!#  turning it off in ifort doesn't work however - it processes ! before preprocess
+#define DEBUG  0
+#define TRACE  0
 #if DEBUG
 # define DPRINT IF (myrank==0) print*,
 # define DPRINTF IF (myrank==0) print
@@ -164,7 +165,7 @@ MODULE schism_aed
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: depth      !# [layers,cols] LayerDepths
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: area_      !# [layers,cols] this is filled from extern var "area"
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: dz         !# [layers,cols]
-   AED_REAL,DIMENSION(:),ALLOCATABLE,TARGET :: col_depth
+   AED_REAL,DIMENSION(:),  ALLOCATABLE,TARGET :: col_depth
 
    !# Arrays for environmental variables not supplied externally.
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: par  !# [layers,cols]
@@ -228,6 +229,7 @@ MODULE schism_aed
    AED_REAL,TARGET :: Kw
 !  AED_REAL :: Ksed
    LOGICAL :: mobility_off, bioshade_feedback, repair_state
+
    AED_REAL,TARGET :: timestep, yearday
 
 !#===================================================
@@ -337,7 +339,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 !BEGIN
    CALL CPU_TIME(start)
    prev = start
-   print*,"schism_aed_configure_models: Hello World"
+   print*,"schism_aed_configure_models: Hello World, myrank = ", myrank
 
    fname = "aed.nml"
    namlst = find_free_lun()
@@ -356,6 +358,8 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 
    Kw = base_par_extinction
 !  Ksed = tss_par_extinction
+
+   aed_thread = myrank
 
    cpl%par_fraction =  par_frac
    cpl%nir_fraction =  nir_frac
@@ -506,6 +510,7 @@ END SUBROUTINE schism_to_aed_env
 
 
 #if DEBUG
+#if 0
 !###############################################################################
 SUBROUTINE debug_oxy(msg)
 !-------------------------------------------------------------------------------
@@ -550,6 +555,7 @@ SUBROUTINE debug_oxy(msg)
    ENDDO
 END SUBROUTINE debug_oxy
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#endif
 
 
 !###############################################################################
@@ -583,9 +589,9 @@ SUBROUTINE debug_max_min(msg)
       ENDIF
    ENDIF
 
-   IF ( .NOT. active(col) ) return ! how did we et here?
+   IF ( .NOT. active(col) ) return ! how did we get here?
    act = "active"
-   k = kbe(col)
+   k = kbe(col) + 1
 
    print*,"values at col = ", col, " of ", n_cols, " which is ",act
    print*,"yearday=",yearday,"longitude=",xlon_el(col),"latitude=",ylat_el(col)
@@ -1084,142 +1090,6 @@ END FUNCTION schism_aed_name_3D_scribes
 
 
 !###############################################################################
-SUBROUTINE schism_aed_write_output(time)
-!-------------------------------------------------------------------------------
-!ARGUMENTS
-   AED_REAL,INTENT(in) :: time
-!
-!LOCALS
-   INTEGER :: time_id, tvr_id, status
-   TYPE(aed_variable_t),POINTER :: tv
-
-   INTEGER :: start(4), count(4);
-   INTEGER :: iret
-
-   INTEGER :: idx_s, idx_e
-   INTEGER  :: i, j, v, d, sv, sd
-   LOGICAL :: last = .FALSE.
-
-   REAL :: now, ltr
-!
-!-------------------------------------------------------------------------------
-!BEGIN
-   IF ( .NOT. inited ) RETURN
-   IF ( n_cols <= 0 ) RETURN ! Nothing to do
-
-   CALL CPU_TIME(now)
-!  TPRINTF '("schism_aed_write_output[",i0,"]")', myrank
-
-   ts_counter = ts_counter + 1
-
-   CALL check_nc_error( nf90_inq_varid(ncid, 'time', time_id) )
-   CALL check_nc_error( nf90_put_var(ncid, time_id, (/ time /),                &
-                                       start=(/ ts_counter /), count=(/ 1 /) ) )
-
-   idx_s = irange_tr(1,AED_MODL_NO) - 1
-   idx_e = idx_s + n_vars - 1
-
-   start(1) = 1;  count(1) = n_cols
-   v = 0; d = 0; sv = 0; sd = 0
-
-   DO i=1,n_aed_vars
-      IF ( aed_get_var(i, tv) ) THEN
-         iret = nf90_noerr
-         IF ( tv%sheet ) THEN
-            start(2) = ts_counter; count(2) = 1
-            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-               !# Process and store diagnostic variables.
-               sd = sd + 1
-               !# Process and store diagnostic variables defined on horizontal slices of the domain.
-               iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
-            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
-               sv = sv + 1
-               !# Store benthic biogeochemical state variables.
-               start(2) = sv
-               iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
-            ENDIF
-         ELSE !# not sheet
-            start(2) = 1;           count(2) = n_layers
-            start(3) = ts_counter;  count(3) = 1
-            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-               d = d + 1
-               !# Store diagnostic variable values defined on the full domain.
-               start(3) = d
-               iret = nf90_put_var(ncid, externalid(i), cc_diag(d, :, :), start, count)
-            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
-               v = v + 1
-               !# Store pelagic biogeochemical state variables.
-               start(3) = v
-               iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, :, :), start, count)
-            ENDIF
-         ENDIF
-         IF ( iret /= nf90_noerr ) CALL check_nc_error_x(iret, ncid, externalid(i))
-      ENDIF
-   ENDDO
-
-   status = nf90_sync(ncid)
-
-   CALL CPU_TIME(ltr)
-   time_aed_wrt = time_aed_wrt + ltr-now
-
-!  TPRINTF '("schism_aed_write_output[",i0,"] done in ",f12.3," seconds.")', myrank, ltr-now
-END SUBROUTINE schism_aed_write_output
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-#ifdef OLDIO
-!###############################################################################
-SUBROUTINE aed_writeout(id_out_var, noutput, npa, tr_nd)
-!-------------------------------------------------------------------------------
-   USE schism_io, ONLY: writeout_nc
-!-------------------------------------------------------------------------------
-!ARGUMENTS
-   INTEGER,DIMENSION(:),INTENT(inout)   :: id_out_var
-   INTEGER,INTENT(inout)                :: noutput
-   INTEGER,INTENT(in)                   :: npa
-   AED_REAL,DIMENSION(:,:,:),INTENT(in) :: tr_nd
-!
-!LOCALS
-   TYPE(aed_variable_t),POINTER :: tv
-   INTEGER :: i, istart, v, sv
-
-   REAL :: now, ltr
-!
-!-------------------------------------------------------------------------------
-!BEGIN
-   TPRINT "aed_writeout"
-   CALL CPU_TIME(now)
-
-   istart = irange_tr(1,AED_MODL_NO)
-   v = 0; sv = 0
-
-   DO i=1,n_aed_vars
-      IF ( aed_get_var(i, tv) ) THEN
-         IF ( tv%sheet ) THEN
-            IF ( tv%var_type == V_STATE ) THEN  ! not diag
-               sv = sv + 1
-               CALL writeout_nc(id_out_var(noutput+sv+4),TRIM(tv%name),4,1,n_cols,cc_hz(sv,:))
-               noutput = noutput + 1
-            ENDIF
-         ELSE ! not sheet
-            IF ( tv%var_type == V_STATE ) THEN  ! not diag
-               v = v + 1
-               CALL writeout_nc(id_out_var(noutput+v+4),TRIM(tv%name),2,nvrt,npa,tr_nd(istart+v-1,:,:))
-               noutput = noutput + 1
-            ENDIF
-         ENDIF
-      ENDIF
-   ENDDO
-
-   CALL CPU_TIME(ltr)
-   time_aed_wrt = time_aed_wrt + ltr-now
-
-   TPRINT "done aed_writeout"
-END SUBROUTINE aed_writeout
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#endif
-
-!###############################################################################
 INTEGER FUNCTION new_nc_variable(ncid, name, data_type, ndim, dims)
 !-------------------------------------------------------------------------------
 !ARGUMENTS
@@ -1378,6 +1248,140 @@ SUBROUTINE schism_aed_create_aed_output(ncid, colm_dim, layr_dim, zone_dim, time
 END SUBROUTINE schism_aed_create_aed_output
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+!###############################################################################
+SUBROUTINE schism_aed_write_output(time)
+!-------------------------------------------------------------------------------
+!ARGUMENTS
+   AED_REAL,INTENT(in) :: time
+!
+!LOCALS
+   INTEGER :: time_id, tvr_id, status
+   TYPE(aed_variable_t),POINTER :: tv
+
+   INTEGER :: start(4), count(4);
+   INTEGER :: iret
+
+   INTEGER :: idx_s, idx_e
+   INTEGER  :: i, j, v, d, sv, sd
+   LOGICAL :: last = .FALSE.
+
+   REAL :: now, ltr
+!
+!-------------------------------------------------------------------------------
+!BEGIN
+   IF ( .NOT. inited ) RETURN
+   IF ( n_cols <= 0 ) RETURN ! Nothing to do
+
+   CALL CPU_TIME(now)
+!  TPRINTF '("schism_aed_write_output[",i0,"]")', myrank
+
+   ts_counter = ts_counter + 1
+
+   CALL check_nc_error( nf90_inq_varid(ncid, 'time', time_id) )
+   CALL check_nc_error( nf90_put_var(ncid, time_id, (/ time /),                &
+                                       start=(/ ts_counter /), count=(/ 1 /) ) )
+
+   idx_s = irange_tr(1,AED_MODL_NO) - 1
+   idx_e = idx_s + n_vars - 1
+
+   start(1) = 1; count(1) = n_cols
+   v = 0; d = 0; sv = 0; sd = 0
+
+   DO i=1,n_aed_vars
+      IF ( aed_get_var(i, tv) ) THEN
+         iret = nf90_noerr
+         IF ( tv%sheet ) THEN
+            start(2) = ts_counter; count(2) = 1
+            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+               sd = sd + 1
+               !# Process and store diagnostic variables defined on horizontal slices of the domain.
+               iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
+            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               sv = sv + 1
+               !# Store benthic biogeochemical state variables.
+               iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
+            ENDIF
+         ELSE !# not sheet
+            start(2) = 1;          count(2) = n_layers
+            start(3) = ts_counter; count(3) = 1
+            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+               d = d + 1
+               !# Store diagnostic variable values defined on the full domain.
+               iret = nf90_put_var(ncid, externalid(i), cc_diag(d, :, :), start, count)
+            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               v = v + 1
+               !# Store pelagic biogeochemical state variables.
+               iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, :, :), start, count)
+            ENDIF
+         ENDIF
+         IF ( iret /= nf90_noerr ) CALL check_nc_error_x(iret, ncid, externalid(i))
+      ENDIF
+   ENDDO
+
+   status = nf90_sync(ncid)
+
+   CALL CPU_TIME(ltr)
+   time_aed_wrt = time_aed_wrt + ltr-now
+
+!  TPRINTF '("schism_aed_write_output[",i0,"] done in ",f12.3," seconds.")', myrank, ltr-now
+END SUBROUTINE schism_aed_write_output
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+#ifdef OLDIO
+!###############################################################################
+SUBROUTINE aed_writeout(id_out_var, noutput, npa, tr_nd)
+!-------------------------------------------------------------------------------
+   USE schism_io, ONLY: writeout_nc
+!-------------------------------------------------------------------------------
+!ARGUMENTS
+   INTEGER,DIMENSION(:),INTENT(inout)   :: id_out_var
+   INTEGER,INTENT(inout)                :: noutput
+   INTEGER,INTENT(in)                   :: npa
+   AED_REAL,DIMENSION(:,:,:),INTENT(in) :: tr_nd
+!
+!LOCALS
+   TYPE(aed_variable_t),POINTER :: tv
+   INTEGER :: i, istart, v, sv
+
+   REAL :: now, ltr
+!
+!-------------------------------------------------------------------------------
+!BEGIN
+   TPRINT "aed_writeout"
+   CALL CPU_TIME(now)
+
+   istart = irange_tr(1,AED_MODL_NO)
+   v = 0; sv = 0
+
+   DO i=1,n_aed_vars
+      IF ( aed_get_var(i, tv) ) THEN
+         IF ( tv%sheet ) THEN
+            IF ( tv%var_type == V_STATE ) THEN  ! not diag
+               sv = sv + 1
+               CALL writeout_nc(id_out_var(noutput+sv+4),TRIM(tv%name),4,1,n_cols,cc_hz(sv,:))
+               noutput = noutput + 1
+            ENDIF
+         ELSE ! not sheet
+            IF ( tv%var_type == V_STATE ) THEN  ! not diag
+               v = v + 1
+               CALL writeout_nc(id_out_var(noutput+v+4),TRIM(tv%name),2,nvrt,npa,tr_nd(istart+v-1,:,:))
+               noutput = noutput + 1
+            ENDIF
+         ENDIF
+      ENDIF
+   ENDDO
+
+   CALL CPU_TIME(ltr)
+   time_aed_wrt = time_aed_wrt + ltr-now
+
+   TPRINT "done aed_writeout"
+END SUBROUTINE aed_writeout
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#endif
+
+
 !# end of IO
 !#                   ------------------------------
 !# start of finalise
@@ -1401,9 +1405,8 @@ SUBROUTINE schism_aed_finalise()
       CALL check_nc_error( nf90_close(ncid), "closing AED file" )
 
    CALL CPU_TIME(now)
-!  print '("schism_aed_finalise[",i0,"] : ",f12.3," cpu seconds.")',myrank, now-start
 
-!  IF ( myrank /= 0 ) RETURN
+   CALL aed_clean_model()
 
    diff = INT(now-start)
    hrs = diff / 3600

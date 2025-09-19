@@ -72,6 +72,11 @@ if [ -d libaed-dev ] ; then
   do_tarball libaed-dev ${AEDVRS}
 fi
 
+if [ -d libaed-api ] ; then
+  AEDVRS=`grep AED_VERSION libaed-water/include/aed.h | cut -f2 -d\"`
+  do_tarball libaed-api ${AEDVRS}
+fi
+
 if [ -d GLM ] ; then
   GLM_VRS=`grep GLM_VERSION GLM/src/glm.h | cut -f2 -d\"`
   do_tarball GLM ${GLM_VRS}

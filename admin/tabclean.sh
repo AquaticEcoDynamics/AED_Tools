@@ -5,8 +5,8 @@
 CWD=`pwd`
 OSTYPE=`uname -s`
 
-AEDDIR="libaed-water libaed-benthic libaed-demo"
-AEDPLS="libaed-riparian libaed-dev"
+AEDDIR="libaed-water libaed-benthic libaed-demo libaed-api"
+AEDPLS="libaed-riparian libaed-dev libaed-light"
 FABMDIR=fabm-git
 UTILDIR=libutil
 PLOTDIR=libplot

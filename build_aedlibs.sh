@@ -82,11 +82,11 @@ done
 
 #-------------------------------------------------------------------------------
 
-. ${CWD}/build_env.inc
-
 export F77=$FC
 export F90=$FC
 export F95=$FC
+
+. ${CWD}/build_env.inc
 
 . ${CWD}/build_aedlibs.inc
 
