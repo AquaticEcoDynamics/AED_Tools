@@ -52,10 +52,10 @@ if [ "$OSTYPE" = "Linux" ] ; then
     ERROR=1
     echo 'schism requires cmake installed to build'
   fi
-  dpkg --list libnetcdf-dev > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
+  # had to make the following changes to make it work on UQ Bunya because we used EasyBuild to install netCDF-Fortran not apt
+   if ! command -v nf-config >/dev/null 2>&1 ; then
+    echo 'nf-config not found. Load a NetCDF-Fortran module (e.g., module load netCDF-Fortran).'
     ERROR=1
-    echo 'schism requires libnetcdf-dev installed to build'
   fi
 fi
 
