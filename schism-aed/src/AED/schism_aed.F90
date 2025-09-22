@@ -331,7 +331,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
                          n_equil_substep,                                      &
                          link_wave_stress, wave_factor,                        &
                          nir_frac,par_frac, uva_frac, uvb_frac,                &
-                         display_minmax,                                       &
+                         display_minmax, mobility_off,                         &
                          depress_clutch, depress_clutch2,                      &
                          debug_interval, debug_col
 !
