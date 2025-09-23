@@ -1114,13 +1114,14 @@ END FUNCTION new_nc_variable
 
 
 !###############################################################################
-SUBROUTINE set_nc_attributes(ncid, id, units, long_name, FillValue)
+SUBROUTINE set_nc_attributes(ncid, id, units, long_name, FillValue, i23dval)
 !-------------------------------------------------------------------------------
 !ARGUMENTS
    INTEGER,INTENT(in)   :: ncid, id
    CHARACTER(*),INTENT(in) :: units
    CHARACTER(*),INTENT(in),OPTIONAL :: long_name
    AED_REAL,INTENT(in)  :: FillValue
+   INTEGER,INTENT(in)   :: i23dval
 !
 !LOCALS
    INTEGER :: status
@@ -1133,6 +1134,7 @@ SUBROUTINE set_nc_attributes(ncid, id, units, long_name, FillValue)
       status = nf90_put_att(ncid, id, "long_name", long_name);
    ENDIF
    status = nf90_put_att(ncid, id, "_FillValue", FillValue);
+   status = nf90_put_att(ncid, id, "i23d", i23dval);
 END SUBROUTINE set_nc_attributes
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1202,7 +1204,7 @@ SUBROUTINE schism_aed_create_aed_output(ncid, colm_dim, layr_dim, zone_dim, time
          IF ( .NOT. tv%sheet .AND. tv%var_type == V_STATE ) THEN
             !# only for state vars that are not sheet
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 3, dims(1:3))
-            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER)
+            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 5)
          ENDIF
       ENDIF
    ENDDO
@@ -1215,7 +1217,7 @@ SUBROUTINE schism_aed_create_aed_output(ncid, colm_dim, layr_dim, zone_dim, time
          IF ( .NOT. tv%sheet .AND. tv%var_type == V_DIAGNOSTIC ) THEN
             !# only for diag vars that are not sheet
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 3, dims(1:3))
-            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER)
+            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 5)
          ENDIF
       ENDIF
    ENDDO
@@ -1228,7 +1230,7 @@ SUBROUTINE schism_aed_create_aed_output(ncid, colm_dim, layr_dim, zone_dim, time
          IF ( tv%sheet .AND. tv%var_type == V_STATE ) THEN
             !# only for state sheet vars
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 2, dims(1:2))
-            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER)
+            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 4)
          ENDIF
       ENDIF
    ENDDO
@@ -1241,7 +1243,7 @@ SUBROUTINE schism_aed_create_aed_output(ncid, colm_dim, layr_dim, zone_dim, time
          IF ( tv%sheet .AND. tv%var_type == V_DIAGNOSTIC ) THEN
             !# only for diag sheet vars
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 2, dims(1:2))
-            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER)
+            CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 4)
          ENDIF
       ENDIF
    ENDDO

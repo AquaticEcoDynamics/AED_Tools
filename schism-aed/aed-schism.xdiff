@@ -252,3 +252,46 @@ index 22494fcb..dc05e5d3 100644
  !     Open new global output files and write header data
  !#ifdef OLDIO
  !      if(nc_out>0.and.mod(it,ihfskip)==0) then
+diff --git a/src/Utility/Combining_Scripts/combine_output11.f90 b/src/Utility/Combining_Scripts/combine_output11.f90
+index 73940a7f..ea8988fe 100644
+--- a/src/Utility/Combining_Scripts/combine_output11.f90
++++ b/src/Utility/Combining_Scripts/combine_output11.f90
+@@ -254,11 +254,13 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+     write(it_char,'(i12)')iinput
+     it_char=adjustl(it_char)  !place blanks at end
+     it_len=len_trim(it_char)  !length without trailing blanks
+-    fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc'
++!   fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc
++    fname=trim(output_prefix)//'_cmb_'//it_char(1:it_len)//'.nc'
+     !fname=it_char(1:it_len)//'_hvel.nc'
+     fname=adjustl(fname)
+
+ !   Some compiles do not like 3 arguemnts in OR()
++  print*,"create nf90 ", trim(fname)
+     iret = nf90_create(trim(fname), OR(NF90_CLOBBER,OR(NF90_NETCDF4,NF90_CLASSIC_MODEL)), ncid)
+     !define dimensions
+     iret = nf90_def_dim(ncid, 'nSCHISM_hgrid_node',np_global, node_dim)
+@@ -505,8 +507,10 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+ !          endif
+
+     !Find and define variables
+-    file63='schout_000000_'//it_char(1:it_len)//'.nc'
++ !  file63='schout_000000_'//it_char(1:it_len)//'.nc'
++    file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
+     file63=adjustl(file63)
++  print*,"opening file-2 : ",trim(file63)
+     iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
+     if(iret/=NF90_NOERR) stop 'Failed to open(1)'
+     !iret=nf_inq_nvars(ncid2,nvars)
+@@ -734,8 +738,10 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+       do irank=0,nproc-1
+         !Open input file
+         write(a_4,'(i6.6)') irank
+-        file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
++     !  file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
++        file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
+         file63=adjustl(file63)
++    print*,"opening file-1 : ",trim(file63)
+         iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
+         if(iret/=NF90_NOERR) then
+           print*, 'Failed to open(2):',irank
