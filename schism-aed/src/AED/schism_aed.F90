@@ -81,6 +81,7 @@ MODULE schism_aed
 ! USE schism_glbl,ONLY: nea       ! Local number of elements in augmented subdomain (ne+neg)
   USE schism_glbl,ONLY: nvrt      ! Number of vertical layers
 ! USE schism_glbl,ONLY: np,npg,npa,iplg,ipgl       ! ??
+  USE schism_glbl,ONLY: np,ns
 
   USE schism_glbl,ONLY: kbe       ! Element bottom vertical indices
   USE schism_glbl,ONLY: idry_e    ! wet/dry flag (integer; == 0 means active)
@@ -786,6 +787,8 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
 
       !# These are locally allocated but we can compute them
       env(col)%height        => lheights(:,col) ! layer heights (calculated)
+
+      area_(:,col) = area(col) !# for schism all layers in a column have the same area
       env(col)%area          => area_(:,col)    ! layer areas (expanded from 2 to 3 D)
       env(col)%dz            => dz(:,col)       ! height diff (calculated)
       env(col)%depth         => depth(:,col)    ! layer depths (calculated)
@@ -866,7 +869,7 @@ SUBROUTINE schism_aed_init_models()
    IF ( .NOT. inited ) RETURN
    IF ( ne <= 0 ) RETURN ! Nothing to do
 
-   n_cols = ne        !# (or should it be nea is the larger so lets be safe)
+   n_cols = ne        !#
    n_layers = nvrt    !#
 
    ALLOCATE(data(n_cols))
@@ -986,6 +989,7 @@ SUBROUTINE schism_aed_create_output()
 !LOCALS
    CHARACTER(LEN=6) :: rank
    INTEGER :: time_dim, colm_dim, layr_dim, zone_dim=-1
+   INTEGER :: node_dim,nedge_dim, four_dim, one_dim, two_dim
    INTEGER :: time_id
 !
 !-------------------------------------------------------------------------------
@@ -1003,9 +1007,23 @@ SUBROUTINE schism_aed_create_output()
 !                                       nf90_hdf5, ncid), 'create output file' )
 
    write(rank,fmt='(I0.6)') myrank
-   CALL check_nc_error( nf90_def_dim(ncid, 'time',   nf90_unlimited, time_dim) )
-   CALL check_nc_error( nf90_def_dim(ncid, 'column', n_cols,         colm_dim) )
-   CALL check_nc_error( nf90_def_dim(ncid, 'layer',  n_layers,       layr_dim) )
+
+!# CALL check_nc_error( nf90_def_dim(ncid, 'time',   nf90_unlimited, time_dim) )
+!# CALL check_nc_error( nf90_def_dim(ncid, 'column', n_cols,         colm_dim) )
+!# CALL check_nc_error( nf90_def_dim(ncid, 'layer',  n_layers,       layr_dim) )
+
+   CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_node', np, node_dim) )
+!  CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_face', ne, nele_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_face', ne, colm_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_edge', ns, nedge_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'nMaxSCHISM_hgrid_face_nodes', 4, four_dim) )
+!  CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_vgrid_layers', nvrt, nv_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_vgrid_layers', nvrt, layr_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'one', 1, one_dim) )
+   CALL check_nc_error( nf90_def_dim(ncid, 'two', 2, two_dim) )
+
+   CALL check_nc_error( nf90_def_dim(ncid, 'time', NF90_UNLIMITED, time_dim) )
+
 
 ! not yet
 !  CALL check_nc_error( nf90_def_dim(ncid, 'zone',   n_zones,        zone_dim) )
