@@ -86,7 +86,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index 045a4cbd..db203750 100644
+index 70f84ed6..48bbe91d 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -120,17 +120,7 @@ index 045a4cbd..db203750 100644
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -1765,7 +1775,9 @@
-       wwave_force=0.d0
-       diffmin=1.d-6; diffmax=1.d0
-       deta1_dxy_elem=0.d0
-+#ifdef MARSH
-       age_marsh=0.d0
-+#endif
-       stemp=0.d0 !init for output
-
- !Tsinghua group
-@@ -5053,6 +5065,11 @@
+@@ -5055,6 +5065,11 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
@@ -142,7 +132,7 @@ index 045a4cbd..db203750 100644
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6644,6 +6661,10 @@
+@@ -6646,6 +6661,10 @@
        enddo !i
  #endif
  
@@ -153,7 +143,7 @@ index 045a4cbd..db203750 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6879,6 +6900,12 @@
+@@ -6881,6 +6900,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -167,7 +157,7 @@ index 045a4cbd..db203750 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 22494fcb..dc05e5d3 100644
+index 76b4347c..7a6e742e 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -181,7 +171,7 @@ index 22494fcb..dc05e5d3 100644
  #ifdef USE_ICM
        use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
  #endif
-@@ -7684,6 +7688,10 @@
+@@ -7685,6 +7689,10 @@
          if(myrank==0) write(16,*) 'Done FABM calculations'
  #endif
  
@@ -192,7 +182,7 @@ index 22494fcb..dc05e5d3 100644
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9136,6 +9144,9 @@
+@@ -9137,6 +9145,9 @@
          noutput=noutput+1
  #endif
  
@@ -202,7 +192,7 @@ index 22494fcb..dc05e5d3 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9701,6 +9712,14 @@
+@@ -9702,6 +9713,14 @@
          enddo !i
  #endif
  
@@ -217,7 +207,7 @@ index 22494fcb..dc05e5d3 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -9998,6 +10017,12 @@
+@@ -9999,6 +10018,12 @@
          enddo !i
  #endif
  
@@ -230,7 +220,7 @@ index 22494fcb..dc05e5d3 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10100,7 +10125,7 @@
+@@ -10101,7 +10126,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -239,7 +229,7 @@ index 22494fcb..dc05e5d3 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10178,6 +10203,12 @@
+@@ -10179,6 +10204,12 @@
        end if
  #endif
  
