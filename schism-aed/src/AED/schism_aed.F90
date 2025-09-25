@@ -34,7 +34,7 @@
 #define NC_FILLER    (9.9692099683868690d+36)
 
 #ifndef INCLUDE_STATE_VARS
-#define INCLUDE_STATE_VARS 0
+#define INCLUDE_STATE_VARS 1
 #endif
 
 !#----------------------------------------------------------------------------#!
@@ -961,35 +961,24 @@ SUBROUTINE schism_aed_create_output()
 
    write(rank,fmt='(I0.6)') myrank
 
-!# CALL check_nc_error( nf90_def_dim(ncid, 'time',   nf90_unlimited, time_dim) )
-!# CALL check_nc_error( nf90_def_dim(ncid, 'column', n_cols,         colm_dim) )
-!# CALL check_nc_error( nf90_def_dim(ncid, 'layer',  n_layers,       layr_dim) )
-
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_node', np, node_dim) )
-!  CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_face', ne, nele_dim) )
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_face', ne, colm_dim) )  !# column
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_edge', ns, nedge_dim) )
    CALL check_nc_error( nf90_def_dim(ncid, 'nMaxSCHISM_hgrid_face_nodes', 4, four_dim) )
-!  CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_vgrid_layers', nvrt, nv_dim) )
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_vgrid_layers', nvrt, layr_dim) ) !# layer
    CALL check_nc_error( nf90_def_dim(ncid, 'one', 1, one_dim) )
    CALL check_nc_error( nf90_def_dim(ncid, 'two', 2, two_dim) )
 
    CALL check_nc_error( nf90_def_dim(ncid, 'time', NF90_UNLIMITED, time_dim) )
 
-
-! not yet
-!  CALL check_nc_error( nf90_def_dim(ncid, 'zone',   n_zones,        zone_dim) )
-
-! print*,"time_dim=",time_dim
-! print*,"colm_dim=",colm_dim
-! print*,"layr_dim=",layr_dim
-
    CALL check_nc_error( nf90_def_var(ncid, 'time', nf90_double, (/ time_dim /), time_id) )
    CALL check_nc_error( nf90_put_att(ncid, time_id, 'i23d', 0) ) !set i23d flag
+   CALL check_nc_error( nf90_put_att(ncid, time_id, "ivs", 1) )
    CALL check_nc_error( nf90_put_att(ncid, time_id, 'units', 'seconds') )
 
-!  CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_STATE)
+#if INCLUDE_STATE_VARS
+   CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_STATE)
+#endif
    CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_DIAGNOSTIC)
    TPRINT "schism_aed_create_output done"
 END SUBROUTINE schism_aed_create_output
@@ -1108,6 +1097,7 @@ SUBROUTINE set_nc_attributes(ncid, id, units, long_name, FillValue, i23dval)
    ENDIF
    status = nf90_put_att(ncid, id, "_FillValue", FillValue);
    status = nf90_put_att(ncid, id, "i23d", i23dval);
+   status = nf90_put_att(ncid, id, "ivs", 1)
 END SUBROUTINE set_nc_attributes
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1152,7 +1142,7 @@ SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, tim
    IF (.NOT.ALLOCATED(externalid)) ALLOCATE(externalid(n_aed_vars)) 
 
    !# Set up dimension indices for 3D (+ time) v_type variables (longitude,latitude,depth,time).
-   dims(1) = colm_dim ; dims(2) = layr_dim ; dims(3) = time_dim
+   dims(1) = layr_dim ; dims(2) = colm_dim ; dims(3) = time_dim
 
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
@@ -1198,7 +1188,6 @@ SUBROUTINE schism_aed_write_output(time)
 
    CALL CPU_TIME(now)
 !  TPRINTF '("schism_aed_write_output[",i0,"]")', myrank
-   print '("schism_aed_write_output[",i0,"]")', myrank
 
    ts_counter = ts_counter + 1
 
@@ -1206,7 +1195,9 @@ SUBROUTINE schism_aed_write_output(time)
    CALL check_nc_error( nf90_put_var(ncid, time_id, (/ time /),                &
                                        start=(/ ts_counter /), count=(/ 1 /) ) )
 
-!  CALL schism_aed_write_output_split(time, V_STATE)
+#if INCLUDE_STATE_VARS
+   CALL schism_aed_write_output_split(time, V_STATE)
+#endif
    CALL schism_aed_write_output_split(time, V_DIAGNOSTIC)
 
    status = nf90_sync(ncid)
@@ -1233,14 +1224,13 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
    INTEGER :: iret
 
    INTEGER :: idx_s !, idx_e
-   INTEGER  :: i, v, d, sv, sd
+   INTEGER  :: i, j, v, d, sv, sd
 !
 !-------------------------------------------------------------------------------
 !BEGIN
    idx_s = irange_tr(1,AED_MODL_NO) - 1
 !  idx_e = idx_s + n_vars - 1
 
-   start(1) = 1; count(1) = n_cols
    v = 0; d = 0; sv = 0; sd = 0
 
    DO i=1,n_aed_vars
@@ -1248,6 +1238,7 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
          iret = nf90_noerr
          IF ( tv%var_type == v_type ) THEN
             IF ( tv%sheet ) THEN
+               start(1) = 1; count(1) = n_cols
                start(2) = ts_counter; count(2) = 1
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
                   sd = sd + 1
@@ -1259,16 +1250,23 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
                   iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
                ENDIF
             ELSE !# not sheet
-               start(2) = 1;          count(2) = n_layers
+               start(1) = 1;          count(1) = 1  ! n_layers, layer by layer
+               start(2) = 1;          count(2) = n_cols
                start(3) = ts_counter; count(3) = 1
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
                   d = d + 1
-                  !# Store pelagic diagnostic variables.
-                  iret = nf90_put_var(ncid, externalid(i), cc_diag(d, :, :), start, count)
+                  !# Store pelagic diagnostic variables layer by layer.
+                  DO j=1,n_layers
+                     start(1) = j
+                     iret = nf90_put_var(ncid, externalid(i), cc_diag(d, j, :), start, count)
+                  ENDDO
                ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
                   v = v + 1
-                  !# Store pelagic biogeochemical state variables.
-                  iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, :, :), start, count)
+                  !# Store pelagic biogeochemical state variables layer by layer.
+                  DO j=1,n_layers
+                     start(1) = j
+                     iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, j, :), start, count)
+                  ENDDO
                ENDIF
             ENDIF
          ENDIF
