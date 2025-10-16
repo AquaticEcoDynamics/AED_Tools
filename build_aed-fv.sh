@@ -22,15 +22,33 @@ esac
 export CURDIR=`pwd`
 
 if [ "$OSTYPE" = "Msys" ] ; then
+  export VERSION=`grep FV_AED_VERS libaed-fv/src/fv_aed.F90 | grep define | cut -f2 -d\"`
   cd libaed-fv/win
+# ${AEDFVDIR}/vers.sh $VERSION
+  if [ -d x64-Release/tuflowfv_external_wq ] ; then
+    rm -rf x64-Release/tuflowfv_external_wq
+  fi
+  if [ -d x64-Release/tuflowfv_external_wq_$VERSION ] ; then
+    rm -rf x64-Release/tuflowfv_external_wq_$VERSION
+  fi
+  if [ -f x64-Release/tuflowfv_external_wq_$VERSION.zip ] ; then
+    rm -f x64-Release/tuflowfv_external_wq_$VERSION.zip
+  fi
 
   cmd.exe '/c build_fv.bat'
+  if [ $? -ne 0 ] ; then
+    echo errors in build
+    exit 1
+  fi
 
   cd x64-Release
-  mkdir -p tuflowfv_external_wq
-  export VERSION=`grep FV_AED_VERS ../../src/fv_aed.F90 | grep define | cut -f2 -d\"`
-  mv tuflowfv_external_wq.??? tuflowfv_external_wq
-  powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  mkdir -p tuflowfv_external_wq_$VERSION
+  mv tuflowfv_external_wq.??? tuflowfv_external_wq_$VERSION
+  powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  if [ $? -ne 0 ] ; then
+    echo error building zipfile
+    exit 1
+  fi
 
   if [ ! -d ${CURDIR}/binaries/windows ] ; then
     mkdir -p ${CURDIR}/binaries/windows
@@ -116,7 +134,7 @@ echo build tfv_wq
 if [ -f ${AEDFVDIR}/obj/aed_external.o ] ;  then
   /bin/rm ${AEDFVDIR}/obj/aed_external.o
 fi
-#${MAKE} -C ${AEDFVDIR} ${PARAMS} || exit 1
+
 ${MAKE} -C ${AEDFVDIR} AEDWATDIR=${DAEDWATDIR} \
                        AEDBENDIR=${DAEDBENDIR} \
                        AEDDMODIR=${DAEDDMODIR} \

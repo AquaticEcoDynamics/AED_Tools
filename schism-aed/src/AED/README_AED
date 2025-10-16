@@ -46,8 +46,7 @@
 #     kind of OK because it still needs a fair bit of work, and until the init stage
 #     works properly...
 #
-#   schism_aed_write_output_netcdf(time=time)
-#   schism_aed_close_output_netcdf()
+#   schism_aed_write_output(time=time)
 #     Not sure what happened to the netcdf creation, I thought I had it in there....
 #
 # The current iteration of this file uses the libaed-api which is the simplified

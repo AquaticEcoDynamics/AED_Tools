@@ -35,7 +35,9 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-/bin/rm cur_state.log
+if [ -f "cur_state.log" ] ; then
+  /bin/rm cur_state.log
+fi
 
 if [ "$FC" = "" ] ; then
   export FC=gfortran
@@ -52,6 +54,9 @@ for i in api water benthic riparian demo dev light fv fv2 ; do
      echo clean libaed-$i
      cd libaed-$i
      ${MAKE} distclean
+     if [ -d win/x64-Release ] ; then
+       /bin/rm -rf win/x64-Release
+     fi
      cd "$CWD"
    fi
 done
@@ -163,6 +168,17 @@ if [ -d swan ] ; then
   if [ -d swan/build ] ; then
     echo cleaning swan
     /bin/rm -rf swan/build
+  fi
+fi
+
+if [ "$SQUEEKY" = "true" ] ; then
+  export FILELST=`find . -name \*.u2d | grep -w win`
+  if [ "$FILELST" != "" ] ; then
+    /bin/rm $FILELST
+  fi
+  export FILELST=`find . -name .vs | grep -w win`
+  if [ "$FILELST" != "" ] ; then
+    /bin/rm -r $FILELST
   fi
 fi
 

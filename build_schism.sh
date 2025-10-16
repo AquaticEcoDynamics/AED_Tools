@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#export WITH_FABM="ON"
-#export WITH_AED="ON"
 export FABMDIR=fabm-schism
 export WITH_AED_PLUS=false
 
@@ -47,12 +45,17 @@ fi
 #    libopenmpi-dev openmpi-bin libnetcdff-dev
 #
 if [ "$OSTYPE" = "Linux" ] ; then
-  dpkg --list cmake > /dev/null 2>& 1
+  if [ $(lsb_release -is) = Ubuntu ] ; then
+    PKG_SRCH="dpkg --list"
+  else # assume redhat
+    PKG_SRCH="rpm -qa | grep"
+  fi
+  ${PKG_SRCH} cmake > /dev/null 2>& 1
   if [ $? -ne 0 ] ; then
     ERROR=1
     echo 'schism requires cmake installed to build'
   fi
-  dpkg --list libnetcdf-dev > /dev/null 2>& 1
+  ${PKG_SRCH} libnetcdf-dev > /dev/null 2>& 1
   if [ $? -ne 0 ] ; then
     ERROR=1
     echo 'schism requires libnetcdf-dev installed to build'
@@ -101,6 +104,7 @@ while [ $# -gt 0 ] ; do
     --with-aed-plus)
       export WITH_AED="ON"
       export WITH_AED_PLUS=true
+      export WITH_MPI=true
       ;;
     --with-fabm)
       export WITH_FABM="ON"
@@ -560,5 +564,6 @@ bn=`basename $nm`
 cp cur_state.log ${BINPATH}/$bn.versions
 cp schism/build/bin/pschism* ${BINPATH}/
 cp schism/build/bin/combine_output11 ${BINPATH}/
+cp schism/build/bin/combine_output11_MPI ${BINPATH}/
 
 exit 0

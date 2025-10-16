@@ -17,11 +17,11 @@ index bcbe80ff..9d0d26cb 100644
 +if (WITH_AED_PLUS)
 +  string(REPLACE _AED _AED+ mod_tag_rev ${mod_tag_rev})
 +endif()
-
-
+ 
+ 
  ######## Tests ##################
 diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
-index 5c171490..2bedf1b4 100644
+index 92a0e3c3..81f8ef26 100644
 --- a/src/Core/schism_glbl.F90
 +++ b/src/Core/schism_glbl.F90
 @@ -79,7 +79,7 @@ module schism_glbl
@@ -34,29 +34,31 @@ index 5c171490..2bedf1b4 100644
  
    !Parameters from param.nml
 diff --git a/src/Core/scribe_io.F90 b/src/Core/scribe_io.F90
-index e9f84333..ccf8ebc5 100644
+index e9f84333..07add8b6 100644
 --- a/src/Core/scribe_io.F90
 +++ b/src/Core/scribe_io.F90
-@@ -677,6 +677,19 @@
+@@ -677,6 +677,12 @@
        enddo !j
  #endif/*USE_FABM*/
  
 +#ifdef USE_AED
 +      DO j=1,ntrs(13)
-+
-+  !   subroutine scribe_recv_write(it,imode,ivs,itotal,icount_out_name)
-+  !   !imode: 1/2/3 for node/elem/side; ivs: 1 (scalar) or 2 (vector)
-+  !   integer, intent(in) :: it,imode,ivs
-+  !   integer, intent(inout) :: itotal,icount_out_name !global counters
-+  !
 +        CALL scribe_recv_write(it,1,1,itotal,icount_out_name)
-+  !
 +      ENDDO
 +#endif/* USE_AED */
 +
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) call scribe_recv_write(it,1,1,itotal,icount_out_name)
  !        itotal=itotal+1
+@@ -948,7 +954,7 @@
+       character(len=140) :: fname
+       character(len=12) :: ifile_char
+       real(rkind) :: a1d(1)
+-      
++
+       !Check inputs
+       if(idim1/=nvrt) call parallel_abort('nc_writeout3D:idim1/=nvrt')
+       if(imode==1) then
 diff --git a/src/Hydro/schism_finalize.F90 b/src/Hydro/schism_finalize.F90
 index 35db5919..586ea3d4 100644
 --- a/src/Hydro/schism_finalize.F90
@@ -86,7 +88,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index 70f84ed6..48bbe91d 100644
+index 34383a52..2a8d057b 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -120,19 +122,18 @@ index 70f84ed6..48bbe91d 100644
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -5055,6 +5065,11 @@
+@@ -5091,6 +5101,10 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
 +#ifdef USE_AED
 +      CALL schism_aed_init_models()
-+      CALL schism_aed_create_output()
 +#endif
 +
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6646,6 +6661,10 @@
+@@ -6682,6 +6696,10 @@
        enddo !i
  #endif
  
@@ -143,7 +144,7 @@ index 70f84ed6..48bbe91d 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6881,6 +6900,12 @@
+@@ -6917,6 +6935,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -157,7 +158,7 @@ index 70f84ed6..48bbe91d 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 76b4347c..7a6e742e 100644
+index b521650e..bc7196bf 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -171,7 +172,7 @@ index 76b4347c..7a6e742e 100644
  #ifdef USE_ICM
        use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
  #endif
-@@ -7685,6 +7689,10 @@
+@@ -7687,6 +7691,10 @@
          if(myrank==0) write(16,*) 'Done FABM calculations'
  #endif
  
@@ -182,7 +183,7 @@ index 76b4347c..7a6e742e 100644
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9137,6 +9145,9 @@
+@@ -9140,6 +9148,9 @@
          noutput=noutput+1
  #endif
  
@@ -192,7 +193,7 @@ index 76b4347c..7a6e742e 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9702,6 +9713,14 @@
+@@ -9705,6 +9716,14 @@
          enddo !i
  #endif
  
@@ -207,7 +208,7 @@ index 76b4347c..7a6e742e 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -9999,6 +10018,12 @@
+@@ -10002,6 +10021,12 @@
          enddo !i
  #endif
  
@@ -220,7 +221,7 @@ index 76b4347c..7a6e742e 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10101,7 +10126,7 @@
+@@ -10104,7 +10129,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -229,59 +230,166 @@ index 76b4347c..7a6e742e 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10179,6 +10204,12 @@
+@@ -10182,6 +10207,12 @@
        end if
  #endif
  
 +#ifdef USE_AED
 +      IF (mod(it,nspool)==0) THEN
-+        CALL schism_aed_write_output(time=time)
++        CALL schism_aed_write_output(time, it, nspool)
 +      ENDIF
 +#endif
 +
  !     Open new global output files and write header data
  !#ifdef OLDIO
  !      if(nc_out>0.and.mod(it,ihfskip)==0) then
+diff --git a/src/Utility/Combining_Scripts/CMakeLists.txt b/src/Utility/Combining_Scripts/CMakeLists.txt
+index bba85621..45355429 100644
+--- a/src/Utility/Combining_Scripts/CMakeLists.txt
++++ b/src/Utility/Combining_Scripts/CMakeLists.txt
+@@ -4,13 +4,17 @@ add_definitions(${C_PREPROCESS_FLAG})
+ add_executable(combine_gr3 combine_gr3.f90)
+ add_executable(combine_hotstart7 combine_hotstart7.f90)
+ add_executable(combine_output11 combine_output11.f90 netcdf_var_names.f90)
++add_executable(combine_output11_MPI combine_output11_MPI.F90 netcdf_var_names.f90)
+ 
+ target_link_libraries(combine_hotstart7 utillib ${NetCDFLIBS} ${HDF5_LIBRARIES})
+ target_link_libraries(combine_output11 utillib ${NetCDFLIBS} ${HDF5_LIBRARIES})
++target_link_libraries(combine_output11_MPI utillib ${NetCDFLIBS} ${HDF5_LIBRARIES} MPI::MPI_Fortran)
+ 
+ target_include_directories(combine_hotstart7 PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../UtilLib)
+ target_include_directories(combine_output11 PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../UtilLib)
++target_include_directories(combine_output11_MPI PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../UtilLib ${MPI_INCLUDE_PATH})
+ 
+ add_dependencies(combine_gr3 utillib)
+ add_dependencies(combine_hotstart7 utillib)
+ add_dependencies(combine_output11 utillib)
++add_dependencies(combine_output11_MPI utillib)
 diff --git a/src/Utility/Combining_Scripts/combine_output11.f90 b/src/Utility/Combining_Scripts/combine_output11.f90
-index 73940a7f..ea8988fe 100644
+index 73940a7f..42a4ec2c 100644
 --- a/src/Utility/Combining_Scripts/combine_output11.f90
 +++ b/src/Utility/Combining_Scripts/combine_output11.f90
-@@ -254,11 +254,13 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -103,6 +103,9 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+   integer          :: varid,dimid
+ !  integer :: netcdf_var_dim
+ !  logical :: found_netcdf_var
++  logical :: original_version = .FALSE.
++
++  if (output_prefix == "schout") original_version = .TRUE.
+ 
+   invalid_index = -99999
+ 
+@@ -254,11 +257,16 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
      write(it_char,'(i12)')iinput
      it_char=adjustl(it_char)  !place blanks at end
      it_len=len_trim(it_char)  !length without trailing blanks
--    fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc'
-+!   fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc
++  if (original_version) then
+     fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc'
++  else
 +    fname=trim(output_prefix)//'_cmb_'//it_char(1:it_len)//'.nc'
++  endif
      !fname=it_char(1:it_len)//'_hvel.nc'
      fname=adjustl(fname)
-
+ 
  !   Some compiles do not like 3 arguemnts in OR()
-+  print*,"create nf90 ", trim(fname)
++  print*,"creating ", trim(fname)
      iret = nf90_create(trim(fname), OR(NF90_CLOBBER,OR(NF90_NETCDF4,NF90_CLASSIC_MODEL)), ncid)
      !define dimensions
      iret = nf90_def_dim(ncid, 'nSCHISM_hgrid_node',np_global, node_dim)
-@@ -505,8 +507,10 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -505,10 +513,14 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
  !          endif
-
+ 
      !Find and define variables
--    file63='schout_000000_'//it_char(1:it_len)//'.nc'
-+ !  file63='schout_000000_'//it_char(1:it_len)//'.nc'
++  if (original_version) then
+     file63='schout_000000_'//it_char(1:it_len)//'.nc'
++  else
 +    file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++  endif
      file63=adjustl(file63)
-+  print*,"opening file-2 : ",trim(file63)
      iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
-     if(iret/=NF90_NOERR) stop 'Failed to open(1)'
+-    if(iret/=NF90_NOERR) stop 'Failed to open(1)'
++    if(iret/=NF90_NOERR) stop 'Failed to open(1) '//trim(file63)
      !iret=nf_inq_nvars(ncid2,nvars)
-@@ -734,8 +738,10 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+     iret=nf90_inquire(ncid2,nVariables=nvars)
+ !    write(99,*)'nvars=',nvars,file63
+@@ -734,11 +746,15 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
        do irank=0,nproc-1
          !Open input file
          write(a_4,'(i6.6)') irank
--        file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
-+     !  file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
++     if (original_version) then
+         file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
++     else
 +        file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++     endif
          file63=adjustl(file63)
-+    print*,"opening file-1 : ",trim(file63)
          iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
          if(iret/=NF90_NOERR) then
-           print*, 'Failed to open(2):',irank
+-          print*, 'Failed to open(2):',irank
++          print*, 'Failed to open(2):',trim(file63),' ',irank
+           stop
+         endif
+         !write(99,*)'nvars=',nvars,file63
+diff --git a/src/Utility/Combining_Scripts/combine_output11_MPI.F90 b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
+index df3c23f5..9ea7496c 100644
+--- a/src/Utility/Combining_Scripts/combine_output11_MPI.F90
++++ b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
+@@ -111,6 +111,9 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+   integer          :: varid,dimid
+ !  integer :: netcdf_var_dim
+ !  logical :: found_netcdf_var
++  logical :: original_version = .FALSE.
++
++  if (output_prefix == "schout") original_version = .TRUE.
+ 
+   invalid_index = -99999
+ 
+@@ -280,10 +283,15 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+     write(it_char,'(i12)')iinput
+     it_char=adjustl(it_char)  !place blanks at end
+     it_len=len_trim(it_char)  !length without trailing blanks
++  if (original_version) then
+     fname=trim(output_prefix)//'_'//it_char(1:it_len)//'.nc'
++  else
++    fname=trim(output_prefix)//'_cmb_'//it_char(1:it_len)//'.nc'
++  endif
+     fname=adjustl(fname)
+ 
+ !   Some compiles do not like 3 arguemnts in OR()
++  print*,"creating ", trim(fname)
+     iret = nf90_create(trim(fname), OR(NF90_CLOBBER,OR(NF90_NETCDF4,NF90_CLASSIC_MODEL)), ncid)
+     !define dimensions
+     iret = nf90_def_dim(ncid, 'nSCHISM_hgrid_node',np_global, node_dim)
+@@ -532,11 +540,15 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+ !          endif
+ 
+     !Find and define variables
++  if (original_version) then
+     file63='schout_000000_'//it_char(1:it_len)//'.nc'
++  else
++    file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++  endif
+     file63=adjustl(file63)
+     iret=nf90_open(trim(file63),OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)
+     if(iret/=NF90_NOERR) then
+-      print*, 'Failed to open(1)'
++      print*, 'Failed to open(1) '//trim(file63)
+       call mpi_abort(comm,0,j10)
+     endif
+     !iret=nf_inq_nvars(ncid2,nvars)
+@@ -767,11 +779,15 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+       do irank=0,nproc-1
+         !Open input file
+         write(a_4,'(i6.6)') irank
++     if (original_version) then
+         file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
++     else
++        file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++     endif
+         file63=adjustl(file63)
+         iret=nf90_open(trim(file63),OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)
+         if(iret/=NF90_NOERR) then
+-          print*, 'Failed to open(2):',irank
++          print*, 'Failed to open(2):',trim(file63),' ',irank
+           call mpi_abort(comm,0,j10)
+         endif
+         !write(99,*)'nvars=',nvars,file63

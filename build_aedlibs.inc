@@ -71,11 +71,14 @@ if [ "$WITH_AED_PLUS" = "true" ] ; then
     echo build libaed-dev
     cd "${CWD}/libaed-dev"
     get_commit_id >> ${CWD}/cur_state.log
+    MORE_FLAGS=""
     if [ "$PHREEQDIR" != "" ] ; then
-      ${MAKE} PHREEQDIR=$PHREEQDIR || exit 1
-    else
-      ${MAKE} || exit 1
+      MORE_FLAGS="$MORE_FLAGS PHREEQDIR=$PHREEQDIR"
     fi
+    if [ "$WITH_MPI" = "true" ] ; then
+      MORE_FLAGS="$MORE_FLAGS WITH_MPI=true"
+    fi
+    ${MAKE} $MORE_FLAGS || exit 1
     DAEDDEVDIR=`pwd`
   fi
 fi

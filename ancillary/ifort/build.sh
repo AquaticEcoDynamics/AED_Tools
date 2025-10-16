@@ -9,7 +9,6 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
     # ifort config scripts wont work with /bin/sh
     # so we restart using bash
     if [ "$start_sh" = "/bin/sh" ] ; then
-      # first go up one dir because we went into ELCOM dir
       cd ..
       /bin/bash $0 $ARGS
       exit $?

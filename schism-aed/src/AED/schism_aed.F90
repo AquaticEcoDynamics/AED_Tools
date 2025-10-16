@@ -33,9 +33,6 @@
 #define AED_MODL_NO 13
 #define NC_FILLER    (9.9692099683868690d+36)
 
-#ifndef INCLUDE_STATE_VARS
-#define INCLUDE_STATE_VARS 1
-#endif
 
 !#----------------------------------------------------------------------------#!
 !# CAB: Some DEBUG bits want DEBUG to be non-zero ; some want > 1
@@ -132,8 +129,7 @@ MODULE schism_aed
   USE schism_glbl,ONLY: in_dir, len_in_dir
   USE schism_glbl,ONLY: out_dir,len_out_dir
 
-  USE schism_msgp,ONLY: myrank, parallel_abort
-  USE schism_msgp,ONLY: nproc_schism, task_id
+  USE schism_msgp,ONLY: myrank, parallel_abort, nproc
 
 !
    USE aed_util
@@ -293,7 +289,7 @@ MODULE schism_aed
 !  %% END NAMELIST   %%  /aed_config/
 !#===================================================
 
-   INTEGER :: ncid = 0  !# nc file id
+   INTEGER :: ncid = -1  !# nc file id
    INTEGER,DIMENSION(:),ALLOCATABLE :: externalid
    INTEGER,DIMENSION(:),ALLOCATABLE :: zone_id
    INTEGER :: ts_counter = 0 !# time step counter
@@ -364,6 +360,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 !  Ksed = tss_par_extinction
 
    aed_thread = myrank
+   aed_n_threads = nproc
 
    cpl%par_fraction =  par_frac
    cpl%nir_fraction =  nir_frac
@@ -431,6 +428,8 @@ SUBROUTINE schism_to_aed_env()
 #define SCHISM_N2E_VALS(ar,X) (sum(ar(X,elnode(1:idx, col))) / idx)
 !-------------------------------------------------------------------------------
 !BEGIN
+!  print*,"schism_to_aed_env: myrank = ", myrank
+
    !# need to put index ranges in for mpi run stuff - indexes are different
    active(1:n_cols) = (idry_e(1:n_cols) == 0)
    botidx(1:n_cols) = kbe(1:n_cols) !+ 1
@@ -508,6 +507,7 @@ SUBROUTINE schism_to_aed_env()
         pres(lev,col) = rho0 * grav * ABS(ze(n_layers, col)-ze(dep, col)) * 1.e-4
       ENDDO
       pres(:,col) = pres(:,col)+SCHISM_N2E_VAL( pr2 ) * 1.e-4
+      area_(:,col) = area(col)
    ENDDO
 END SUBROUTINE schism_to_aed_env
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -517,6 +517,7 @@ END SUBROUTINE schism_to_aed_env
 !###############################################################################
 SUBROUTINE debug_max_min(msg)
 !-------------------------------------------------------------------------------
+  USE schism_msgp,ONLY: nproc_schism, task_id
 !ARGUMENTS
    CHARACTER(*),INTENT(in) :: msg
 !LOCALS
@@ -530,7 +531,7 @@ SUBROUTINE debug_max_min(msg)
 !BEGIN
    IF ( myrank /= 0 ) RETURN
 
-   print*, "myrank = ",myrank," msg = ",msg, nproc_schism, task_id, n_cols
+!  print*, "myrank = ",myrank," msg = ",msg, nproc_schism, task_id, n_cols
 
    col = debug_col
    sza = size(active)
@@ -652,6 +653,7 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
 !
 !-------------------------------------------------------------------------------
 !BEGIN
+!  print*,"aed_set_up_schism_env: myrank = ", myrank
    TPRINT "aed_set_up_schism_env"
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
@@ -743,6 +745,7 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
       !# These are locally allocated but we can compute them
       env(col)%height        => lheights(:,col) ! layer heights (calculated)
 
+      area_(:,col) = area(col) !# for schism all layers in a column have the same area
       env(col)%area          => area_(:,col)    ! layer areas (expanded from 2 to 3 D)
       env(col)%dz            => dz(:,col)       ! height diff (calculated)
       env(col)%depth         => depth(:,col)    ! layer depths (calculated)
@@ -819,6 +822,7 @@ SUBROUTINE schism_aed_init_models()
 !
 !-------------------------------------------------------------------------------
 !BEGIN
+!  print*,"schism_aed_init_models: myrank = ", myrank
    TPRINT "schism_aed_init_models with ", ne, " columns each with ", nvrt, "layers"
    IF ( .NOT. inited ) RETURN
    IF ( ne <= 0 ) RETURN ! Nothing to do
@@ -899,12 +903,13 @@ SUBROUTINE schism_aed_do(stepno)
 !
 !-------------------------------------------------------------------------------
 !BEGIN
+!  print*,"schism_aed_do: myrank = ", myrank
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
 
    CALL CPU_TIME(now)
    IF ( MOD(stepno, debug_interval) == 1 ) THEN
-      print '("schism_aed_do[",i0, "] step ", i8)', myrank, stepno
+!     print '("schism_aed_do[",i0, "] step ", i8)', myrank, stepno
 #if DEBUG
       IF (display_minmax) CALL debug_max_min("schism_aed_do")
 #endif
@@ -922,8 +927,6 @@ SUBROUTINE schism_aed_do(stepno)
 
    IF (depress_clutch) RETURN
 
-   !# this doesn't belong here, but just testing for now
-   area_(:,col) = area(col) !# for schism all layers in a column have the same area
    CALL aed_run_model(n_cols, n_layers, .TRUE.)
 
    CALL CPU_TIME(ltr)
@@ -938,12 +941,13 @@ END SUBROUTINE schism_aed_do
 !# start of io
 
 !###############################################################################
-SUBROUTINE schism_aed_create_output()
+SUBROUTINE schism_aed_create_output(stage)
 !-------------------------------------------------------------------------------
 !ARGUMENTS
+   INTEGER,OPTIONAL,INTENT(in) :: stage
 !
 !LOCALS
-   CHARACTER(LEN=6) :: rank
+   CHARACTER(LEN=12) :: rank, stage_str
    INTEGER :: time_dim, colm_dim, layr_dim, zone_dim=-1
    INTEGER :: node_dim,nedge_dim, four_dim, one_dim, two_dim
    INTEGER :: time_id
@@ -955,11 +959,17 @@ SUBROUTINE schism_aed_create_output()
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
 
    write(rank,fmt='(I0.6)') myrank
-   CALL check_nc_error( nf90_create(                                           &
-                 TRIM(out_dir)//TRIM(output_file)//'_'//TRIM(rank)//'.nc' ,    &
-                                        nf90_hdf5, ncid), 'Create AED file' )
 
-   write(rank,fmt='(I0.6)') myrank
+   IF (present(stage)) THEN
+      write(stage_str,'(i12)') stage
+      CALL check_nc_error( nf90_create(                                        &
+              TRIM(out_dir)//TRIM(output_file)//'_'//TRIM(rank)//'_'//TRIM(adjustl(stage_str))//'.nc' ,    &
+                                        nf90_hdf5, ncid), 'Create AED file' )
+   ELSE
+      CALL check_nc_error( nf90_create(                                        &
+              TRIM(out_dir)//TRIM(output_file)//'_'//TRIM(rank)//'.nc' ,       &
+                                        nf90_hdf5, ncid), 'Create AED file' )
+   ENDIF
 
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_node', np, node_dim) )
    CALL check_nc_error( nf90_def_dim(ncid, 'nSCHISM_hgrid_face', ne, colm_dim) )  !# column
@@ -976,10 +986,10 @@ SUBROUTINE schism_aed_create_output()
    CALL check_nc_error( nf90_put_att(ncid, time_id, "ivs", 1) )
    CALL check_nc_error( nf90_put_att(ncid, time_id, 'units', 'seconds') )
 
-#if INCLUDE_STATE_VARS
    CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_STATE)
-#endif
    CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_DIAGNOSTIC)
+
+   CALL check_nc_error( nf90_enddef(ncid) )
    TPRINT "schism_aed_create_output done"
 END SUBROUTINE schism_aed_create_output
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1171,10 +1181,12 @@ END SUBROUTINE schism_aed_create_output_vars
 
 
 !###############################################################################
-SUBROUTINE schism_aed_write_output(time)
+SUBROUTINE schism_aed_write_output(time, it, nspool)
+   USE schism_glbl,ONLY   : ihfskip
 !-------------------------------------------------------------------------------
 !ARGUMENTS
    AED_REAL,INTENT(in) :: time
+   INTEGER, INTENT(in) :: it, nspool
 !
 !LOCALS
    INTEGER :: time_id, tvr_id, status
@@ -1186,8 +1198,20 @@ SUBROUTINE schism_aed_write_output(time)
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
 
+!  CALL mpi_waitall(nsend_varout,srqst7(1:nsend_varout),MPI_STATUSES_IGNORE,ierr)
+
+
    CALL CPU_TIME(now)
 !  TPRINTF '("schism_aed_write_output[",i0,"]")', myrank
+
+   IF ( MOD(it-nspool, ihfskip) == 0) THEN
+      IF (ncid > 0) THEN
+         status = nf90_close(ncid)
+         ncid = -1
+      ENDIF
+   ENDIF
+   IF (ncid < 0) &
+      CALL schism_aed_create_output(((it-1)/ihfskip+1))
 
    ts_counter = ts_counter + 1
 
@@ -1195,9 +1219,7 @@ SUBROUTINE schism_aed_write_output(time)
    CALL check_nc_error( nf90_put_var(ncid, time_id, (/ time /),                &
                                        start=(/ ts_counter /), count=(/ 1 /) ) )
 
-#if INCLUDE_STATE_VARS
    CALL schism_aed_write_output_split(time, V_STATE)
-#endif
    CALL schism_aed_write_output_split(time, V_DIAGNOSTIC)
 
    status = nf90_sync(ncid)
@@ -1223,13 +1245,12 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
    INTEGER :: start(4), count(4);
    INTEGER :: iret
 
-   INTEGER :: idx_s !, idx_e
+   INTEGER :: idx_s
    INTEGER  :: i, j, v, d, sv, sd
 !
 !-------------------------------------------------------------------------------
 !BEGIN
    idx_s = irange_tr(1,AED_MODL_NO) - 1
-!  idx_e = idx_s + n_vars - 1
 
    v = 0; d = 0; sv = 0; sd = 0
 
