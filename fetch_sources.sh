@@ -296,15 +296,15 @@ if [ "$GET_TFV" = "true" ] ; then
   fi
   # This may need tweaking
   if [ "`hostname`" = "phyto" ] ; then
-    if [ -d tuflowfv-svn ] ; then
-      src='tuflowfv-svn'
+    if [ -d tuflowfv ] ; then
+      src='tuflowfv'
       echo "Updating $src from " `grep -w url $src/.git/config`
-      cd tuflowfv-svn
+      cd tuflowfv
       git pull
       cd ..
     else
       GITHOST=git@githost.aed-net.science.uwa.edu.au:
-      fetch_it tuflowfv-aed tuflowfv-svn
+      fetch_it tuflowfv-aed tuflowfv
     fi
   fi
 fi

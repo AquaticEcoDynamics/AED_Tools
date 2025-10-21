@@ -1,15 +1,10 @@
 #!/bin/bash
 
-export FABMDIR=fabm-schism
-export WITH_AED_PLUS=false
-
 export CWD=`pwd`
-export MAKE=make
-export BFLAG='-j8'
-export ERROR=0
-export MDEBUG=false
 
+#-------------------------------------------------------------------------------
 # Start by figuring out what system we're on
+
 case `uname` in
   "Darwin"|"Linux"|"FreeBSD")
     export OSTYPE=`uname -s`
@@ -19,12 +14,15 @@ case `uname` in
     ;;
 esac
 
-# # defaults for schism for now
-# #export WITH_PREC_EVAP="ON"
-# #export WITH_AED="ON"
-
 #-------------------------------------------------------------------------------
 # Set up some defaults
+
+export FABMDIR=fabm-schism
+export WITH_AED_PLUS=false
+export MAKE=make
+export BFLAG='-j8'
+export ERROR=0
+export MDEBUG=false
 
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
@@ -61,14 +59,6 @@ if [ "$OSTYPE" = "Linux" ] ; then
     echo 'schism requires libnetcdf-dev installed to build'
   fi
 fi
-
-#
-# Also we need python and python3 wont be found so either need a symlink or :
-#
-#alias python=python3
-# but alias doesnt work in "sh", it needs "bash" or "zsh" or ...
-# and aliased python also doesnt work within cmake, so have to make a symlink
-#
 
 #-------------------------------------------------------------------------------
 # Now scan the argument list

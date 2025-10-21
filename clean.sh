@@ -107,22 +107,15 @@ if [ -d swan ] ; then
   cd "$CWD"
 fi
 
-if [ -d tuflowfv-svn ] ; then
-  echo cleaning in tuflowfv-svn
-  if [ "${OSTYPE}" = "Linux" ] ; then
-    PLATFORM=linux_ifort
-  elif [ "${OSTYPE}" = "Darwin" ] ; then
-    PLATFORM=macos_ifort
-  fi
+if [ -d tuflowfv ] ; then
   if [ "$OSTYPE" != "FreeBSD" ] ; then
     export FC=ifort
   fi
 
-  if [ -d ${CWD}/tuflowfv-svn/platform/${PLATFORM} ] ; then
-    echo cleaning tuflowfv
-    cd ${CWD}/tuflowfv-svn/platform/${PLATFORM}
-    ${MAKE} clean
-  fi
+  echo cleaning tuflowfv
+  cd ${CWD}/tuflowfv
+  ${MAKE} clean
+
   cd "$CWD"
 fi
 

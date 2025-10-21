@@ -1,12 +1,14 @@
 #!/bin/sh
 
+# CWD should be the tools directory in which CURDIR lives
+export CWD=`pwd`
+# CURDIR should be the directory of the project we are building
+export CURDIR=${CWD}/ELCOM
+
 if [ ! -d ELCOM ] ; then
   echo "no ELCOM directory"
   exit 1
 fi
-
-CWD=`pwd`
-CURDIR=${CWD}/ELCOM
 
 export DEBUG=false
 

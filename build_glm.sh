@@ -1,9 +1,22 @@
 #!/bin/sh
 
-cd GLM
-. ./GLM_CONFIG
-cd ..
-export CWD=`pwd`
+# CURDIR should be the directory of the project we are building
+export CURDIR=`pwd`/GLM
+# CWD should be the tools directory in which CURDIR lives
+export CWD=`dirname ${CURDIR}`
+
+#
+# These are defaults for glm
+#
+export WITH_AED=true
+export WITH_AED_PLUS=false
+export WITH_API=true
+export USE_DL=false
+export WITH_PLOTS=true
+export WITH_XPLOTS=true
+
+export PLOTDIR=${CWD}/libplot
+export UTILDIR=${CWD}/libutil
 
 case `uname` in
   "Darwin"|"Linux"|"FreeBSD")
@@ -40,8 +53,8 @@ while [ $# -gt 0 ] ; do
     --fence)
       export FENCE=true
       ;;
-    --fabm)
-      export FABM=true
+    --with-aed-plus)
+      export WITH_AED_PLUS=true
       ;;
     --gfort)
       export FC=gfortran
@@ -76,9 +89,6 @@ export MPI=OPENMPI
 
 . ${CWD}/build_env.inc
 
-if [ "$AED2DIR" = "" ] ; then
-  export AED2DIR=../libaed2
-fi
 if [ "$PLOTDIR" = "" ] ; then
   export PLOTDIR=../libplot
 fi
@@ -117,21 +127,7 @@ if [ "$FABM" = "true" ] ; then
   ${MAKE} || exit 1
 fi
 
-if [ "${AED2}" = "true" ] ; then
-  cd "${AED2DIR}"
-  ${MAKE} || exit 1
-  cd ..
-  if [ "${AED2PLS}" != "" ] ; then
-    if [ -d "${AED2PLS}" ] ; then
-      cd "${AED2PLS}"
-      ${MAKE} || exit 1
-      cd ..
-    fi
-  fi
-fi
-
-if [ "${AED}" = "true" ] || [ "${API}" = "true" ] ; then
-  export WITH_AED_PLUS='true'
+if [ "${WITH_AED}" = "true" ] || [ "${WITH_API}" = "true" ] ; then
   . ${CWD}/build_aedlibs.inc
 fi
 
@@ -139,7 +135,7 @@ if [ -d "${UTILDIR}" ] ; then
   echo "making libutil"
   cd "${UTILDIR}"
   ${MAKE} || exit 1
-  cd "${CURDIR}/.."
+  cd "${CWD}"
 fi
 
 if [ "$OSTYPE" = "FreeBSD" ] ; then
@@ -192,7 +188,7 @@ if [ "${DAEDDEVDIR}" != "" ] ; then
   fi
 fi
 
-cd "${CURDIR}/.."
+cd "${CWD}"
 
 # =====================================================================
 # Package building bit

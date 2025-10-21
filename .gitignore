@@ -1,7 +1,7 @@
 .DS*
 ._.DS*
 *.diff
-GLM*
+GLM
 ELCOM
 libaed-*
 libaed2
