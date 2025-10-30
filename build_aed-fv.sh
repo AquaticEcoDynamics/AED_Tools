@@ -10,6 +10,7 @@ export PRECISION=1
 export PLOTS=false
 export EXTERNAL_LIBS=shared
 export DEBUG=false
+export WITH_AED_PLUS=false
 
 export LICENSE=0
 
@@ -29,6 +30,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --with-aed-plus)
       export WITH_AED_PLUS=true
+      ;;
+    --without-aed-plus)
+      export WITH_AED_PLUS=false
       ;;
     --ifx)
       export FC=ifx
@@ -65,7 +69,11 @@ if [ "$OSTYPE" = "Msys" ] ; then
     rm -f x64-Release/tuflowfv_external_wq_$VERSION.zip
   fi
 
-  cmd.exe '/c build_fv.bat'
+  if [ "$WITH_AED_PLUS" = "true" ]
+    cmd.exe '/c build_fv.bat tuflowfv_external_wq+ '
+  else
+    cmd.exe '/c build_fv.bat tuflowfv_external_wq '
+  fi
   if [ $? -ne 0 ] ; then
     echo errors in build
     exit 1
@@ -74,7 +82,11 @@ if [ "$OSTYPE" = "Msys" ] ; then
   cd x64-Release
   mkdir -p tuflowfv_external_wq_$VERSION
   mv tuflowfv_external_wq.??? tuflowfv_external_wq_$VERSION
-  powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  if [ "$WITH_AED_PLUS" = "true" ]
+    powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq+_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  else
+    powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  fi
   if [ $? -ne 0 ] ; then
     echo error building zipfile
     exit 1
@@ -83,7 +95,13 @@ if [ "$OSTYPE" = "Msys" ] ; then
   if [ ! -d ${CWD}/binaries/windows ] ; then
     mkdir -p ${CWD}/binaries/windows
   fi
-  cp tuflowfv_external_wq_$VERSION.zip ${CWD}/binaries/windows
+
+  if [ "$WITH_AED_PLUS" = "true" ]
+    cp tuflowfv_external_wq+_$VERSION.zip ${CWD}/binaries/windows
+  else
+    cp tuflowfv_external_wq_$VERSION.zip ${CWD}/binaries/windows
+  fi
+
   exit 0
   #============================= End Windows build =============================
 fi
@@ -166,7 +184,11 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
 
   if [ -d ${CURDIR}/lib ] ; then
     cd ${CURDIR}/lib
-    tar czf ${CWD}/${BINPATH}/libtuflowfv_external_wq_${VERSION}.tar.gz libtuflowfv_external_wq.*
+    if [ "$WITH_AED_PLUS" = "true" ]
+      tar czf ${CWD}/${BINPATH}/libtuflowfv_external_wq+_${VERSION}.tar.gz libtuflowfv_external_wq.*
+    else
+      tar czf ${CWD}/${BINPATH}/libtuflowfv_external_wq_${VERSION}.tar.gz libtuflowfv_external_wq.*
+    fi
     if [ "$OSTYPE" = "Linux" ] ; then
       mv ${CWD}/libaed-tfv_*_amd64.deb ${CWD}/${BINPATH}
       if [ -d ${CWD}/${BINPATH}/libaed_fv_latest ] ; then

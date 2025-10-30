@@ -78,6 +78,10 @@ fi
 # see if we have open mpi, netcdf-c and netcdf-fortran in our default path, set the
 # default "home" for each
 
+if [ "$OSTYPE" = "Msys" ] ; then
+  export PATH="$PATH:`pwd`/ancillary/windows/bin"
+fi
+
 BINDIR=`which ompi_info`
 if [ "$BINDIR" != "" ] ; then
   BINDIR=`dirname $BINDIR`

@@ -96,6 +96,9 @@ while [ $# -gt 0 ] ; do
       export WITH_AED_PLUS=true
       export WITH_MPI=true
       ;;
+    --without-aed-plus)
+      export WITH_AED_PLUS=false
+      ;;
     --with-fabm)
       export WITH_FABM="ON"
       ;;

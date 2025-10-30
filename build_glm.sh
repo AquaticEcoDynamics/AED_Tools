@@ -9,8 +9,10 @@ export CWD=`dirname ${CURDIR}`
 # These are defaults for glm
 #
 export WITH_AED=true
+export AED=true
 export WITH_AED_PLUS=false
 export WITH_API=true
+export API=true
 export USE_DL=false
 export WITH_PLOTS=true
 export WITH_XPLOTS=true
@@ -55,6 +57,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --with-aed-plus)
       export WITH_AED_PLUS=true
+      ;;
+    --without-aed-plus)
+      export WITH_AED_PLUS=false
       ;;
     --gfort)
       export FC=gfortran
