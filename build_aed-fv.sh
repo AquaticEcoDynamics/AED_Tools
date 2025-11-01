@@ -69,7 +69,7 @@ if [ "$OSTYPE" = "Msys" ] ; then
     rm -f x64-Release/tuflowfv_external_wq_$VERSION.zip
   fi
 
-  if [ "$WITH_AED_PLUS" = "true" ]
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
     cmd.exe '/c build_fv.bat tuflowfv_external_wq+ '
   else
     cmd.exe '/c build_fv.bat tuflowfv_external_wq '
@@ -82,8 +82,8 @@ if [ "$OSTYPE" = "Msys" ] ; then
   cd x64-Release
   mkdir -p tuflowfv_external_wq_$VERSION
   mv tuflowfv_external_wq.??? tuflowfv_external_wq_$VERSION
-  if [ "$WITH_AED_PLUS" = "true" ]
-    powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq+_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
+    powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq_$VERSION -DestinationPath tuflowfv_external_wq+_$VERSION.zip"
   else
     powershell -Command "Compress-Archive -LiteralPath tuflowfv_external_wq_$VERSION -DestinationPath tuflowfv_external_wq_$VERSION.zip"
   fi
@@ -96,7 +96,7 @@ if [ "$OSTYPE" = "Msys" ] ; then
     mkdir -p ${CWD}/binaries/windows
   fi
 
-  if [ "$WITH_AED_PLUS" = "true" ]
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
     cp tuflowfv_external_wq+_$VERSION.zip ${CWD}/binaries/windows
   else
     cp tuflowfv_external_wq_$VERSION.zip ${CWD}/binaries/windows
