@@ -93,13 +93,9 @@ if [ "$BINDIR" != "" ] ; then
   NCDFCBASE=`dirname $BINDIR`
 fi
 unset BINDIR
-if [ "$FC" = "ifort"  ] ; then
-  if [ -d /opt/intel/bin ] ; then
-    BINDIR="/opt/intel/bin"
-  fi
-elif [ "$FC" = "ifx" ] ; then
-  if [ -d ancillary/ifx/bin ] ; then
-    BINDIR="ancillary/ifx/bin"
+if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
+  if [ -d ancillary/${FC}/bin ] ; then
+    BINDIR="`pwd`/ancillary/${FC}/bin"
   fi
 fi
 if [ "$BINDIR" = "" ] ; then
@@ -109,7 +105,6 @@ fi
 if [ "$BINDIR" != "" ] ; then
   NF_FC=`$BINDIR/nf-config --fc`
   if [ `basename $NF_FC` = ${FC} ] ; then
-    BINDIR=`dirname $BINDIR`
     NCDFFBASE=`dirname $BINDIR`
   else
     echo fortran compiler mismatch on nf-config
@@ -136,7 +131,7 @@ if [ "${NCDFFBASE}" = "" ]; then
     fi
     export NCDFFBASE=${BASEDIR}/ancillary/windows/
   else
-    if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.h ] ; then
+    if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.mod ] ; then
       cd ${BASEDIR}/ancillary/${FC}
       ./build.sh
     fi
@@ -172,4 +167,3 @@ if [ "$OSTYPE" = "Darwin" ] ; then
 fi
 
 echo basic info OMPIBASE=$OMPIBASE  NCDFCBASE=$NCDFCBASE NCDFFBASE=$NCDFFBASE
-

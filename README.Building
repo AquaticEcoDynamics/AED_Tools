@@ -113,7 +113,7 @@ As mentioned above, there are a few dependencies.
 
      1) XCode - available through the App Store
      2) You will need netcdf - this is available from homebrew - http://brew.sh/
-               port install netcdf
+               brew install netcdf
      3) To build the GUI you will need libgd - this is available through homebrew
                brew install gd2
 

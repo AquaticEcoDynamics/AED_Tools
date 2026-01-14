@@ -60,6 +60,8 @@ if [ "$OSTYPE" = "Linux" ] ; then
   fi
 fi
 
+export WITH_BULK_FAIRALL="OFF"
+
 #-------------------------------------------------------------------------------
 # Now scan the argument list
 
@@ -173,6 +175,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --with-analysis)
       export WITH_ANALYSIS="ON"
+      ;;
+    --without-bulk-fairall)
+      export WITH_USE_BULK_FAIRALL="OFF"
       ;;
 
     --try-mods)
@@ -457,6 +462,11 @@ if [ "$WITH_DEBUG" = "ON" ] ; then
 fi
 if [ "$WITH_ANALYSIS" = "ON" ] ; then
   sed -i -e "s^USE_ANALYSIS OFF^USE_ANALYSIS ON^" cmake/SCHISM.local.build.aed
+fi
+if [ "$WITH_USE_BULK_FAIRALL" = "ON" ] ; then
+  sed -i -e "s^USE_BULK_FAIRALL OFF^USE_BULK_FAIRALL ON^" cmake/SCHISM.local.build.aed
+else
+  sed -i -e "s^USE_BULK_FAIRALL ON^USE_BULK_FAIRALL OFF^" cmake/SCHISM.local.build.aed
 fi
 
 #-------------------------------------------------------------------------------

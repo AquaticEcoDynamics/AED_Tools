@@ -88,7 +88,6 @@ if [ -d "${CWD}/libaed-api" ] ; then
   cd "${CWD}/libaed-api"
   get_commit_id >> ${CWD}/cur_state.log
   ${MAKE} || exit 1
-  ${MAKE} obj/aed_external.o
   DAEDAPIDIR=`pwd`
 fi
 

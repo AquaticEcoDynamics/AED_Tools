@@ -11,6 +11,7 @@ export PLOTS=false
 export EXTERNAL_LIBS=shared
 export DEBUG=false
 export WITH_AED_PLUS=false
+export WITH_MPI=false
 
 export LICENSE=0
 
@@ -157,7 +158,17 @@ cd ${CWD}
 VERSION=`grep FV_AED_VERS ${AEDFVDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
 cd ${AEDFVDIR}/win
 ${AEDFVDIR}/vers.sh $VERSION
+if [ "$OSTYPE" = "Linux" ] ; then
+  cd ${AEDFVDIR}
+  VERSDEB=`head -1 debian/changelog | cut -f2 -d\( | cut -f1 -d-`
+  echo debian version $VERSDEB
+  if [ "$VERSION" != "$VERSDEB" ] ; then
+    echo updating debian version from ${VERSDEB} to ${VERSION}
+    dch --newversion ${VERSION}-0 "new version ${VERSION}"
+  fi
+fi
 cd ${CWD}
+
 
 if [ "$EXTERNAL_LIBS" = "shared" ] ; then
   if [ "$OSTYPE" = "Darwin" ] ; then
@@ -184,7 +195,7 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
 
   if [ -d ${CURDIR}/lib ] ; then
     cd ${CURDIR}/lib
-    if [ "$WITH_AED_PLUS" = "true" ]
+    if [ "$WITH_AED_PLUS" = "true" ] ; then
       tar czf ${CWD}/${BINPATH}/libtuflowfv_external_wq+_${VERSION}.tar.gz libtuflowfv_external_wq.*
     else
       tar czf ${CWD}/${BINPATH}/libtuflowfv_external_wq_${VERSION}.tar.gz libtuflowfv_external_wq.*

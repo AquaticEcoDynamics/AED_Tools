@@ -16,6 +16,9 @@ export FC=gfortran
 export CC=gcc
 export MAKE=make
 
+export WITH_AED=false
+export WITH_AED_PLUS=false
+
 ARGS=""
 while [ $# -gt 0 ] ; do
   ARGS="$ARGS $1"
@@ -28,6 +31,20 @@ while [ $# -gt 0 ] ; do
       ;;
     --fence)
       export FENCE=true
+      ;;
+    --with-aed)
+      export WITH_AED=true
+      ;;
+    --without-aed)
+      export WITH_AED=false
+      ;;
+    --with-aed-plus)
+      export WITH_AED=true
+      export WITH_AED_PLUS=true
+      ;;
+    --without-aed-plus)
+      export WITH_AED=false
+      export WITH_AED_PLUS=false
       ;;
     --ifx)
       export FC=ifx
@@ -75,9 +92,9 @@ fi
 
 #===============================================================================
 
-#if [ "$WITH_AED" = "ON" ] ; then
+if [ "$WITH_AED" = "true" ] ; then
   . ${CWD}/build_aedlibs.inc
-#fi
+fi
 
 #===============================================================================
 
@@ -94,7 +111,17 @@ PARAMS=""
 
 echo build elcom_aed
 cd ${CURDIR}/elcom_aed
-${MAKE} -f Makefile || exit 1
+if [ "$WITH_AED_PLUS" = "true" ] ; then
+  ${MAKE} -f Makefile WITH_AED_PLUS=1  AEDWATDIR=$DAEDWATDIR \
+                 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
+                 AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR \
+                 AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR \
+                 AEDAPIDIR=$DAEDAPIDIR || exit 1
+else
+  ${MAKE} -f Makefile WITH_AED_PLUS=0  AEDWATDIR=$DAEDWATDIR \
+                 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
+                 AEDAPIDIR=$DAEDAPIDIR || exit 1
+fi
 DELCAEDDIR=`pwd`
 PARAMS="${PARAMS} ELCAEDDIR=${DELCAEDDIR}"
 
@@ -184,12 +211,12 @@ echo Installing in ${BINPATH}
 if [ ! -d ${BINPATH} ] ; then
    mkdir -p ${BINPATH}
 fi
-cp elcom_src_v3/elcd ${BINPATH}/elcd${EXTN}
+cp elcom_src_v3/elcom ${BINPATH}/elcom${EXTN}
 cp utilities/pre_elcom/pre_elcom ${BINPATH}/pre_elcom${EXTN}
 if [ "$DEBUG" = "true" ] ; then
-  ln -fs elcd${EXTN} ${BINPATH}/elcd_latest_d
+  ln -fs elcom${EXTN} ${BINPATH}/elcom_latest_d
 else
-  ln -fs elcd${EXTN} ${BINPATH}/elcd_latest
+  ln -fs elcom${EXTN} ${BINPATH}/elcom_latest
 fi
 
 exit 0

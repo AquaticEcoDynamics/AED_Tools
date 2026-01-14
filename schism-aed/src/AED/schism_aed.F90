@@ -11,7 +11,7 @@
 !#                                                                             #
 !#     http://aquatic.science.uwa.edu.au/                                      #
 !#                                                                             #
-!# Copyright 2025 - The University of Western Australia                        #
+!# Copyright 2025-2026 : The University of Western Australia                   #
 !#                                                                             #
 !#  This is free software: you can redistribute it and/or modify               #
 !#  it under the terms of the GNU General Public License as published by       #
@@ -76,9 +76,13 @@ MODULE schism_aed
   !# These are commented as in schism_glbl.F90 which may not make sense yet
   USE schism_glbl,ONLY: rkind
 
+  USE schism_glbl,ONLY: ne_global ! Global number of resident elements
+  USE schism_glbl,ONLY: ielg      ! Local-to-global element index table (augmented)
+  USE schism_glbl,ONLY: iegl      ! Global-to-local element index table (augmented)
+
   USE schism_glbl,ONLY: ne        ! Local number of resident elements
 ! USE schism_glbl,ONLY: neg       ! Local number of ghost elements
-! USE schism_glbl,ONLY: nea       ! Local number of elements in augmented subdomain (ne+neg)
+  USE schism_glbl,ONLY: nea       ! Local number of elements in augmented subdomain (ne+neg)
   USE schism_glbl,ONLY: nvrt      ! Number of vertical layers
 ! USE schism_glbl,ONLY: np,npg,npa,iplg,ipgl       ! ??
   USE schism_glbl,ONLY: np,ns
@@ -92,8 +96,8 @@ MODULE schism_aed
   USE schism_glbl,ONLY: area      ! Element areas [col] - all layers in a column are the same?
   USE schism_glbl,ONLY: xlon_el,ylat_el ! Element center lat/lon coordinates in _degrees_
 
-  !# look at schism/src/Hydro/schism_step.F90:9037 in the #ifdef OLDIO sectio...
-  !# there are a bunch of write statement outputing data with descriptions
+  !# look at schism/src/Hydro/schism_step.F90:9037 in the #ifdef OLDIO section...
+  !# there are a bunch of write statements outputing data with descriptions
 
   USE schism_glbl,ONLY: erho      ! (effective?) density  [layers,columns]
   USE schism_glbl,ONLY: rho0      ! density (?)
@@ -156,9 +160,9 @@ MODULE schism_aed
    TYPE(aed_data_t),DIMENSION(:),ALLOCATABLE,TARGET :: data
 
    !# Arrays for work, vertical movement, and cross-boundary fluxes
-   AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET   :: cc_hz      !# [n_vars_ben,cols]
+   AED_REAL,DIMENSION(:,:),  ALLOCATABLE,TARGET :: cc_hz      !# [n_vars_ben,cols]
    AED_REAL,DIMENSION(:,:,:),ALLOCATABLE,TARGET :: cc_diag    !# [n_diag_vars,layers,cols]
-   AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET   :: cc_diag_hz !# [n_diag_hz_vars,cols]
+   AED_REAL,DIMENSION(:,:),  ALLOCATABLE,TARGET :: cc_diag_hz !# [n_diag_hz_vars,cols]
 
    !# geometry related
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: lheights   !# [layers,cols] Layer Heights
@@ -166,6 +170,8 @@ MODULE schism_aed
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: area_      !# [layers,cols] this is filled from extern var "area"
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: dz         !# [layers,cols]
    AED_REAL,DIMENSION(:),  ALLOCATABLE,TARGET :: col_depth
+
+   INTEGER,DIMENSION(:),   ALLOCATABLE,TARGET :: col_map  !# map this ranks colnum to the global one
 
    !# Arrays for environmental variables not supplied externally.
    AED_REAL,DIMENSION(:,:),ALLOCATABLE,TARGET :: par  !# [layers,cols]
@@ -258,7 +264,7 @@ MODULE schism_aed
 
    !# Name of files being used to load initial values for benthic
    !  or benthic_diag vars, and the horizontal routing table for riparian flows
-!  CHARACTER(len=128) :: init_values_file = ''
+   CHARACTER(len=128) :: init_values_file = ''
    CHARACTER(len=128) :: output_file = 'aed_data'
 
    LOGICAL  :: do_limiter = .FALSE.
@@ -286,6 +292,8 @@ MODULE schism_aed
    INTEGER :: debug_interval = 10000
    INTEGER :: debug_col = 1
 
+   INTEGER :: ts_write_delay = 1
+
 !  %% END NAMELIST   %%  /aed_config/
 !#===================================================
 
@@ -293,6 +301,7 @@ MODULE schism_aed
    INTEGER,DIMENSION(:),ALLOCATABLE :: externalid
    INTEGER,DIMENSION(:),ALLOCATABLE :: zone_id
    INTEGER :: ts_counter = 0 !# time step counter
+   INTEGER :: ts_write_count = 0
 
    REAL :: start = 0.0
    REAL :: prev = 0.0
@@ -316,6 +325,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 !LOCALS
    CHARACTER(len=80) :: fname
    INTEGER :: namlst, status
+   PROCEDURE(aed_mobility_fn_t),POINTER :: doMobilityP
 !
    NAMELIST /aed_config/ solution_method, link_bottom_drag,                    &
                          link_surface_drag, link_water_density,                &
@@ -324,7 +334,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
                          tss_par_extinction,                                   &
                          do_particle_bgc, do_2d_atm_flux, do_zone_averaging,   &
                          link_solar_shade, link_rain_loss,                     &
-!                        init_values_file,                                     &
+                         init_values_file,                                     &
                          mobility_off, output_file,                            &
                          do_limiter, glob_min, glob_max, no_glob_lim,          &
                          min_water_depth,                                      &
@@ -332,14 +342,14 @@ SUBROUTINE schism_aed_configure_models(ntracers)
                          link_wave_stress, wave_factor,                        &
                          nir_frac,par_frac, uva_frac, uvb_frac,                &
                          display_minmax,                                       &
-                         depress_clutch, depress_clutch2,                      &
+                         depress_clutch, depress_clutch2, ts_write_delay,      &
                          debug_interval, debug_col
 !
 !-------------------------------------------------------------------------------
 !BEGIN
    CALL CPU_TIME(start)
    prev = start
-   print*,"schism_aed_configure_models: Hello World, myrank = ", myrank
+   print*,"###### schism_aed_configure_models: Hello World, myrank = ", myrank
 
    fname = "aed.nml"
    namlst = find_free_lun()
@@ -384,27 +394,32 @@ SUBROUTINE schism_aed_configure_models(ntracers)
    cpl%Kw => Kw
 !  cpl%Ksed = Ksed
 
-   print *,'    link options configured between SCHISM & AED - '
-   print *,'        link_ext_par       :  ',link_ext_par
-   print *,'        link_water_clarity :  ',link_water_clarity
-   print *,'        link_surface_drag  :  ',link_surface_drag,' (not implemented)'
-   print *,'        link_bottom_drag   :  ',link_bottom_drag
-   print *,'        link_wave_stress   :  ',link_wave_stress
-   print *,'        link_solar_shade   :  ',link_solar_shade
-   print *,'        link_rain_loss     :  ',link_rain_loss
-   print *,'        link_particle_bgc  :  ',do_particle_bgc,' (under development)'
-   print *,'        link_water_density :  ',link_water_density,' (not implemented)'
+   IF ( myrank == 0 ) THEN
+      print *,'    link options configured between SCHISM & AED - '
+      print *,'        link_ext_par       :  ',link_ext_par
+      print *,'        link_water_clarity :  ',link_water_clarity
+      print *,'        link_surface_drag  :  ',link_surface_drag,' (not implemented)'
+      print *,'        link_bottom_drag   :  ',link_bottom_drag
+      print *,'        link_wave_stress   :  ',link_wave_stress
+      print *,'        link_solar_shade   :  ',link_solar_shade
+      print *,'        link_rain_loss     :  ',link_rain_loss
+      print *,'        link_particle_bgc  :  ',do_particle_bgc,' (under development)'
+      print *,'        link_water_density :  ',link_water_density,' (not implemented)'
+   ENDIF
 
    !# set aed coupling parameters
    CALL aed_set_coupling(cpl)
 
    !# Initialise the model, which will read the file provided in "fname"
    fname = "aed.nml"
-   n_aed_vars = aed_configure_models(fname, n_vars, n_vars_ben, n_vars_diag, n_vars_diag_sheet)
+   n_aed_vars = aed_configure_models(fname, n_vars, n_vars_ben, n_vars_diag, n_vars_diag_sheet, quiet=(myrank /= 0))
    DTPRINT "model initied with ",n_aed_vars, n_vars, n_vars_ben, n_vars_diag, n_vars_diag_sheet
 
+   doMobilityP => doMobilityF
+   CALL aed_set_mobility_fn(doMobilityP)
+
    ntracers=n_vars
-   TPRINT "schism_aed_configure_models done; ntracers = ",ntracers
+   TPRINT "schism_aed_configure_models done for rank ",myrank,"; ntracers = ",ntracers
 END SUBROUTINE schism_aed_configure_models
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -438,8 +453,6 @@ SUBROUTINE schism_to_aed_env()
    DO col=1,n_cols
       IF ( .NOT. active(col) ) CYCLE
 
-!# There are 2 ways of defining layers not sure which way is right yet
-#if 1
       !# re-compute the layer heights and depths
       col_depth(col) = dpe(col) + ze(n_layers,col)
       lheights(1,col) = dpe(col) + ze(1,col)
@@ -450,32 +463,6 @@ SUBROUTINE schism_to_aed_env()
          dz(lev,col) = lheights(lev,col) - lheights(lev-1,col)
          depth(lev,col) = col_depth(col) - lheights(lev,col)
       ENDDO
-#else
-      depth(:, col) = 0.
-      dz(:, col) = 0.
-      lheights(:, col) = 0.
-
-  !   col_depth(col) = -(ze(kbe(col), col)+ze(kbe(col)+1, col))/2
-  !   dz(kbe(col)+1:nvrt,col)       =   ze(kbe(col)+1:nvrt,col)-ze(kbe(col):nvrt-1,col)
-  !   depth(kbe(col)+1:nvrt,col)    = -(ze(kbe(col)+1:nvrt,col)+ze(kbe(col):nvrt-1,col))/2
-  !   lheights(kbe(col)+1:nvrt,col) = col_depth(col) - depth(kbe(col)+1:nvrt,col)
-
-      col_depth(col) = -ze(kbe(col), col)
-      dz(kbe(col)+1:nvrt,col)       =  ze(kbe(col)+1:nvrt,col)-ze(kbe(col):nvrt-1,col)
-      depth(kbe(col):nvrt,col)      = -ze(kbe(col):nvrt,col)
-      lheights(kbe(col):nvrt,col)   = col_depth(col) - depth(kbe(col):nvrt,col)
-#endif
-
-#if 0
- !# This stuff is for debugging the depth/dz/heights stuff
- print*,"ze sizing (",size(ze,1),",",size(ze,2),") .. dpe size ",size(dpe)
- print*,"col = ",col, " dpe(col) = ",dpe(col), " col_depth(col) = ",col_depth(col), " nvrt = ",nvrt," kbe(col) = ",kbe(col)
- do lev=1, nvrt
-   print '("ze = ",f16.8, " ; lheights = ", f16.8," ; dz = ",f16.8," ; depth = ",f16.8)', &
-            ze(lev,col),      lheights(lev,col),      dz(lev,col),     depth(lev,col)
- enddo
- stop
-#endif
 
       !# Now map environs schism->aed
       idx=i34(col)
@@ -647,13 +634,13 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
    real(rkind),target :: xlon_el(:),ylat_el(:)
 !
 !LOCALS
-   INTEGER :: status, col, lev
+   INTEGER :: status, col, lev, i, j
 
    TYPE(aed_env_t) :: env(n_cols)
 !
 !-------------------------------------------------------------------------------
 !BEGIN
-!  print*,"aed_set_up_schism_env: myrank = ", myrank
+   print*,"###### aed_set_up_schism_env: myrank = ", myrank
    TPRINT "aed_set_up_schism_env"
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
@@ -665,6 +652,17 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
 
    ALLOCATE(dz(n_layers,n_cols))    ; dz = zero_
    ALLOCATE(col_depth(n_cols))      ; col_depth = zero_
+
+   !# Allocate enough for the ghost elements too
+   ALLOCATE(col_map(nea)) ; col_map = 0
+
+   j = 0
+   DO i=1, ne_global
+      IF ( iegl(i)%rank == myrank ) THEN
+         j = j + 1
+         col_map(j) = iegl(i)%id
+      ENDIF
+   ENDDO
 
    temp => tr_el(1,:,:)  ! temp from schism
    salt => tr_el(2,:,:)  ! salinity from schism
@@ -741,6 +739,9 @@ SUBROUTINE aed_set_up_schism_env(xlon_el, ylat_el)
 
       env(col)%longitude => xlon_el(col)
       env(col)%latitude  => ylat_el(col)
+
+      env(col)%col_num   => col_map(col)
+      col_map(col) = iegl(col)%id
 
       !# These are locally allocated but we can compute them
       env(col)%height        => lheights(:,col) ! layer heights (calculated)
@@ -822,8 +823,10 @@ SUBROUTINE schism_aed_init_models()
 !
 !-------------------------------------------------------------------------------
 !BEGIN
-!  print*,"schism_aed_init_models: myrank = ", myrank
+   print*,"###### schism_aed_init_models: myrank = ", myrank
    TPRINT "schism_aed_init_models with ", ne, " columns each with ", nvrt, "layers"
+!  print*,"###### schism_aed_init_models: myrank = ", myrank, " has ", ne, " elements, globally there's ",ne_global
+
    IF ( .NOT. inited ) RETURN
    IF ( ne <= 0 ) RETURN ! Nothing to do
 
@@ -880,10 +883,165 @@ SUBROUTINE schism_aed_init_models()
 #if DEBUG
    IF (display_minmax) CALL debug_max_min("schism_aed_init_models at step 0")
 #endif
+
+   IF ( init_values_file /= '' ) &
+       CALL set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
+
    TPRINT 'done schism_aed_init_models'
 END SUBROUTINE schism_aed_init_models
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+!###############################################################################
+SUBROUTINE set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
+!-------------------------------------------------------------------------------
+   USE aed_csv_reader
+!
+!ARGUMENTS
+!
+   CHARACTER(len=*),INTENT(in) :: init_values_file
+   AED_REAL,DIMENSION(:,:),INTENT(out) :: cc_hz      !# (v, col)
+   AED_REAL,DIMENSION(:,:),INTENT(out) :: cc_diag_hz !# (v, col)
+!
+!LOCALS
+   INTEGER :: unit, nccols, ccol
+   CHARACTER(len=32),POINTER,DIMENSION(:) :: csvnames
+   TYPE(AED_SYMBOL),DIMENSION(:),ALLOCATABLE :: values
+   TYPE(aed_variable_t),POINTER :: tv
+   INTEGER :: idx_col = 0, numv = 0, numd = 0, t
+   INTEGER :: av, v, d, sv, sd
+   INTEGER,DIMENSION(:),ALLOCATABLE :: vars, vmap
+   INTEGER,DIMENSION(:),ALLOCATABLE :: dvar, dmap
+   LOGICAL,DIMENSION(:),ALLOCATABLE :: vsheet, dsheet
+   LOGICAL :: meh
+!
+!BEGIN
+!-------------------------------------------------------------------------------
+   unit = aed_csv_read_header(init_values_file, csvnames, nccols)
+   IF (unit <= 0) RETURN !# No file found
+   print *,'    benthic AED var initialisation from file: '
+   print *,'        ', TRIM(init_values_file)
+
+   DO ccol=1,nccols
+      IF ( csvnames(ccol) == "ID" ) THEN
+         idx_col = ccol
+         EXIT
+      ENDIF
+   ENDDO
+
+   ALLOCATE(vars(nccols))   ; ALLOCATE(vmap(nccols))
+   ALLOCATE(dvar(nccols))   ; ALLOCATE(dmap(nccols))
+   ALLOCATE(vsheet(nccols)) ; ALLOCATE(dsheet(nccols))
+   ALLOCATE(values(nccols))
+   vmap = 0 ; dmap = 0
+
+   IF ( idx_col > 0 ) THEN
+      v = 0 ; sv = 0; d = 0; sd = 0
+      DO av=1,n_aed_vars
+         IF ( .NOT. aed_get_var(av, tv) ) STOP "ERROR getting variable info"
+         IF ( .NOT. ( tv%extern ) ) THEN  !#  dont do environment vars
+            IF (tv%diag) THEN
+               d = d + 1
+            ELSE
+               IF ( tv%sheet ) THEN
+                  sv = sv + 1
+               ELSE
+                  v = v + 1
+               ENDIF
+            ENDIF
+            DO ccol=1,nccols
+               IF ( same_str_icase(tv%name, csvnames(ccol)) ) THEN
+                  print *,'        - ', TRIM(tv%name)
+                  IF (tv%diag) THEN
+                     numd = numd + 1
+                     dmap(numd) = ccol
+                     dvar(numd) = d
+                     dsheet(numd) = tv%sheet
+                  ELSE
+                     numv = numv + 1
+                     vmap(numv) = ccol
+                     IF ( tv%sheet ) THEN
+                        vars(numv) = n_vars + sv
+                     ELSE
+                        vars(numv) = v
+                     ENDIF
+                     vsheet(numv) = tv%sheet
+                  ENDIF
+               ENDIF
+            ENDDO
+         ENDIF
+      ENDDO
+
+      DO WHILE ( aed_csv_read_row(unit, values) )
+         t = extract_integer(values(idx_col))
+         IF ( iegl(t)%rank == myrank ) THEN
+            DO v=1,numv
+               IF ( vmap(v) == 0 ) CYCLE
+               If ( vsheet(v) ) THEN
+                  cc_hz(vars(v), iegl(t)%id) = extract_double(values(vmap(v)))
+               ENDIF
+            ENDDO
+            DO v=1,numd
+               IF ( dmap(v) == 0 ) CYCLE
+               If ( vsheet(v) ) THEN
+                  cc_diag_hz(dvar(v), iegl(t)%id) = extract_double(values(dmap(v)))
+               ENDIF
+            ENDDO
+         ENDIF
+      ENDDO
+   ENDIF
+
+   meh = aed_csv_close(unit) !# don't care if close fails
+
+   IF (ASSOCIATED(csvnames)) DEALLOCATE(csvnames)
+   IF (ALLOCATED(values))    DEALLOCATE(values)
+   IF (ALLOCATED(vars))      DEALLOCATE(vars)
+   IF (ALLOCATED(vmap))      DEALLOCATE(vmap)
+   IF (ALLOCATED(dvar))      DEALLOCATE(dvar)
+   IF (ALLOCATED(dmap))      DEALLOCATE(dmap)
+
+!-------------------------------------------------------------------------------
+CONTAINS
+
+   !############################################################################
+   CHARACTER FUNCTION tolower(c)
+   !----------------------------------------------------------------------------
+   !ARGUMENTS
+      CHARACTER, INTENT(in) :: c
+   !LOCALS
+      INTEGER :: ic
+   !BEGIN
+   !----------------------------------------------------------------------------
+      ic = ichar(c)
+      if (ic >= 65 .and. ic < 90) ic = (ic+32)
+      tolower = char(ic)
+   END FUNCTION tolower
+   !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   !############################################################################
+   FUNCTION same_str_icase(a, b) RESULT(res)
+   !----------------------------------------------------------------------------
+   !ARGUMENTS
+      CHARACTER(len=*), INTENT(in) :: a,b
+   !LOCALS
+      INTEGER :: len, i
+      LOGICAL :: res
+   !
+   !BEGIN
+   !----------------------------------------------------------------------------
+      res = .FALSE.
+      len = LEN_TRIM(a)
+      IF ( len /= LEN_TRIM(b) ) RETURN
+      DO i=1, len
+         if (tolower(a(i:i)) /= tolower(b(i:i)) ) RETURN
+      ENDDO
+      res = .TRUE.
+   END FUNCTION same_str_icase
+   !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+END SUBROUTINE set_initial_from_file
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !# end of init
 !#            -----------------------------------------------------
 !# start of step
@@ -903,7 +1061,8 @@ SUBROUTINE schism_aed_do(stepno)
 !
 !-------------------------------------------------------------------------------
 !BEGIN
-!  print*,"schism_aed_do: myrank = ", myrank
+!  print*,"###### schism_aed_do: myrank = ", myrank
+
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
 
@@ -921,20 +1080,102 @@ SUBROUTINE schism_aed_do(stepno)
    !# update our copies of the geometry and environment
    CALL schism_to_aed_env()
 
-! not yet
-!  doMobilityP => doMobilityF
-!  CALL aed_set_mobility(doMobilityP)
-
    IF (depress_clutch) RETURN
 
    CALL aed_run_model(n_cols, n_layers, .TRUE.)
 
    CALL CPU_TIME(ltr)
    IF ( MOD(stepno, debug_interval) == 1 ) &
-      print '("schism_aed_do[",i0,"] step ", i8, " done in : ",f12.3," seconds")', myrank, stepno, ltr-now
+      WRITE(*,'(A,"schism_aed_do[",i0,"] step ", i8, " done in : ",f12.3," seconds")',advance="no") 13, myrank, stepno, ltr-now
    time_aed_do = time_aed_do + ltr-now
 END SUBROUTINE schism_aed_do
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+!###############################################################################
+SUBROUTINE doMobilityF(N,dt,H,A,wvel,min_C,mcc)
+!-------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
+!ARGUMENTS
+   INTEGER,INTENT(in)     :: N       !# number of vertical layers
+   AED_REAL,INTENT(in)    :: dt      !# time step (s)
+   AED_REAL,INTENT(in)    :: H(*)    !# layer thickness (m)
+   AED_REAL,INTENT(in)    :: A(*)    !# layer areas (m2)
+   AED_REAL,INTENT(in)    :: wvel(*) !# vertical advection speed (m/s)
+   AED_REAL,INTENT(in)    :: min_C   !# minimum allowed cell concentration
+   AED_REAL,INTENT(inout) :: mcc(*)  !# cell concentration
+!
+!LOCALS
+!
+!CONSTANTS
+   INTEGER,PARAMETER :: itmax=100
+!
+!LOCALS
+   INTEGER  :: i,k,it
+   AED_REAL :: step_dt
+   AED_REAL :: Yc
+   AED_REAL :: c,cmax
+   AED_REAL :: cu(N+1)
+   AED_REAL :: Fsed
+!
+!-------------------------------------------------------------------------------
+!BEGIN
+   Fsed = 0. !# initialize sediment settling fluxes with zero
+   cu   = 0. !# initialize interface fluxes with zero
+   cmax = 0. !# initialize maximum Courant number
+
+   !# compute maximum Courant number
+   !      calculated as number of layers that the particles will travel based
+   !      on settling or buoyancy velocity.
+   !      This number is then used to split the vertical movement
+   !      calculations to limit movement across a single layer
+   DO k=2,N
+      !# sinking particles
+      c=abs(wvel(k-1))*dt/(0.5*(h(k-1)+h(k)))
+      IF (c > cmax) cmax=c
+      !# rising particles
+      c=abs(wvel(k))*dt/(0.5*(h(k-1)+h(k)))
+      IF (c > cmax) cmax=c
+   ENDDO
+
+   it=min(itmax,int(cmax)+1)
+   step_dt = dt / float(it);
+
+   !# splitting loop
+   DO i = 1,it
+      !# vertical loop
+      DO k=N,2,-1
+         !# compute the slope ratio
+         IF (wvel(k) > 0.) THEN !# Particle is rising
+            Yc=mcc(k)       !# central value
+         ELSE !# negative speed Particle is sinking
+            Yc=mcc(k-1)     !# central value
+         ENDIF
+
+         !# compute the limited flux
+         cu(k)=wvel(k) * Yc
+      ENDDO
+
+      !# do the upper boundary conditions
+      cu(1) = zero_       !# limit flux into the domain from atmosphere
+
+      !# do the lower boundary conditions
+      IF (wvel(N) > 0.) THEN !# Particle is rising
+         cu(N+1) = 0.  !flux from benthos is zero
+      ELSE  !# Particle is settling
+         cu(N+1) = wvel(N)*mcc(N)
+         Fsed = cu(N+1) * step_dt !# flux settled into the sediments per sub time step
+      ENDIF
+      !# do the vertical advection step including positive migration
+      !# and settling of suspended matter.
+      DO k=N,1,-1
+          mcc(k)=mcc(k) - step_dt * ((cu(k) - cu(k+1)) / h(k))
+      ENDDO
+   ENDDO !# end of the iteration loop
+   Fsed = Fsed / dt !# Average flux rate for full time step used in AED
+END SUBROUTINE doMobilityF
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 !# end of step
 !#                   ------------------------------
@@ -1200,6 +1441,12 @@ SUBROUTINE schism_aed_write_output(time, it, nspool)
 
 !  CALL mpi_waitall(nsend_varout,srqst7(1:nsend_varout),MPI_STATUSES_IGNORE,ierr)
 
+   IF ( ts_write_count < ts_write_delay ) THEN
+      ts_write_count = ts_write_count + 1
+      RETURN
+   ENDIF
+
+   ts_write_count = 0
 
    CALL CPU_TIME(now)
 !  TPRINTF '("schism_aed_write_output[",i0,"]")', myrank

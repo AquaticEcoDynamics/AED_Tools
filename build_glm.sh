@@ -11,11 +11,16 @@ export CWD=`dirname ${CURDIR}`
 export WITH_AED=true
 export AED=true
 export WITH_AED_PLUS=false
+if [ -d ${CWD}/libaed-dev ] ; then
+  export WITH_AED_PLUS=true
+fi
 export WITH_API=true
 export API=true
 export USE_DL=false
 export WITH_PLOTS=true
 export WITH_XPLOTS=true
+export WITH_MPI=false
+
 
 export PLOTDIR=${CWD}/libplot
 export UTILDIR=${CWD}/libutil
@@ -54,6 +59,12 @@ while [ $# -gt 0 ] ; do
       ;;
     --fence)
       export FENCE=true
+      ;;
+    --with-aed)
+      export WITH_AED=true
+      ;;
+    --without-aed)
+      export WITH_AED=false
       ;;
     --with-aed-plus)
       export WITH_AED_PLUS=true
