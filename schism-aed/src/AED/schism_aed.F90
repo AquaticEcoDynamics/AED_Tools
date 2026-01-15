@@ -292,7 +292,7 @@ MODULE schism_aed
    INTEGER :: debug_interval = 10000
    INTEGER :: debug_col = 1
 
-   INTEGER :: ts_write_delay = 1
+   INTEGER :: ts_write_delay = 0
 
 !  %% END NAMELIST   %%  /aed_config/
 !#===================================================

@@ -88,7 +88,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index 655685b7..cd86f300 100644
+index d90cd681..cea1f14b 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -158,7 +158,7 @@ index 655685b7..cd86f300 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 6294b79a..307a58c7 100644
+index 2fed165f..4ea989cc 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -172,7 +172,7 @@ index 6294b79a..307a58c7 100644
  #ifdef USE_ICM
        use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
  #endif
-@@ -7699,6 +7703,10 @@
+@@ -7698,6 +7702,10 @@
          if(myrank==0) write(16,*) 'Done FABM calculations'
  #endif
  
@@ -183,7 +183,7 @@ index 6294b79a..307a58c7 100644
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9153,6 +9161,9 @@
+@@ -9152,6 +9160,9 @@
          noutput=noutput+1
  #endif
  
@@ -193,7 +193,7 @@ index 6294b79a..307a58c7 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9718,6 +9729,14 @@
+@@ -9717,6 +9728,14 @@
          enddo !i
  #endif
  
@@ -208,7 +208,7 @@ index 6294b79a..307a58c7 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -10015,6 +10034,12 @@
+@@ -10014,6 +10033,12 @@
          enddo !i
  #endif
  
@@ -221,7 +221,7 @@ index 6294b79a..307a58c7 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10117,7 +10142,7 @@
+@@ -10116,7 +10141,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -230,7 +230,7 @@ index 6294b79a..307a58c7 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10195,6 +10220,12 @@
+@@ -10194,6 +10219,12 @@
        end if
  #endif
  
