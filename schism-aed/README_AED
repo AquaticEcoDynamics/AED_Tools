@@ -2,22 +2,23 @@
 #
 # This diff patches :
 #
-#       schism/src/Core/schism_glbl.F90
+#       schism/src/CMakeLists.txt             - add the AED target
 #
-#       schism/src/Hydro/schism_init.F90
-#       schism/src/Hydro/schism_step.F90
-#       schism/src/Hydro/schism_finalize.F90
+#       schism/src/Core/schism_glbl.F90       - bump the # of available tracers to allow for aed
 #
-#       schism/cmake/SCHISM.local.build
-#       schism/src/CMakeLists.txt
+#       schism/src/Core/scribe_io.F90         - add calls for scribe_write of aed
+#       schism/src/Hydro/schism_finalize.F90  - add a call for aed_finalise
+#       schism/src/Hydro/schism_init.F90      - add call for aed_initialisation, scribe writing initialisation etc
+#       schism/src/Hydro/schism_step.F90      - add calls to do_aed, scribe write aed writing diag vars
+#
+#       schism/src/Utility/Combining_Scripts/CMakeLists.txt  - add a target for aed
+#       schism/src/Utility/Combining_Scripts/combine_output11.f90      - support for aed stuff
+#       schism/src/Utility/Combining_Scripts/combine_output11_MPI.F90  - support for aed stuff
 #
 # schism_glbl.F90 patches the number of available tracers from 12 to 13 to support AED.
 # The other 3 source patches add calls so the aed for initialisation, execution, and cleanup.
 # These patches are bounded by #ifdef USE_AED ... #endif statements the USE_AED symbol 
 # is exported by the make system
-#
-# It may be that there are more points for useful entry, these so far were drived using
-# cosine and fabm as examples.
 #
 # Other changes to the schism source tree are made from the build_schism.sh file which patches
 # cmake input files to turn on/off modules (in our case set USE_AED to ON).
@@ -50,104 +51,7 @@
 #
 #   schism_aed_write_output_netcdf(time=time)
 #   schism_aed_close_output_netcdf()
-#     Not sure what happened to the netcdf creation, I thought I had it in there....
 #
 # The current iteration of this file uses the libaed-api which is the simplified
-# interface to the aed libraries. Unfortunately it has had an issue where some allocated memory
-# is being used beyond its bounds and breaks malloc. This is proving difficult to track down.
-# To get around this issue I am currently working on a version of schism_aed that goes directly
-# to the libaed stuff which is more complicated and untidy but hopefully will get us moving again.
+# interface to the aed libraries.
 #
-# Running tests
-# =============
-#
-# Firstly, schism is continuing development and requirements change. Below there are the patches to param.nml required
-# to run CORIE [OK, the run time is not a required change]
-# 
-# Also the format of file names for sflux has changed from :
-# 
-#   sflux_air_1.0001.nc
-# to
-#   sflux_air_1.1.nc
-# 
-# I fudged it with sym-links using the renamer script :
-#
-# m renamer.csh 
-# -----
-# #!/bin/tcsh
-# 
-# foreach fl ( *.00??.nc )
-#   set fr=$fl:r
-#   set fb=$fr:r
-#   set nm=$fr:e
-#   set dig=`echo $nm | bc`
-#   #echo $fl $fr $fb $nm $dig
-#   ln -s $fl $fb.$dig.nc
-# end
-# 
-# exit 0
-# -----
-# 
-# Now, for the AED bits : 
-# 1) we need an aed.nml file
-# 2) then a file like AED_hvar_1.ic presumably one for each variable.
-#    not knowing what it should contain, I copied GEN_hvar_1.ic from Test_GEN_MassConsv
-#    then modified the contents to match the CORIE geometry
-# 
-# 
-# \diff -NaBur schism_verification_tests/Test_CORIE/param.nml Test_CORIE/param.nml
-# 
---- schism_verification_tests/Test_CORIE/param.nml	2024-10-25 13:29:10.000000000 +0800
-+++ Test_CORIE/param.nml	2025-05-31 21:08:26.531692860 +0800
-@@ -16,7 +16,8 @@
-   ibc = 0 !Baroclinic option
-   ibtp = 1 
- 
--  rnday = 28 !total run time in days
-+ !rnday = 28 !total run time in days
-+  rnday = 3 !total run time in days
-   dt = 90. !Time step in sec
- 
- ! Grid for WWM (USE_WWM)
-@@ -34,6 +35,7 @@
-   ihfskip = 960 !stack spool; every ihfskip steps will be put into 1_*, 2_*, etc...
- 
-   nbins_veg_vert = 1
-+  nmarsh_types = 1
- /
- 
- &OPT
-@@ -115,7 +117,7 @@
- ! Hotstart option. 0: cold start; 1: hotstart with time reset to 0; 2: 
- ! continue from the step in hotstart.nc
- !-----------------------------------------------------------------------
--  ihot = 1
-+  ihot = 0
- 
- !-----------------------------------------------------------------------
- ! Hydraulic model option. If ihydraulics/=0, hydraulics.in 
-@@ -253,6 +255,7 @@
-   flag_ic(9) = 1 !FIB
-   flag_ic(10) = 1 !TIMOR
-   flag_ic(11) = 1 !FABM
-+  flag_ic(13) = 0 !AED
- 
- !  ic_GEN = 1 !user defined module
- !  ic_AGE = 1 !Age
-@@ -402,7 +405,7 @@
- ! If isconsv=1, need to compile with precip/evap module turned on.
- !-----------------------------------------------------------------------
-   ihconsv = 1 !heat exchange option
--  isconsv = 0 !evaporation/precipitation model
-+! isconsv = 0 !evaporation/precipitation model
- 
- !-----------------------------------------------------------------------
- ! Turbulence closure.
-@@ -451,6 +454,7 @@
-   inu_tr(9) = 0 !FIB
-   inu_tr(10) = 0 !TIMOR 
-   inu_tr(11) = 0 !FABM 
-+  inu_tr(13) = 0 !AED 
- 
-   vnh1 = 400 !vertical nudging depth 1
-   vnf1 = 0. !vertical relax \in [0,1]

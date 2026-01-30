@@ -17,17 +17,18 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-for dir in gfortran ifort ifx windows ; do
-
-  cd $dir
-  /bin/rm -rf include bin lib share etc cmake\*
-  cd ..
-
-done
-
 if [ "$SQUEEKY" = "true" ] ; then
+  for dir in gfortran ifort ifx windows ; do
+    cd $dir
+    /bin/rm -rf include bin lib share etc cmake\*
+    cd ..
+  done
+
   cd sources
   ./clean_all.sh --squeeky
+else
+  cd sources
+  ./clean_all.sh
 fi
 
 exit 0

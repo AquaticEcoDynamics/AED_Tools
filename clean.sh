@@ -16,6 +16,9 @@ while [ $# -gt 0 ] ; do
     --ancillary)
       export DO_ANC=true
       ;;
+    --no-ancillary)
+      export DO_ANC=false
+      ;;
     --gfort)
       export FC=gfortran
       ;;

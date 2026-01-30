@@ -12,6 +12,7 @@ binaries
 fabm-git
 fabm-schism
 schism
+modflow6
 gotm-*
 *-bak
 *.mod

@@ -27,6 +27,7 @@ GETELC="false"
 GETSWN="false"
 GETPHQ="false"
 GETSHZ="false"
+GETMODF="false"
 
 if [ $# = 0 ] ; then
   # The default case is to just update
@@ -98,6 +99,9 @@ while [ $# -gt 0 ] ; do
       ;;
     schism)
       GETSHZ="true"
+      ;;
+    modflow)
+      GETMODF="true"
       ;;
     aed2)
       GETAED2="true"
@@ -272,6 +276,20 @@ if [ "$GETSHZ" = "true" ] ; then
     src='schism'
     echo "Updating $src from " `grep -w url $src/.git/config`
     cd schism
+    git pull
+    cd ..
+  fi
+fi
+
+if [ "$GETMODF" = "true" ] ; then
+  count=$((count+1))
+  if [ ! -d modflow6 ] ; then
+    GITHOST=https://github.com/MODFLOW-ORG/
+    fetch_it modflow6
+  else
+    src='modflow6'
+    echo "Updating $src from " `grep -w url $src/.git/config`
+    cd modflow6
     git pull
     cd ..
   fi
