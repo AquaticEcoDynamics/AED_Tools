@@ -149,11 +149,9 @@ ${MAKE} -f Makefile || exit 1
 DCAEDYMDIR=`pwd`
 PARAMS="${PARAMS} CAEDYMDIR=${DCAEDYMDIR}"
 
-echo build caedym_src_v4
-cd ${CURDIR}/caedym_src_v4
+echo build elcom_sed
+cd ${CURDIR}/elcom_sed
 ${MAKE} -f Makefile || exit 1
-DCAEDYM4DIR=`pwd`
-PARAMS="${PARAMS} CAEDYM4DIR=${DCAEDYM4DIR}"
 
 if [ -x ${CURDIR}/external/FoX-4.1.2/FoX-config ] ; then
   echo FoX already built

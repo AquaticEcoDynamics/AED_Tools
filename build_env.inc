@@ -82,15 +82,26 @@ if [ "$OSTYPE" = "Msys" ] ; then
   export PATH="$PATH:`pwd`/ancillary/windows/bin"
 fi
 
+OMPIBASE=
 BINDIR=`which ompi_info`
 if [ "$BINDIR" != "" ] ; then
   BINDIR=`dirname $BINDIR`
-  OMPIBASE=`dirname $BINDIR`
+  if [ "$BINDIR" != "" ] ; then
+    OMPIBASE=`dirname $BINDIR`
+  fi
+fi
+if [ "$OMPIBASE" = "" ] ; then
+  echo no open-mpi found
 fi
 BINDIR=`which nc-config`
 if [ "$BINDIR" != "" ] ; then
   BINDIR=`dirname $BINDIR`
-  NCDFCBASE=`dirname $BINDIR`
+  if [ "$BINDIR" != "" ] ; then
+    NCDFCBASE=`dirname $BINDIR`
+  fi
+fi
+if [ "$NCDFCBASE" = "" ] ; then
+  echo no netcdf found
 fi
 unset BINDIR
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
@@ -100,14 +111,16 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
 fi
 if [ "$BINDIR" = "" ] ; then
   BINDIR=`which nf-config`
-  BINDIR=`dirname $BINDIR`
+  if [ "$BINDIR" != "" ] ; then
+    BINDIR=`dirname $BINDIR`
+  fi
 fi
 if [ "$BINDIR" != "" ] ; then
   NF_FC=`$BINDIR/nf-config --fc`
   if [ `basename $NF_FC` = ${FC} ] ; then
     NCDFFBASE=`dirname $BINDIR`
   else
-    echo fortran compiler mismatch on nf-config
+    echo fortran compiler mismatch on nf-config "( $NF_FC != $FC )"
   fi
 fi
 unset BINDIR

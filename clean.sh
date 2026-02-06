@@ -129,6 +129,13 @@ if [ -d ELCOM ] ; then
   cd "$CWD"
 fi
 
+if [ -d modflow6 ] ; then
+  echo cleaning modflow6
+  cd modflow6/make
+  make clean
+  cd "$CWD"
+fi
+
 if [ "$DO_ANC" = "true" ] ; then
   cd ancillary
   if [ "$SQUEEKY" = "true" ] ; then

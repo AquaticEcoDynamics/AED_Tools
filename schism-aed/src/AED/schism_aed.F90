@@ -1099,11 +1099,11 @@ SUBROUTINE doMobilityF(N,dt,H,A,wvel,min_C,mcc)
 !ARGUMENTS
    INTEGER,INTENT(in)     :: N       !# number of vertical layers
    AED_REAL,INTENT(in)    :: dt      !# time step (s)
-   AED_REAL,INTENT(in)    :: H(*)    !# layer thickness (m)
-   AED_REAL,INTENT(in)    :: A(*)    !# layer areas (m2)
-   AED_REAL,INTENT(in)    :: wvel(*) !# vertical advection speed (m/s)
+   AED_REAL,INTENT(in)    :: H(:)    !# layer thickness (m)
+   AED_REAL,INTENT(in)    :: A(:)    !# layer areas (m2)
+   AED_REAL,INTENT(in)    :: wvel(:) !# vertical advection speed (m/s)
    AED_REAL,INTENT(in)    :: min_C   !# minimum allowed cell concentration
-   AED_REAL,INTENT(inout) :: mcc(*)  !# cell concentration
+   AED_REAL,INTENT(inout) :: mcc(:)  !# cell concentration
 !
 !LOCALS
 !
