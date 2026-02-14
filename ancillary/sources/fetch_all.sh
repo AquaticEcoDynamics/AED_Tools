@@ -20,8 +20,8 @@ while [ $# -gt 0 ] ; do
       export GETCDFC=true
       export GETCDFCE=true
       export GETCDFF=true
-      export GETMPICH=true
-      export GETOMPI=true
+#     export GETMPICH=true
+#     export GETOMPI=true
       export GET_GD=true
       ;;
     --unpack)

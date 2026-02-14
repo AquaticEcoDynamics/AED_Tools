@@ -16,8 +16,11 @@ export FC=gfortran
 export CC=gcc
 export MAKE=make
 
-export WITH_AED=false
+export WITH_AED=true
 export WITH_AED_PLUS=false
+if [ -d ${CWD}/libaed-dev ] ; then
+  export WITH_AED_PLUS=true
+fi
 
 ARGS=""
 while [ $# -gt 0 ] ; do

@@ -100,3 +100,4 @@ unpack_src () {
    cd $CWD
    echo '****************' done building in $NETCDFF
 
+exit 0

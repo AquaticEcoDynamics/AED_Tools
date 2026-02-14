@@ -33,6 +33,9 @@
 #define AED_MODL_NO 13
 #define NC_FILLER    (9.9692099683868690d+36)
 
+!# Make output files smaller - at the cost of accuracy
+#define NF_REAL_TYPE nf90_float
+!#define NF_REAL_TYPE nf90_double
 
 !#----------------------------------------------------------------------------#!
 !# CAB: Some DEBUG bits want DEBUG to be non-zero ; some want > 1
@@ -1222,7 +1225,7 @@ SUBROUTINE schism_aed_create_output(stage)
 
    CALL check_nc_error( nf90_def_dim(ncid, 'time', NF90_UNLIMITED, time_dim) )
 
-   CALL check_nc_error( nf90_def_var(ncid, 'time', nf90_double, (/ time_dim /), time_id) )
+   CALL check_nc_error( nf90_def_var(ncid, 'time', NF_REAL_TYPE, (/ time_dim /), time_id) )
    CALL check_nc_error( nf90_put_att(ncid, time_id, 'i23d', 0) ) !set i23d flag
    CALL check_nc_error( nf90_put_att(ncid, time_id, "ivs", 1) )
    CALL check_nc_error( nf90_put_att(ncid, time_id, 'units', 'seconds') )
@@ -1399,7 +1402,7 @@ SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, tim
       IF ( aed_get_var(i, tv) ) THEN
          IF ( .NOT. tv%sheet .AND. tv%var_type == v_type ) THEN
             !# only for diag vars that are not sheet
-            externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 3, dims(1:3))
+            externalid(i) = new_nc_variable(ncid, TRIM(tv%name), NF_REAL_TYPE, 3, dims(1:3))
             CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 5)
          ENDIF
       ENDIF
@@ -1412,7 +1415,7 @@ SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, tim
       IF ( aed_get_var(i, tv) ) THEN
          IF ( tv%sheet .AND. tv%var_type == v_type ) THEN
             !# only for diag sheet vars
-            externalid(i) = new_nc_variable(ncid, TRIM(tv%name), nf90_double, 2, dims(1:2))
+            externalid(i) = new_nc_variable(ncid, TRIM(tv%name), NF_REAL_TYPE, 2, dims(1:2))
             CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 4)
          ENDIF
       ENDIF
@@ -1453,12 +1456,16 @@ SUBROUTINE schism_aed_write_output(time, it, nspool)
 
    IF ( MOD(it-nspool, ihfskip) == 0) THEN
       IF (ncid > 0) THEN
+!        print*,"close ",myrank,ncid,ts_counter
          status = nf90_close(ncid)
          ncid = -1
       ENDIF
    ENDIF
-   IF (ncid < 0) &
+   IF (ncid < 0) THEN
       CALL schism_aed_create_output(((it-1)/ihfskip+1))
+      ts_counter = 0
+!     print*,"created ",myrank, ((it-1)/ihfskip+1),ncid,ts_counter
+   ENDIF
 
    ts_counter = ts_counter + 1
 
@@ -1466,6 +1473,10 @@ SUBROUTINE schism_aed_write_output(time, it, nspool)
    CALL check_nc_error( nf90_put_var(ncid, time_id, (/ time /),                &
                                        start=(/ ts_counter /), count=(/ 1 /) ) )
 
+   !# We need the AED state variables in the diagnostics because they are at the
+   !# elements, the separate AED state variable files are at nodes. We made a
+   !# decision early on to do N budgets on elements.  Removing them from
+   !# diagnostic files means we need to update our post-processing scripts as well.
    CALL schism_aed_write_output_split(time, V_STATE)
    CALL schism_aed_write_output_split(time, V_DIAGNOSTIC)
 

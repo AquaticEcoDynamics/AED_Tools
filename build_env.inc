@@ -117,7 +117,7 @@ if [ "$BINDIR" = "" ] ; then
 fi
 if [ "$BINDIR" != "" ] ; then
   NF_FC=`$BINDIR/nf-config --fc`
-  if [ `basename $NF_FC` = ${FC} ] ; then
+  if [ "`basename $NF_FC .exe`" = "${FC}" ] ; then
     NCDFFBASE=`dirname $BINDIR`
   else
     echo fortran compiler mismatch on nf-config "( $NF_FC != $FC )"
@@ -146,7 +146,7 @@ if [ "${NCDFFBASE}" = "" ]; then
   else
     if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.mod ] ; then
       cd ${BASEDIR}/ancillary/${FC}
-      ./build.sh
+      ./build.sh || exit 1
     fi
     export NCDFFBASE=${BASEDIR}/ancillary/${FC}
   fi

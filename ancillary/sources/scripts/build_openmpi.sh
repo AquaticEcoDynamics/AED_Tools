@@ -51,15 +51,15 @@ if [ $? = 0 ] ; then
   if [ $? = 0 ] ; then
     make install
   else
-    echo '****' build failed for $LIBGD
+    echo '****' build failed for $OMPI
     exit 1
   fi
 else
-  echo '****' config failed for $LIBGD
+  echo '****' config failed for $OMPI
   exit 1
 fi
 cd ..
-echo '****************' done building in $LIBGD
+echo '****************' done building in $OMPI
 
 cd $CWD
 summary $OMPI

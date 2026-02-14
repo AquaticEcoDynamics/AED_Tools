@@ -34,8 +34,8 @@ while [ $# -gt 0 ] ; do
       export DO_CDFCE=true
       export DO_CDFC=true
       export DO_CDFF=true
-      export DO_MPICH=true
-      export DO_OMPI=true
+#     export DO_MPICH=true
+#     export DO_OMPI=true
       export DO_GD=true
       ./fetch_all.sh $1
       ;;
@@ -78,21 +78,21 @@ done
 
 if [ "$DO_CDFC" = "true" ] ; then
   if [ "$DO_CDFCE" = "true" ] ; then
-    ./scripts/build_extras.sh
+    ./scripts/build_extras.sh || exit 1
   fi
-  ./scripts/build_netcdf_c.sh
+  ./scripts/build_netcdf_c.sh || exit 1
 fi
 if [ "$DO_CDFF" = "true" ] ; then
-  ./scripts/build_netcdf_f.sh
+  ./scripts/build_netcdf_f.sh || exit 1
 fi
 if [ "$DO_MPICH" = "true" ] ; then
-  ./scripts/build_mpich.sh
+  ./scripts/build_mpich.sh || exit 1
 fi
 if [ "$DO_OMPI" = "true" ] ; then
-  ./scripts/build_openmpi.sh
+  ./scripts/build_openmpi.sh || exit 1
 fi
 if [ "$DO_GD" = "true" ] ; then
-  ./scripts/build_gd.sh
+  ./scripts/build_gd.sh || exit 1
 fi
 
 exit 0

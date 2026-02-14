@@ -95,6 +95,7 @@ if [ "$CURL" != "" ] ; then
            -DCMAKE_FIND_ROOT_PATH="${FINALDIR}" \
            -DBUILD_SHARED_LIBS:BOOL=OFF \
            -DBUILD_STATIC_CURL:BOOL=ON \
+           -DCURL_USE_LIBPSL:BOOL=OFF \
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DZLIB_LIBRARY_RELEASE:FILEPATH="${FINALDIR}/lib/${LIBZA}" \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-curl 2>&1

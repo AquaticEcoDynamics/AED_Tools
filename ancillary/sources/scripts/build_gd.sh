@@ -4,7 +4,7 @@ if [ ! -f "$FINALDIR/lib/${LIBZA}" ] ; then
   ZLIB="zlib-$ZLIBV"
 fi
 
-FREETYPE2=freetype-${FRREETYPE2V}
+FREETYPE2=freetype-${FREETYPE2V}
 JPEG=jpegsrc.v${JPEGV}
 LIBPNG=libpng-${LIBPNGV}
 LIBGD=lib${GD}
@@ -152,6 +152,8 @@ if [ "$LIBGD" != "" ] ; then
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH="$FINALDIR" \
            -DCMAKE_BUILD_TYPE:STRING=Release \
+           -DBUILD_SHARED_LIBS:BOOL=OFF \
+           -DBUILD_STATIC_LIBS:BOOL=ON \
            -DENABLE_JPEG:BOOL=ON \
            -DENABLE_PNG:BOOL=ON  \
            -DENABLE_FREETYPE:BOOL=ON \
@@ -165,8 +167,6 @@ if [ "$LIBGD" != "" ] ; then
   fi
 
 # For some reason including these builds a lib that is missing symbols on windows
-#          -DBUILD_SHARED_LIBS:BOOL=OFF \
-#          -DBUILD_STATIC_LIBS:BOOL=ON \
 
   cmake --build . --clean-first --config Release #--target INSTALL
   if [ $? != 0 ] ; then

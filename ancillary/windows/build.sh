@@ -10,7 +10,7 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
     # ifort config scripts wont work with /bin/sh
     # so we restart using bash
     if [ "$start_sh" = "/bin/sh" ] ; then
-      # first go up one dir because we went into ELCOM dir
+      # first go up one dir because we went into windows dir
       cd ..
       /bin/bash $0 $ARGS
       exit $?
@@ -38,13 +38,13 @@ if [ ! -d lib ] ; then
 else
   BFLAGS=
   if [ ! -f lib/libnetcdf.dll.a ] ; then
-    BFLAGS=$BFLAGS --need-netcdf_c --need_netcdf_c
+    BFLAGS="$BFLAGS --need-netcdf_c --need_netcdf_c"
   fi
   if [ ! -f bin/libgd.dll ] ; then
-    BFLAGS=$BFLAGS --need-netcdf_f
+    BFLAGS="$BFLAGS --need-netcdf_f"
   fi
   if [ ! -f bin/libgd.dll ] ; then
-    BFLAGS=$BFLAGS --need-gd
+    BFLAGS="$BFLAGS --need-gd"
   fi
 fi
 

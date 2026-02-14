@@ -59,3 +59,5 @@
   cmake -P cmake_install.cmake
 
   cd $CWD
+
+exit 0

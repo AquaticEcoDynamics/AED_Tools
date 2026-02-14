@@ -17,7 +17,7 @@
 #. ./versions.inc
 
 export ZLIB=zlib-${ZLIBV}
-export FREETYPE2=freetype-${FRREETYPE2V}
+export FREETYPE2=freetype-${FREETYPE2V}
 export JPEG=jpegsrc.v${JPEGV}
 export LIBPNG=libpng-${LIBPNGV}
 export LIBGD=lib${GD}
@@ -34,7 +34,7 @@ fi
 if [ ! -f ${FREETYPE2}.tar.gz ] ; then
    curl ${MINUS_K} -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
    if [ $? != 0 ] ; then
-      curl  ${MINUS_K} -L https://ixpeering.dl.sourceforge.net/project/freetype/freetype2/${FRREETYPE2V}/${FREETYPE2}.tar.xz -o ${FREETYPE2}.tar.xz
+      curl  ${MINUS_K} -L https://ixpeering.dl.sourceforge.net/project/freetype/freetype2/${FREETYPE2V}/${FREETYPE2}.tar.xz -o ${FREETYPE2}.tar.xz
       if [ $? != 0 ] ; then
         echo failed to fetch ${FREETYPE2}.tar.gz
       else
