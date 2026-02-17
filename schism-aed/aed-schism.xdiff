@@ -88,7 +88,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index f698dfea..6752f097 100644
+index 3cbf604d..fcdaa697 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -133,7 +133,7 @@ index f698dfea..6752f097 100644
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6709,6 +6723,10 @@
+@@ -6710,6 +6724,10 @@
        enddo !i
  #endif
  
@@ -144,7 +144,7 @@ index f698dfea..6752f097 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6944,6 +6962,12 @@
+@@ -6945,6 +6963,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -158,7 +158,7 @@ index f698dfea..6752f097 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 3cc99bdf..c38eed45 100644
+index 4baad399..f4338b4b 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -193,7 +193,7 @@ index 3cc99bdf..c38eed45 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9726,6 +9737,14 @@
+@@ -9725,6 +9736,14 @@
          enddo !i
  #endif
  
@@ -208,7 +208,7 @@ index 3cc99bdf..c38eed45 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -10023,6 +10042,12 @@
+@@ -10022,6 +10041,12 @@
          enddo !i
  #endif
  
@@ -221,7 +221,7 @@ index 3cc99bdf..c38eed45 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10125,7 +10150,7 @@
+@@ -10124,7 +10149,7 @@
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -230,7 +230,7 @@ index 3cc99bdf..c38eed45 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10203,6 +10228,12 @@
+@@ -10202,6 +10227,12 @@
        end if
  #endif
  

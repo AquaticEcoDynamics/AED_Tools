@@ -300,6 +300,18 @@ MODULE schism_aed
 !  %% END NAMELIST   %%  /aed_config/
 !#===================================================
 
+!#===================================================
+!  %% NAMELIST   %%  /aed_save_vars/
+
+   INTEGER :: n_vars_save = -1
+   CHARACTER(len=64),DIMENSION(100) :: vars_save
+
+   INTEGER :: n_d_vars_save = -1
+   CHARACTER(len=64),DIMENSION(200) :: d_vars_save
+
+!  %% END NAMELIST   %%  /aed_save_vars/
+!#===================================================
+
    INTEGER :: ncid = -1  !# nc file id
    INTEGER,DIMENSION(:),ALLOCATABLE :: externalid
    INTEGER,DIMENSION(:),ALLOCATABLE :: zone_id
@@ -327,7 +339,7 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 !
 !LOCALS
    CHARACTER(len=80) :: fname
-   INTEGER :: namlst, status
+   INTEGER :: namlst, status, i
    PROCEDURE(aed_mobility_fn_t),POINTER :: doMobilityP
 !
    NAMELIST /aed_config/ solution_method, link_bottom_drag,                    &
@@ -347,6 +359,9 @@ SUBROUTINE schism_aed_configure_models(ntracers)
                          display_minmax,                                       &
                          depress_clutch, depress_clutch2, ts_write_delay,      &
                          debug_interval, debug_col
+
+    NAMELIST /aed_vars_save/ n_vars_save, vars_save,                           &
+                             n_d_vars_save, d_vars_save
 !
 !-------------------------------------------------------------------------------
 !BEGIN
@@ -366,7 +381,22 @@ SUBROUTINE schism_aed_configure_models(ntracers)
      print*,"Cannot read aed_config from file ", TRIM(fname)
      RETURN
    ENDIF
+
+   READ(namlst, nml=aed_vars_save, iostat=status)
+
    CLOSE(namlst);
+
+ IF (myrank == 0) THEN
+    print*, "SSSSS n_vars_save = ", n_vars_save
+    DO i=1,n_vars_save
+       print*, "SSSSS vars_save(",i,") = ",vars_save(i)
+    ENDDO
+    print*, "DDDDD n_d_vars_save = ", n_d_vars_save
+    DO i=1,n_d_vars_save
+       print*, "DDDDD d_vars_save(",i,") = ",d_vars_save(i)
+    ENDDO
+ ENDIF
+
    inited = .TRUE.
 
    Kw = base_par_extinction
@@ -855,7 +885,7 @@ SUBROUTINE schism_aed_init_models()
    !# sanity check
    IF ( irange_tr(2,AED_MODL_NO) - irange_tr(1,AED_MODL_NO) + 1 < n_vars) THEN
       print*,"istart = ",istart,"iend = ", irange_tr(2,AED_MODL_NO), " n_vars = ", n_vars
-      stop
+      STOP
    ENDIF
 
    DO col=1,n_cols
@@ -1195,12 +1225,18 @@ SUBROUTINE schism_aed_create_output(stage)
    INTEGER :: time_dim, colm_dim, layr_dim, zone_dim=-1
    INTEGER :: node_dim,nedge_dim, four_dim, one_dim, two_dim
    INTEGER :: time_id
+
+!   TYPE(aed_variable_t),POINTER :: tv
+!   INTEGER :: i
 !
 !-------------------------------------------------------------------------------
 !BEGIN
    TPRINT "schism_aed_create_output"
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
+
+   IF (.NOT.ALLOCATED(externalid)) ALLOCATE(externalid(n_aed_vars)) 
+   externalid = -1
 
    write(rank,fmt='(I0.6)') myrank
 
@@ -1234,6 +1270,17 @@ SUBROUTINE schism_aed_create_output(stage)
    CALL schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, V_DIAGNOSTIC)
 
    CALL check_nc_error( nf90_enddef(ncid) )
+
+!if (myrank == 0) then
+!  do i=1,n_aed_vars
+!     IF ( aed_get_var(i, tv) ) THEN
+!        IF ( tv%var_type == V_DIAGNOSTIC .OR. tv%var_type == V_STATE ) THEN
+!          if ( externalid(i) < 0 ) print*,"->->-> var ",tv%name, "missing"
+!        ENDIF
+!     ENDIF
+!  enddo
+!endif
+
    TPRINT "schism_aed_create_output done"
 END SUBROUTINE schism_aed_create_output
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1377,6 +1424,38 @@ END SUBROUTINE check_nc_error
 
 
 !###############################################################################
+LOGICAL FUNCTION in_list(name, v_type)
+!-------------------------------------------------------------------------------
+!ARGUMENTS
+   CHARACTER(*) :: name
+   INTEGER,INTENT(in) :: v_type
+!LOCAL
+   INTEGER :: i
+!
+!-------------------------------------------------------------------------------
+!BEGIN
+   in_list = .TRUE.
+
+   IF ( v_type == V_DIAGNOSTIC ) THEN
+      IF ( n_d_vars_save <= 0 ) return
+
+      DO i=1,n_d_vars_save
+         IF ( TRIM(d_vars_save(i)) == TRIM(name) ) return
+      ENDDO
+   ELSE
+      IF ( n_vars_save <= 0 ) return
+
+      DO i=1,n_vars_save
+         IF ( TRIM(vars_save(i)) == TRIM(name) ) return
+      ENDDO
+   ENDIF
+
+   in_list = .FALSE.
+END FUNCTION in_list
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+!###############################################################################
 SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, time_dim, v_type)
 !-------------------------------------------------------------------------------
 !  Initialize the output by defining biogeochemical variables.
@@ -1393,14 +1472,12 @@ SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, tim
 !
 !-------------------------------------------------------------------------------
 !BEGIN
-   IF (.NOT.ALLOCATED(externalid)) ALLOCATE(externalid(n_aed_vars)) 
-
    !# Set up dimension indices for 3D (+ time) v_type variables (longitude,latitude,depth,time).
    dims(1) = layr_dim ; dims(2) = colm_dim ; dims(3) = time_dim
 
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
-         IF ( .NOT. tv%sheet .AND. tv%var_type == v_type ) THEN
+         IF ( .NOT. tv%sheet .AND. tv%var_type == v_type .AND. in_list(tv%name, v_type) ) THEN
             !# only for diag vars that are not sheet
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), NF_REAL_TYPE, 3, dims(1:3))
             CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 5)
@@ -1413,7 +1490,7 @@ SUBROUTINE schism_aed_create_output_vars(ncid, colm_dim, layr_dim, zone_dim, tim
 
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
-         IF ( tv%sheet .AND. tv%var_type == v_type ) THEN
+         IF ( tv%sheet .AND. tv%var_type == v_type .AND. in_list(tv%name, v_type) ) THEN
             !# only for diag sheet vars
             externalid(i) = new_nc_variable(ncid, TRIM(tv%name), NF_REAL_TYPE, 2, dims(1:2))
             CALL set_nc_attributes(ncid, externalid(i), TRIM(tv%units), TRIM(tv%longname), NC_FILLER, 4)
@@ -1515,7 +1592,7 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
          iret = nf90_noerr
-         IF ( tv%var_type == v_type ) THEN
+         IF ( tv%var_type == v_type .AND. externalid(i) >= 0 ) THEN
             IF ( tv%sheet ) THEN
                start(1) = 1; count(1) = n_cols
                start(2) = ts_counter; count(2) = 1

@@ -2,6 +2,8 @@
 
 if [ ! -f "${FINALDIR}/lib/${LIBZA}" ] ; then
   ZLIB="zlib-$ZLIBV"
+else
+  ZLIB=""
 fi
 
 CURL="curl-$CURLV"

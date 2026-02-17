@@ -68,7 +68,7 @@ export CURLV=8.5.0
 export SZIPV=2.1.1
 
 # https://gitlab.dkrz.de/k202009/libaec/
-export LIBAECV=v1.1.3
+export LIBAECV=v1.1.4
 #export LIBAECV=v1.1.2
 
 # https://support.hdfgroup.org/downloads/index.html

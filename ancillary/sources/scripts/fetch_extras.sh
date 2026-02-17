@@ -22,6 +22,7 @@ export LIBAEC=libaec-${LIBAECV}
 export HDF5=hdf5-${HDF5V}
 
 if [ ! -f ${ZLIB}.tar.gz ] ; then
+   echo fetching ${ZLIB}.tar.gz
    curl ${MINUS_K} http://www.zlib.net/${ZLIB}.tar.gz -o ${ZLIB}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${ZLIB}.tar.gz
@@ -31,6 +32,7 @@ if [ ! -f ${ZLIB}.tar.gz ] ; then
 fi
 
 if [ ! -f ${CURL}.tar.gz ] ; then
+   echo fetching ${CURL}.tar.gz
    curl ${MINUS_K} -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
    if [ $? != 0 ] ; then
       echo failed to fetch ${CURL}.tar.gz
@@ -40,6 +42,7 @@ if [ ! -f ${CURL}.tar.gz ] ; then
 fi
 
 if [ ! -f  ${LIBAEC}.tar.gz ] ; then
+   echo fetching ${LIBAEC}.tar.gz
    echo curl ${MINUS_K} -L https://gitlab.dkrz.de/k202009/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz -o ${LIBAEC}.tar.gz
    curl ${MINUS_K} -LJO https://gitlab.dkrz.de/k202009/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
    if [ $? != 0 ] ; then

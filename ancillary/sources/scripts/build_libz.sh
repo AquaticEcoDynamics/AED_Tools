@@ -6,9 +6,9 @@ fi
 
 #---------------
 
-CFLAGS="-I${FINALDIR}/include"
-CPPFLAGS="-I${FINALDIR}/include"
-LDFLAGS="-L${FINALDIR}/lib"
+export CFLAGS="-I${FINALDIR}/include -fPIC"
+export CPPFLAGS="-I${FINALDIR}/include"
+export LDFLAGS="-L${FINALDIR}/lib"
 
 #---------------
 summary () {
