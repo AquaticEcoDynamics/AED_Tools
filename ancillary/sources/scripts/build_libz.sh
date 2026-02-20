@@ -2,6 +2,8 @@
 
 if [ ! -f "${FINALDIR}/lib/${LIBZA}" ] ; then
   ZLIB="zlib-$ZLIBV"
+else
+  ZLIB=""
 fi
 
 #---------------
@@ -45,7 +47,7 @@ if [ "$ZLIB" != "" ] ; then
 
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH="${FINALDIR}" \
-           -DBUILD_SHARED_LIBS:BOOL=OFF \
+           -DZLIB_BUILD_SHARED:BOOL=OFF \
            -DZLIB_BUILD_EXAMPLES:BOOL=OFF \
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-zlib 2>&1

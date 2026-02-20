@@ -10,7 +10,7 @@ case `uname` in
     ;;
   MINGW*)
     export OSTYPE="Msys"
-    export LIBZA=libzlibstatic.a
+    export LIBZA=libzs.a
     ;;
 esac
 

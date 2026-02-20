@@ -41,20 +41,45 @@ if [ "$WITH_AED_PLUS" = "true" ] ; then
   fi
 
   if [ -d "${CWD}/libaed-dev" ] ; then
-    if [ -d "${CWD}/phreeqcrm" ] ; then
-      PHREEQDIR="${CWD}/phreeqcrm"
-      cd "${CWD}/phreeqcrm"
-      mkdir build
-      # build fortran test OFF
-      sed -i -e 's/option(PHREEQCRM_FORTRAN_TESTING "Build Fortran test" OFF)/option(PHREEQCRM_FORTRAN_TESTING "Build Fortran test" ON)/' CMakeLists.txt
-      cd build
-      cmake ..
-      # build CMakeCache.txt fix"
-      sed -i -e 's/fiopenmp/fopenmp -fPIE/' CMakeCache.txt
-      ${MAKE}
-      if [ ! -f libPhreeqcRM.a ] ; then
-        echo building libPhreeqcRM.a failed
-        unset PHREEQDIR
+   #if [ -d "${CWD}/phreeqcrm" ] ; then
+   #  PHREEQDIR="${CWD}/phreeqcrm"
+   #  cd "${CWD}/phreeqcrm"
+   #  mkdir build
+   #  # build fortran test OFF
+   #  sed -i -e 's/option(PHREEQCRM_FORTRAN_TESTING "Build Fortran test" OFF)/option(PHREEQCRM_FORTRAN_TESTING "Build Fortran test" ON)/' CMakeLists.txt
+   #  cd build
+   #  cmake ..
+   #  # build CMakeCache.txt fix"
+   #  sed -i -e 's/fiopenmp/fopenmp -fPIE/' CMakeCache.txt
+   #  ${MAKE}
+   #  if [ ! -f libPhreeqcRM.a ] ; then
+   #    echo building libPhreeqcRM.a failed
+   #    unset PHREEQDIR
+   #  fi
+   #fi
+
+    if [ -d "${CWD}/modflow6" ] ; then
+      MODFLOWDIR="${CWD}/modflow6"
+      cd "${CWD}/modflow6"
+#     grep OBJDIR make/makefile | grep -v '%' | grep -v mf6.o > liblist
+#     ${MAKE}
+
+      meson setup build --buildtype="release" --prefix="${CWD}/tmp"
+      meson compile -C build
+#     meson install -C build
+
+      if [ ! -f build/srcbmi/libmf6.so ] ; then
+        echo building libmf6.so failed
+        unset MODFLOWDIR
+      else
+        mkdir ${CWD}/libaed-dev/mod
+        cp build/srcbmi/libmf6.so.p/*.mod ${CWD}/libaed-dev/mod
+        if [ "$FC" != "gfortran" ] ; then
+          cp build/src/libmf6core.a.p/mf6coremodule.mod   ${CWD}/libaed-dev/mod
+          cp build/src/libmf6core.a.p/simstagesmodule.mod ${CWD}/libaed-dev/mod
+          cp build/src/libmf6core.a.p/profilermodule.mod  ${CWD}/libaed-dev/mod
+          cp build/src/libmf6core.a.p/characterstringmodule.mod ${CWD}/libaed-dev/mod
+        fi
       fi
     fi
 
@@ -75,6 +100,9 @@ if [ "$WITH_AED_PLUS" = "true" ] ; then
     if [ "$PHREEQDIR" != "" ] ; then
       MORE_FLAGS="$MORE_FLAGS PHREEQDIR=$PHREEQDIR"
     fi
+    if [ "$MODFLOWDIR" != "" ] ; then
+      MORE_FLAGS="$MORE_FLAGS MODFLOWDIR=$MODFLOWDIR"
+    fi
     if [ "$WITH_MPI" = "true" ] ; then
       MORE_FLAGS="$MORE_FLAGS WITH_MPI=true"
     fi
@@ -89,6 +117,9 @@ if [ -d "${CWD}/libaed-api" ] ; then
   get_commit_id >> ${CWD}/cur_state.log
   ${MAKE} || exit 1
   DAEDAPIDIR=`pwd`
+  if [ "$WITH_AED_PLUS" != "true" ] ; then
+    ${MAKE} NO_RIPARIAN=1 NO_LGT=1 NO_DEV=1 obj/aed_external.o
+  fi
 fi
 
 cd ${CWD}

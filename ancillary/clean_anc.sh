@@ -18,7 +18,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "$SQUEEKY" = "true" ] ; then
-  for dir in gfortran ifort ifx windows ; do
+  for dir in general gfortran ifort ifx windows ; do
     cd $dir
     /bin/rm -rf include bin lib share etc cmake*
     cd ..

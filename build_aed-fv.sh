@@ -15,7 +15,9 @@ export WITH_MPI=false
 
 export LICENSE=0
 
+ARGS=""
 while [ $# -gt 0 ] ; do
+  ARGS="$ARGS $1"
   case $1 in
     --debug)
       export DEBUG=true

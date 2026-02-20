@@ -6,6 +6,9 @@ SQUEEKY=false
 
 while [ $# -gt 0 ] ; do
   case $1 in
+    --help)
+      export HELP=true
+      ;;
     --debug)
       export DEBUG=true
       ;;
@@ -37,6 +40,18 @@ while [ $# -gt 0 ] ; do
   esac
   shift
 done
+
+if [ "$HELP" = "true" ] ; then
+   echo "--help          : print this"
+   echo "--debug         : debug mode"
+   echo "--squeeky       : clean thoroughly (turns on ancillary clean as well)"
+   echo "--ancillary     : also clean the ancillary directory"
+   echo "--no-ancillary  : dont clean the ancillary directory (default)"
+   echo "--gfort         : set the fortran compiler to gfortran"
+   echo "--ifx           : set the fortran compiler to ifx"
+   echo "--ifort         : set the fortran compiler to ifort"
+   echo "--flang         : set the fortran compiler to flang"
+fi
 
 if [ -f "cur_state.log" ] ; then
   /bin/rm cur_state.log
@@ -133,6 +148,8 @@ if [ -d modflow6 ] ; then
   echo cleaning modflow6
   cd modflow6/make
   make clean
+  cd ..
+  /bin/rm -rf build
   cd "$CWD"
 fi
 
