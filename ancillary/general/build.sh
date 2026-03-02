@@ -9,7 +9,7 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
     # ifort config scripts wont work with /bin/sh
     # so we restart using bash
     if [ "$start_sh" = "/bin/sh" ] ; then
-      # first go up one dir because we went into windows dir
+      # first go up one dir because we went into general dir
       cd ..
       /bin/bash $0 $ARGS
       exit $?
@@ -32,30 +32,14 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
   fi
 fi
 
-if [ ! -d lib ] ; then
-  BFLAGS=--all
-else
-  BFLAGS=
-  if [ ! -f lib/libnetcdf.dll.a ] ; then
-    BFLAGS="$BFLAGS --need-netcdf_c --need_netcdf_c"
-  fi
-  if [ ! -f bin/libgd.dll ] ; then
-    BFLAGS="$BFLAGS --need-netcdf_f"
-  fi
-  if [ ! -f bin/libgd.dll ] ; then
-    BFLAGS="$BFLAGS --need-gd"
-  fi
-fi
-
 # -----------------------
 
 cd ../sources
-. ./versions.inc
 
 if [ $# != 0 ] ; then
   ./build_all.sh $*
 else
-  #./build_all.sh --need-ncdfc-extras --need-netcdf_c --need-netcdf_f --need-openmpi --need-gd
+  echo "build --all"
   ./build_all.sh --all
 fi
 

@@ -19,9 +19,11 @@ done
 
 if [ "$SQUEEKY" = "true" ] ; then
   for dir in general gfortran ifort ifx windows ; do
-    cd $dir
-    /bin/rm -rf include bin lib share etc cmake*
-    cd ..
+    if [ -d $dir ] ; then
+      cd $dir
+      /bin/rm -rf include bin lib share etc cmake*
+      cd ..
+    fi
   done
 
   cd sources

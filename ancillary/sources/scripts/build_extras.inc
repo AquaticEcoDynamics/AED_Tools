@@ -1,60 +1,20 @@
-#!/bin/sh
+# ============================================================================
+# ============================================================================
 
-if [ ! -f "${FINALDIR}/lib/${LIBZA}" ] ; then
-  ZLIB="zlib-$ZLIBV"
-else
-  ZLIB=""
-fi
-
-CURL="curl-$CURLV"
-LIBAEC="libaec-${LIBAECV}"
-HDF5="hdf5-$HDF5V"
-NETCDF="netcdf-c-$NETCDFV"
-NETCDFF="netcdf-fortran-$NETCDFFV"
-
-#---------------
-
-CFLAGS="-I${FINALDIR}/include"
-CPPFLAGS="-I${FINALDIR}/include"
-LDFLAGS="-L${FINALDIR}/lib"
-
-#---------------
-
-summary () {
-  echo "==================================="
-  echo "${FINALDIR} after building $1"
-  ls ${FINALDIR}
-  echo 'include'
-  ls ${FINALDIR}/include
-  echo 'lib'
-  ls ${FINALDIR}/lib
-  echo "==================================="
-  echo
-}
-
-#---------------
-if [ ! -d ${FINALDIR}/include ] ; then
-  mkdir ${FINALDIR}/include
-fi
-if [ ! -d ${FINALDIR}/lib ] ; then
-  mkdir ${FINALDIR}/lib
-fi
-#---------------
-
-if [ "$ZLIB" != "" ] ; then
-  ./scripts/build_libz.sh || exit 1
-  if [ $? != 0 ] ; then
-    exit 1
-  fi
-fi
+. ./scripts/build_zlib.inc
 
 #---------------
 
 if [ "$LIBAEC" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libaec.a" ] ; then
   echo "====== building $LIBAEC"
 
   \rm -rf $LIBAEC
   tar xzf $LIBAEC.tar.gz
+  if [ ! -d $LIBAEC ] ; then
+    echo cant unpack $LIBAEC.tar.gz
+    exit 1
+  fi
   cd $LIBAEC
   mkdir build
   cd build
@@ -85,10 +45,15 @@ fi
 #---------------
 
 if [ "$CURL" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libcurl.a" ] ; then
   echo "====== building $CURL"
 
   \rm -rf $CURL
   tar xzf $CURL.tar.gz
+  if [ ! -d $CURL ] ; then
+    echo cant unpack $CURL.tar.gz
+    exit 1
+  fi
   cd $CURL
   mkdir build
   cd build
@@ -121,10 +86,15 @@ fi
 #---------------
 
 if [ "$HDF5" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libhdf5.a" ] ; then
   echo "====== building $HDF5"
 
   \rm -rf $HDF5
   tar xzf $HDF5.tar.gz
+  if [ ! -d $HDF5 ] ; then
+    echo cant unpack $HDF5.tar.gz
+    exit 1
+  fi
   cd $HDF5
   mkdir build
   cd build
@@ -138,13 +108,17 @@ if [ "$HDF5" != "" ] ; then
            -DHDF5_ENABLE_Z_LIB_SUPPORT:PATH="${FINALDIR}"  \
            -DHDF5_ENABLE_SZIP_SUPPORT:PATH="${FINALDIR}" \
            -Dlibaec_DIR="${FINALDIR}" \
-           -DLIBAEC_LIBRARY:PATH="${FINALDIR}/lib/libaec.a" \
+           -Dlibaec_LIBRARY="${FINALDIR}/lib/libaec.a" \
            -DZLIB_DIR:PATH="${FINALDIR}" \
            -DZLIB_LIBRARY:PATH="${FINALDIR}/lib/${LIBZA}"  \
            -DSZIP_LIBRARY:PATH="${FINALDIR}/lib/libsz.a"  \
            -DHDF5_BUILD_CXX:BOOL=OFF \
            -DHDF5_BUILD_FORTRAN:BOOL=OFF \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-hdf5 2>&1
+
+#          -DZLIB_INCLUDE_DIR="${FINALDIR}/include"  \
+#          -DSZIP_INCLUDE_DIR="${FINALDIR}/include"  \
+#          -DDEFAULT_API_VERSION:STRING=v110  \
 
   if [ $? != 0 ] ; then
     echo cmake $HDF5 failed
@@ -164,5 +138,3 @@ if [ "$HDF5" != "" ] ; then
 fi
 
 #---------------
-
-exit 0

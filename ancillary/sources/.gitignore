@@ -13,6 +13,7 @@ netcdf-fortran-*
 cmake-info-*
 openmpi-*
 mpich-*
+sqlite-src-*
 .vs
 *.user
 *.db

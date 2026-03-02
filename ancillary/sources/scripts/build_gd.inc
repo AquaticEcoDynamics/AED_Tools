@@ -1,62 +1,26 @@
-#!/bin/sh
+# ===========================================================================
 
-if [ ! -f "$FINALDIR/lib/${LIBZA}" ] ; then
-  ZLIB="zlib-$ZLIBV"
-fi
-
-FREETYPE2=freetype-${FREETYPE2V}
-JPEG=jpegsrc.v${JPEGV}
-LIBPNG=libpng-${LIBPNGV}
-LIBGD=lib${GD}
-
-#---------------
-
-CFLAGS="-I${FINALDIR}/include"
-CPPFLAGS="-I${FINALDIR}/include"
-LDFLAGS="-L${FINALDIR}/lib"
-
-#---------------
-summary () {
-  where=$1
-  echo "==================================="
-  echo "$FINALDIR after building $1"
-  ls $FINALDIR
-  echo 'include'
-  ls $FINALDIR/include
-  echo 'lib'
-  ls $FINALDIR/lib
-  echo "==================================="
-  echo
-}
-
-#---------------
-if [ ! -d $FINALDIR/include ] ; then
-  mkdir $FINALDIR/include
-fi
-if [ ! -d $FINALDIR/lib ] ; then
-  mkdir $FINALDIR/lib
-fi
-#---------------
-
-if [ "$ZLIB" != "" ] ; then
-  ./scripts/build_libz.sh
-  if [ $? != 0 ] ; then
-    exit 1
-  fi
-fi
+. ./scripts/build_zlib.inc
 
 #---------------
 
 if [ "$JPEG" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libjpeg.a" ] ; then
+  echo "====== building $JPEG"
+
   \rm -rf jpeg-$JPEGV
   tar xzf $JPEG.tar.gz
+  if [ ! -d jpeg-$JPEGV ] ; then
+    echo cant unpack $JPEG.tar.gz
+    exit 1
+  fi
   cd jpeg-$JPEGV
 
 # not sure we still need to do the vc version
 # cp jconfig.vc jconfig.h
   cp jconfig.txt jconfig.h
 
-  sed -e 's/\<cc\>/gcc/' < makefile.ansi > Makefile
+  /usr/bin/sed -e 's/\<cc\>/gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
   make
   if [ $? != 0 ] ; then
     echo $JPEG build failed
@@ -73,8 +37,15 @@ fi
 #---------------
 
 if [ "$LIBPNG" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libpng.a" ] ; then
+  echo "====== building $LIBPNG"
+
   \rm -rf $LIBPNG
   tar xzf $LIBPNG.tar.gz
+  if [ ! -d $LIBPNG ] ; then
+    echo cant unpack $LIBPNG.tar.gz
+    exit 1
+  fi
   cd $LIBPNG
   mkdir build
   cd build
@@ -82,8 +53,10 @@ if [ "$LIBPNG" != "" ] ; then
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH="$FINALDIR" \
            -DCMAKE_BUILD_TYPE:STRING=Release \
-           -DBUILD_SHARED_LIBS:BOOL=OFF \
-           -DBUILD_STATIC_LIBS:BOOL=ON \
+           -DPNG_SHARED:BOOL=OFF \
+           -DPNG_STATIC:BOOL=ON \
+           -DPNG_TESTS:BOOL=OFF \
+           -DPNG_TOOLS:BOOL=OFF \
            -DZLIB_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/${LIBZA}" \
            -DCMAKE_INSTALL_PREFIX="$FINALDIR" -LAH > $FINALDIR/cmake-info-libpng 2>&1
   if [ $? != 0 ] ; then
@@ -108,8 +81,15 @@ fi
 #---------------
 
 if [ "$FREETYPE2" != "" ] ; then
+#if [ ! -f "${FINALDIR}/lib/libfreetype.a" ] ; then
+  echo "====== building $FREETYPE2"
+
   \rm -rf $FREETYPE2
   tar xzf $FREETYPE2.tar.gz
+  if [ ! -d $FREETYPE2 ] ; then
+    echo cant unpack $FREETYPE2.tar.gz
+    exit 1
+  fi
   cd $FREETYPE2
   mkdir build
   cd build
@@ -119,6 +99,9 @@ if [ "$FREETYPE2" != "" ] ; then
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DBUILD_SHARED_LIBS:BOOL=OFF \
            -DBUILD_STATIC_LIBS:BOOL=ON \
+           -DFT_DISABLE_BZIP2=TRUE \
+           -DFT_DISABLE_BROTLI=TRUE \
+           -DFT_DISABLE_HARFBUZZ=TRUE \
            -DZLIB_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/${LIBZA}" \
            -DPNG_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/libpng.a" \
            -DCMAKE_INSTALL_PREFIX="$FINALDIR" -LAH > $FINALDIR/cmake-info-libfreetype 2>&1
@@ -141,19 +124,23 @@ fi
 
 #---------------
 
-if [ "$LIBGD" != "" ] ; then
+#if [ "$LIBGD" != "" ] ; then
+if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
+  echo "====== building $LIBGD"
+
   \rm -rf $LIBGD
   tar xzf $LIBGD.tar.gz
+  if [ ! -d $LIBGD ] ; then
+    echo cant unpack $LIBGD.tar.gz
+    exit 1
+  fi
   cd $LIBGD
-
   mkdir build
   cd build
 
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH="$FINALDIR" \
            -DCMAKE_BUILD_TYPE:STRING=Release \
-           -DBUILD_SHARED_LIBS:BOOL=OFF \
-           -DBUILD_STATIC_LIBS:BOOL=ON \
            -DENABLE_JPEG:BOOL=ON \
            -DENABLE_PNG:BOOL=ON  \
            -DENABLE_FREETYPE:BOOL=ON \
@@ -167,6 +154,8 @@ if [ "$LIBGD" != "" ] ; then
   fi
 
 # For some reason including these builds a lib that is missing symbols on windows
+#          -DBUILD_SHARED_LIBS:BOOL=OFF \
+#          -DBUILD_STATIC_LIBS:BOOL=ON \
 
   cmake --build . --clean-first --config Release #--target INSTALL
   if [ $? != 0 ] ; then
@@ -181,5 +170,3 @@ if [ "$LIBGD" != "" ] ; then
 fi
 
 #---------------
-
-exit 0

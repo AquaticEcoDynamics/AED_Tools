@@ -1,13 +1,14 @@
-#!/bin/bash
+# ===========================================================================
 
+if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] ; then
   echo "====== building $NETCDF"
-
-  export CFLAGS="-I${FINALDIR}/include"
-  export CPPFLAGS="-I${FINALDIR}/include"
-  export LDFLAGS="-L${FINALDIR}/lib"
 
   \rm -rf $NETCDF
   tar xzf $NETCDF.tar.gz
+  if [ ! -d $NETCDF ] ; then
+    echo error extracting $NETCDF
+    exit 1
+  fi
   cd $NETCDF
   if [ ! -d fuzz ] ; then
     mkdir fuzz
@@ -30,22 +31,16 @@
            -DCMAKE_MODULE_LINKER_FLAGS:STRING=-L"${FINALDIR}/lib" \
            -DZLIB_LIBRARY:PATH="${FINALDIR}/lib/${LIBZA}"  \
            -DSZIP_LIBRARY:PATH="${FINALDIR}/lib/libsz.a"  \
-           -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH 
+           -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-netcdf-c 2>&1
 
-#  > ${FINALDIR}/cmake-info-netcdf-c 2>&1
+#          -DBUILD_SHARED_LIBS:BOOL=OFF \
+#          -DBUILD_STATIC_LIBS:BOOL=ON \
 
-#          -DZLIB_LIBRARY:PATH="${FINALDIR}/lib/${LIBZA}"  \
-#          -DSZIP_LIBRARY:PATH="${FINALDIR}/lib/libsz.a"  \
+#          -DHDF5_hdf5_LIBRARY_RELEASE:FILEPATH="${FINALDIR}/lib/libhdf5.a" \
+#          -DHDF5_hdf5_hl_LIBRARY_RELEASE:FILEPATH="${FINALDIR}/lib/libhdf5_hl.a" \
+#          -DHDF5_C_INCLUDE_DIR:PATH="${FINALDIR}/include" \
+#          -DHDF5_DIR:PATH="${FINALDIR}/cmake" \
 
-#          -DBUILD_SHARED_LIBS:BOOL=ON \
-#          -DCMAKE_BUILD_TYPE:STRING=Release \
-#          -DHDF5_C_LIBRARY="${FINALDIR}" \
-#          -DHDF5_ROOT="${FINALDIR}" \
-#          -DSZIP_ROOT="${FINALDIR}" \
-#          -DZLIB_ROOT="${FINALDIR}" \
-#          -DHDF5_DIR="${FINALDIR}/cmake/hdf5" \
-#          -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
-  
   if [ $? != 0 ] ; then
     echo cmake $NETCDF failed
     exit 1
@@ -59,5 +54,5 @@
   cmake -P cmake_install.cmake
 
   cd $CWD
-
-exit 0
+  summary $NETCDF
+fi
