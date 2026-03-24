@@ -68,11 +68,11 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-. ${CWD}/build_env.inc
-
 export F77=$FC
 export F90=$FC
 export F95=$FC
+
+. ${CWD}/build_env.inc
 
 export HDF5LIB=$NETCDFHOME/lib
 #export HDF5LIBNAME="-lhdf5"

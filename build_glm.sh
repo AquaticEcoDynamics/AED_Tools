@@ -160,9 +160,9 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   # ./fetch.sh
   # ${MAKE} || exit 1
 elif [ "$OSTYPE" = "Msys" ] ; then
-  if [ ! -d ancillary/windows/lib ] ; then
+  if [ ! -d ancillary/lib ] ; then
     echo making windows ancillary extras
-    cd ancillary/windows
+    cd ancillary
     ./build.sh || exit 1
   fi
 fi
@@ -309,8 +309,8 @@ if [ "$OSTYPE" = "Msys" ] ; then
   fi
   mkdir glm_$VERSION
 
-  cp ancillary/windows/bin/libnetcdf.dll glm_$VERSION
-  cp ancillary/windows/bin/libgd.dll glm_$VERSION
+  cp ancillary/bin/libnetcdf.dll glm_$VERSION
+  cp ancillary/bin/libgd.dll glm_$VERSION
   for dll in libgfortran libgcc_s_seh libquadmath libwinpthread ; do
     dllp=`find /c/ProgramData/ -name $dll\*.dll 2> /dev/null | head -1`
     if [ "$dllp" != "" ] ; then

@@ -20,7 +20,11 @@ if [ "$JPEG" != "" ] ; then
 # cp jconfig.vc jconfig.h
   cp jconfig.txt jconfig.h
 
-  /usr/bin/sed -e 's/\<cc\>/gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
+  if [ "$OSTYPE" = "FreeBSD" ] ; then
+    sed -e 's/CC= cc/CC= clang/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
+  else
+    sed -e 's/CC= cc/CC= gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
+  fi
   make
   if [ $? != 0 ] ; then
     echo $JPEG build failed
@@ -134,6 +138,9 @@ if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
     echo cant unpack $LIBGD.tar.gz
     exit 1
   fi
+  if [ "$OSTYPE" = "Msys" ] ; then
+    sed -e "s/LIBGD/$LIBGD/" < scripts/patch.libgd | patch -p0
+  fi
   cd $LIBGD
   mkdir build
   cd build
@@ -153,7 +160,11 @@ if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
     exit 1
   fi
 
-# For some reason including these builds a lib that is missing symbols on windows
+# There's an issue on windows which gets a lot of missing symbols if you do a
+# static build, but it's fixed by the patch above...
+# That said, you will still need to add :
+#    -ljpeg -lfreetype -lpng -lz
+# to the link command if you do go static
 #          -DBUILD_SHARED_LIBS:BOOL=OFF \
 #          -DBUILD_STATIC_LIBS:BOOL=ON \
 

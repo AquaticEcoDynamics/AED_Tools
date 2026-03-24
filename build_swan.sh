@@ -69,8 +69,8 @@ if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
   # for nmake.exe
   # export PATH="$PATH:/c/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64"
     export PATH="/c/Program Files (x86)/Intel/oneAPI/compiler/latest/windows/bin/intel64:$PATH"
-    export PATH="$PATH:${CWD}/ancillary/windows/bin"
-    export FINALDIR="${CWD}/ancillary/windows"
+    export PATH="$PATH:${CWD}/ancillary/bin"
+    export FINALDIR="${CWD}/ancillary"
   fi
 
   if [ -x /opt/intel/setvars.sh ] ; then
@@ -93,7 +93,7 @@ if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
     export NetCDF_ROOT=/opt/intel
   else
     if [ "$OSTYPE" = "Msys" ] ; then
-      export NetCDF_ROOT="${CWD}/ancillary/windows"
+      export NetCDF_ROOT="${CWD}/ancillary"
       export NetCDF_INCLUDE_DIRS="${NetCDF_ROOT}/include"
       export NetCDF_LIBRARIES="${NetCDF_ROOT}/lib"
     else

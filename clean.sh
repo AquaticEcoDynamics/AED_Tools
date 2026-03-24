@@ -156,9 +156,9 @@ fi
 if [ "$DO_ANC" = "true" ] ; then
   cd ancillary
   if [ "$SQUEEKY" = "true" ] ; then
-    ./clean_anc.sh --squeeky
+    ./clean.sh --squeeky
   else
-    ./clean_anc.sh
+    ./clean.sh
   fi
   cd "$CWD"
 fi

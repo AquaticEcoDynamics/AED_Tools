@@ -1,15 +1,16 @@
 #!/bin/sh
 
-# CWD should be the tools directory in which CURDIR lives
-export CWD=`pwd`
 # CURDIR should be the directory of the project we are building
 export CURDIR=`pwd`/libaed-fv
+# CWD should be the tools directory in which CURDIR lives
+export CWD=`dirname ${CURDIR}`
 
 export SINGLE=false
 export PRECISION=1
 export PLOTS=false
 export EXTERNAL_LIBS=shared
 export DEBUG=false
+export WITH_AED=true
 export WITH_AED_PLUS=false
 export WITH_MPI=false
 
@@ -58,8 +59,11 @@ esac
 
 if [ "$OSTYPE" = "Msys" ] ; then
   #=============================== Windows build ===============================
-  export VERSION=`grep FV_AED_VERS libaed-fv/src/fv_aed.F90 | grep define | cut -f2 -d\"`
-  cd libaed-fv/win
+  export VERSION=`grep FV_AED_VERS ${CURDIR}/src/fv_aed.F90 | grep define | cut -f2 -d\"`
+  if [ "$VERSION" = "" ] ; then
+    export VERSION=`grep FV_AED_API_VERS ${CURDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
+  fi
+  cd ${CURDIR}/win
   ../vers.sh $VERSION
 
   if [ -d x64-Release/tuflowfv_external_wq ] ; then
@@ -130,38 +134,42 @@ export F95=$FC
 . ${CWD}/build_env.inc
 . ${CWD}/build_aedlibs.inc
 
-export AEDFVDIR=${CURDIR}
-if [ ! -d ${AEDFVDIR} ] ; then
+if [ ! -d ${CURDIR} ] ; then
   echo no libaed-fv directory?
   exit 1
 fi
+
 echo build tfv_wq
-if [ -f ${AEDFVDIR}/obj/aed_external.o ] ;  then
-  /bin/rm ${AEDFVDIR}/obj/aed_external.o
+if [ -f ${CURDIR}/obj/aed_external.o ] ;  then
+  /bin/rm ${CURDIR}/obj/aed_external.o
 fi
 
-${MAKE} -C ${AEDFVDIR} AEDWATDIR=${DAEDWATDIR} \
-                       AEDBENDIR=${DAEDBENDIR} \
-                       AEDDMODIR=${DAEDDMODIR} \
-                       AEDRIPDIR=${DAEDRIPDIR} \
-                       AEDLGTDIR=${DAEDLGTDIR} \
-                       AEDDEVDIR=${DAEDDEVDIR} \
-                       AEDAPIDIR=${DAEDAPIDIR} \
-                       PLOTDIR=../libplot \
-                       UTILDIR=../libutil || exit 1
+export AEDFVDIR=${CURDIR}
+${MAKE} -C ${CURDIR} AEDWATDIR=${DAEDWATDIR} \
+                     AEDBENDIR=${DAEDBENDIR} \
+                     AEDDMODIR=${DAEDDMODIR} \
+                     AEDRIPDIR=${DAEDRIPDIR} \
+                     AEDLGTDIR=${DAEDLGTDIR} \
+                     AEDDEVDIR=${DAEDDEVDIR} \
+                     AEDAPIDIR=${DAEDAPIDIR} \
+                     PLOTDIR=../libplot \
+                     UTILDIR=../libutil || exit 1
 
-cd ${AEDFVDIR}
+cd ${CURDIR}
 get_commit_id >> ${CWD}/cur_state.log
 
 ISODATE=`date +%Y%m%d`
 cd ${CWD}
 
 # Update versions in resource files
-VERSION=`grep FV_AED_VERS ${AEDFVDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
-cd ${AEDFVDIR}/win
-${AEDFVDIR}/vers.sh $VERSION
+export VERSION=`grep FV_AED_VERS ${CURDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
+if [ "$VERSION" = "" ] ; then
+  export VERSION=`grep FV_AED_API_VERS ${CURDIR}/src/fv_aed.F90 | head -1 | cut -f2 -d\"`
+fi
+cd ${CURDIR}/win
+${CURDIR}/vers.sh $VERSION
 if [ "$OSTYPE" = "Linux" ] ; then
-  cd ${AEDFVDIR}
+  cd ${CURDIR}
   VERSDEB=`head -1 debian/changelog | cut -f2 -d\( | cut -f1 -d-`
   echo debian version $VERSDEB
   if [ "$VERSION" != "$VERSDEB" ] ; then
@@ -170,7 +178,6 @@ if [ "$OSTYPE" = "Linux" ] ; then
   fi
 fi
 cd ${CWD}
-
 
 if [ "$EXTERNAL_LIBS" = "shared" ] ; then
   if [ "$OSTYPE" = "Darwin" ] ; then
@@ -183,7 +190,7 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
     if [ $(lsb_release -is) = Ubuntu ] ; then
       BINPATH="binaries/ubuntu/$(lsb_release -rs)"
     fi
-    cd ${AEDFVDIR}
+    cd ${CURDIR}
     if [ -d debian/libaed-tfv ] ; then
       rm -r debian/libaed-tfv
     fi
@@ -208,16 +215,16 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
         rm -r ${CWD}/${BINPATH}/libaed_fv_latest
       fi
       mkdir ${CWD}/${BINPATH}/libaed_fv_latest
-      cd ${AEDFVDIR}/debian/libaed-tfv/usr/local/lib/
+      cd ${CURDIR}/debian/libaed-tfv/usr/local/lib/
       tar cf - libaed-tfv | (cd ${CWD}/${BINPATH}/libaed_fv_latest; tar xf -)
       export MYPATH=${CWD}/${BINPATH}/libaed_fv_latest/libaed-tfv
-      cd ${AEDFVDIR}
+      cd ${CURDIR}
       bin/mk_tuflowfv_libaed > ${CWD}/${BINPATH}/libaed_fv_latest/tuflowfv_libaed
       chmod +x ${CWD}/${BINPATH}/libaed_fv_latest/tuflowfv_libaed
       cd ${CWD}
     fi
   else
-    echo \*\*\* packaging failed no directory ${AEDFVDIR}/lib
+    echo \*\*\* packaging failed no directory ${CURDIR}/lib
   fi
 fi
 

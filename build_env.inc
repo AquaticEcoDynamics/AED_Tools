@@ -16,6 +16,31 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   export MAKE=gmake
 fi
 
+# echo building environment for `basename $0`
+# case `basename $0` in
+#   "build_aed-fv.sh")
+#     ;;
+#   "build_aedlibs.sh")
+#     ;;
+#   "build_modflow.sh")
+#     ;;
+#   "build_swan.sh")
+#     ;;
+#   "build_zeroD.sh")
+#     ;;
+#   "build_elcom.sh")
+#     NEEDS+="--need-netcdf-f"
+#     ;;
+#   "build_glm.sh")
+#     NEEDS+="--need-netcdf-c --need-gd"
+#     ;;
+#   "build_schism.sh")
+#     NEEDS+="--need-netcdf-f --need-openmpi"
+#     ;;
+#   "build_tuflow.sh")
+#     ;;
+# esac
+
 
 #---------------
 get_commit_id () {
@@ -47,6 +72,7 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
       . /opt/intel/bin/compilervars.sh intel64
     fi
   fi
+
   if [ "$OSTYPE" = "Msys" ] ; then
     if [ "$MY_PS" = "" ] ; then
       export MY_PS=$$
@@ -79,7 +105,7 @@ fi
 # default "home" for each
 
 if [ "$OSTYPE" = "Msys" ] ; then
-  export PATH="$PATH:`pwd`/ancillary/windows/bin"
+  export PATH="$PATH:`pwd`/ancillary/bin"
 fi
 
 OMPIBASE=
@@ -105,8 +131,8 @@ if [ "$NCDFCBASE" = "" ] ; then
 fi
 unset BINDIR
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
-  if [ -d ancillary/${FC}/bin ] ; then
-    BINDIR="`pwd`/ancillary/${FC}/bin"
+  if [ -d ancillary/bin ] ; then
+    BINDIR="`pwd`/ancillary/bin"
   fi
 fi
 if [ "$BINDIR" = "" ] ; then
@@ -127,6 +153,7 @@ unset BINDIR
 
 # if we haven't found netcdf-fortran ...
 if [ "${NCDFFBASE}" = "" ]; then
+  BASEDIR='.'
   TCWD=`pwd`
   if [ -d ancillary ] ; then
     BASEDIR=`pwd`
@@ -137,19 +164,19 @@ if [ "${NCDFFBASE}" = "" ]; then
     fi
   fi
   if [ "$OSTYPE" = "Msys" ] ; then
-    if [ ! -f ${BASEDIR}/ancillary/windows/include/netcdf.h ] ; then
+    if [ ! -f ${BASEDIR}/ancillary/include/netcdf.h ] ; then
       echo making windows ancillary extras
-      cd ${BASEDIR}/ancillary/windows
+      cd ${BASEDIR}/ancillary
       ./build.sh || exit 1
     fi
-    export NCDFFBASE=${BASEDIR}/ancillary/windows/
   else
-    if [ ! -f ${BASEDIR}/ancillary/${FC}/include/netcdf.mod ] ; then
-      cd ${BASEDIR}/ancillary/${FC}
-      ./build.sh || exit 1
+    if [ ! -f ${BASEDIR}/ancillary/include/netcdf.mod ] ; then
+      echo making $OSTYPE ancillary extras
+      cd ${BASEDIR}/ancillary
+      ./build.sh --need-netcdf_f || exit 1
     fi
-    export NCDFFBASE=${BASEDIR}/ancillary/${FC}
   fi
+  export NCDFFBASE=${BASEDIR}/ancillary
   if [ "${NCDFFBASE}" != "" ]; then
     export PATH="${NCDFFBASE}/bin:${PATH}"
   fi

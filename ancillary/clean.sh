@@ -18,13 +18,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "$SQUEEKY" = "true" ] ; then
-  for dir in general gfortran ifort ifx windows ; do
-    if [ -d $dir ] ; then
-      cd $dir
-      /bin/rm -rf include bin lib share etc cmake*
-      cd ..
-    fi
-  done
+  /bin/rm -rf include bin lib share etc cmake*
 
   cd sources
   ./clean_all.sh --squeeky
