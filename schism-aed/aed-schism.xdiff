@@ -1,8 +1,8 @@
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index bcbe80ff..9d0d26cb 100644
+index c8cda13f..53d7c30d 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
+@@ -233,6 +233,7 @@ add_module(Fabm     USE_FABM  OFF)
  add_module(EcoSim   USE_ECO   OFF)
  add_module(Sediment USE_SED   OFF)
  add_module(Sed2d    USE_SED2D OFF)
@@ -10,7 +10,7 @@ index bcbe80ff..9d0d26cb 100644
  add_module(Hydro    USE_HYDRO ON)
  add_module(Core     USE_SCHISM ON)
  
-@@ -326,6 +327,9 @@ endforeach()
+@@ -327,6 +328,9 @@ endforeach()
  string(CONCAT mod_tag ${all_use_mod_defs})
  string(REPLACE USE_ _ mod_tag_rev ${mod_tag})
  string(REPLACE _HYDRO_SCHISM "" mod_tag_rev ${mod_tag_rev})

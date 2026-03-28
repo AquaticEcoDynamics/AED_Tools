@@ -31,7 +31,6 @@
 #
 # CMakeLists.txt.m is modified by the build script to correct the paths listed in it, writing
 # the modified file to CMakeLists.txt for the cmake system to use.
-#  [it turned out the gnu-make files were worse than the cmake files  a bit disappointing]
 #
 # schism_aed.F90 contains :
 #
