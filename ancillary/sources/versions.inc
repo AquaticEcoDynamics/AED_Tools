@@ -7,6 +7,7 @@
 # These if we need both
 # https://downloads.unidata.ucar.edu/netcdf-c/
 #export NETCDFV=4.10.0
+#export NETCDFV=4.9.3
 export NETCDFV=4.9.2
 # downloads.unidata.ucar.edu/netcdf-fortran/
 export NETCDFFV=4.6.2
@@ -30,7 +31,7 @@ export ZLIB=zlib-${ZLIBV}
 #-----------------------------------------------------------
 
 # https://curl.haxx.se/download/
-#export CURLV=8.18.0
+#export CURLV=8.19.0
 export CURLV=8.8.0
 
 # The link is provided for historical reasons - szip seems to be included in the aed package
@@ -38,13 +39,13 @@ export CURLV=8.8.0
 export SZIPV=2.1.1
 
 # https://gitlab.dkrz.de/dkrz-sw/libaec/
+#export LIBAECV=v1.1.6
 export LIBAECV=v1.1.4
-#export LIBAECV=v1.1.2
 
+# https://support.hdfgroup.org/releases/hdf5/
 # https://support.hdfgroup.org/downloads/index.html
-#export HDF5V=2.0.0
+#export HDF5V=2.1.1
 export HDF5V=1.14.6
-#export HDF5V=1.14.5
 
 #-----------------------------------------------------------
 
@@ -55,16 +56,13 @@ export HDF5=hdf5-${HDF5V}
 #-----------------------------------------------------------
 
 # https://download.savannah.gnu.org/releases/freetype
-export FREETYPE2V=2.14.1
-#export FREETYPE2V=2.13.3
+export FREETYPE2V=2.14.3
 
 # http://www.ijg.org/files
 export JPEGV=10
-#export JPEGV=9f
 
 # http://prdownloads.sourceforge.net/libpng
-export LIBPNGV=1.6.55
-#export LIBPNGV=1.6.44
+export LIBPNGV=1.6.56
 
 # https://github.com/libgd / https://github.com/libgd/libgd/releases
 export GD=gd-2.3.3
@@ -94,7 +92,7 @@ export OMPI=openmpi-${OMPIV}
 
 # https://sqlite.org/download.html
 
-export SQLTV=3510200
+export SQLTV=3510300
 export SQLITE=sqlite-src-${SQLTV}
 
 #-----------------------------------------------------------

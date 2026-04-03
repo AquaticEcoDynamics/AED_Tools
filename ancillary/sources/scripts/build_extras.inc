@@ -107,6 +107,9 @@ if [ "$HDF5" != "" ] ; then
            -DCMAKE_C_FLAGS="-I${FINALDIR}/include"  \
            -DHDF5_ENABLE_Z_LIB_SUPPORT:PATH="${FINALDIR}"  \
            -DHDF5_ENABLE_SZIP_SUPPORT:PATH="${FINALDIR}" \
+           -DHDF5_USE_LIBAEC_STATIC:BOOL=ON \
+           -DHDF5_USE_ZLIB_STATIC:BOOL=ON \
+           -DSZIP_USE_EXTERNAL:BOOL=ON \
            -Dlibaec_DIR="${FINALDIR}" \
            -Dlibaec_LIBRARY="${FINALDIR}/lib/libaec.a" \
            -DZLIB_DIR:PATH="${FINALDIR}" \
@@ -115,10 +118,6 @@ if [ "$HDF5" != "" ] ; then
            -DHDF5_BUILD_CXX:BOOL=OFF \
            -DHDF5_BUILD_FORTRAN:BOOL=OFF \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-hdf5 2>&1
-
-#          -DZLIB_INCLUDE_DIR="${FINALDIR}/include"  \
-#          -DSZIP_INCLUDE_DIR="${FINALDIR}/include"  \
-#          -DDEFAULT_API_VERSION:STRING=v110  \
 
   if [ $? != 0 ] ; then
     echo cmake $HDF5 failed

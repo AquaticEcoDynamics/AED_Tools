@@ -2,7 +2,7 @@
 
 
 if [ ! -f ${SQLITE}.zip ] ; then
-   curl ${MINUS_K} https://www.sqlite.org/2025/${SQLITE}.zip -o ${SQLITE}.zip
+   curl ${MINUS_K} https://www.sqlite.org/2026/${SQLITE}.zip -o ${SQLITE}.zip
    if [ $? != 0 ] ; then
       echo failed to fetch ${SQLITE}.tar.gz
       exit 1

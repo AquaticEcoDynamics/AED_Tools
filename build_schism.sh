@@ -356,7 +356,7 @@ set(NetCDF_C_CONFIG_EXECUTABLE "${NCDFCBASE}/bin/nc-config" CACHE PATH "Path to 
 set(NetCDF_C_INCLUDE "/usr/include" CACHE PATH "Path to NetCDF C include file")
 
 # Doesn't seem to get used
-#set(MPI_ROOT "${CWD}/ancillary/${FC}"  CACHE PATH "Root dir of MPI")
+#set(MPI_ROOT "${CWD}/ancillary"  CACHE PATH "Root dir of MPI")
 
 EOF
 #---------------------------------
@@ -497,17 +497,17 @@ cmake -Wno-dev -G "Unix Makefiles" \
 
 # On MacOS we have something like (it still didn't work, though) :
 #
-# export MPI_HOME="${CWD}/ancillary/${FC}"
-# export MPIEXEC_EXECUTABLE="${CWD}/ancillary/${FC}/bin/mpiexec"
-# export MPI_CXX_COMPILER="${CWD}/ancillary/${FC}/bin/mpicxx"
-# export MPI_CXX_HEADER_DIR="${CWD}/ancillary/${FC}/include"
-# export MPI_CXX_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
-# export MPI_C_COMPILER="${CWD}/ancillary/${FC}/bin/mpicc"
-# export MPI_C_HEADER_DIR="${CWD}/ancillary/${FC}/include"
-# export MPI_C_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
-# export MPI_Fortran_COMPILER="${CWD}/ancillary/${FC}/bin/mpifort"
-# export MPI_Fortran_F77_HEADER_DIR="${CWD}/ancillary/${FC}/include"
-# export MPI_Fortran_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/${FC}/lib -latomic -lpthread -ldl"
+# export MPI_HOME="${CWD}/ancillary"
+# export MPIEXEC_EXECUTABLE="${CWD}/ancillary/bin/mpiexec"
+# export MPI_CXX_COMPILER="${CWD}/ancillary/bin/mpicxx"
+# export MPI_CXX_HEADER_DIR="${CWD}/ancillary/include"
+# export MPI_CXX_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
+# export MPI_C_COMPILER="${CWD}/ancillary/bin/mpicc"
+# export MPI_C_HEADER_DIR="${CWD}/ancillary/include"
+# export MPI_C_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
+# export MPI_Fortran_COMPILER="${CWD}/ancillary/bin/mpifort"
+# export MPI_Fortran_F77_HEADER_DIR="${CWD}/ancillary/include"
+# export MPI_Fortran_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
 #
 # cmake -Wno-dev -G "Unix Makefiles" \
 #     -DMPI_HOME=${MPI_HOME} \

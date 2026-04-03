@@ -97,13 +97,13 @@ if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
       export NetCDF_INCLUDE_DIRS="${NetCDF_ROOT}/include"
       export NetCDF_LIBRARIES="${NetCDF_ROOT}/lib"
     else
-      if [ ! -d ${CWD}/ancillary/${FC}/include ] ; then
-        cd ${CWD}/ancillary/${FC}
-        ./build_netcdf_f.sh
+      if [ ! -d ${CWD}/ancillary/include ] ; then
+        cd ${CWD}/ancillary
+        ./build.sh --need-netcdf_f
         cd ${CWD}
       fi
 
-      export NetCDF_ROOT=${CWD}/ancillary/${FC}
+      export NetCDF_ROOT=${CWD}/ancillary/
     fi
   fi
   export FCB=${FC}

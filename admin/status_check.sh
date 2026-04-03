@@ -25,7 +25,7 @@ git status
 REPO=`cat .git/config | grep -w url | head -n 1 | cut -f2 -d=`
 if [ $verbose ] ; then check_remote $REPO; fi
 
-for src in libplot libutil libaed-api libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed-fv libaed2 libaed2-plus GLM gotm-git ELCOM ; do
+for src in libplot libutil libaed-api libaed-water libaed-benthic libaed-demo libaed-riparian libaed-light libaed-dev libaed-fv GLM gotm-git ELCOM ; do
   if [ -d $src ] ; then
       REPO=`cat $src/.git/config | grep -w url | head -n 1 | cut -f2 -d=`
       echo "===================================================="
@@ -34,8 +34,8 @@ for src in libplot libutil libaed-api libaed-water libaed-benthic libaed-demo li
       git status
     if [ $verbose ] ; then check_remote $REPO; fi
     cd $CWD
-  else
-    echo "no directory for $src"
+# else
+#   echo "no directory for $src"
   fi
 done
 

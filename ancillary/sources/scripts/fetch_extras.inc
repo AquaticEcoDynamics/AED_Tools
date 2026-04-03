@@ -32,7 +32,11 @@ if [ ! -f ${HDF5}.tar.gz ] ; then
    HMAJ=`echo ${HDF5V} | cut -f2 -d\.`
    HMIN=`echo ${HDF5V} | cut -f3 -d\.`
    HDFDV="HDF5_${HVER}_${HMAJ}_${HMIN}"
-   HDF5URL="https://support.hdfgroup.org/releases/hdf5/v${HVER}_${HMAJ}/v${HVER}_${HMAJ}_${HMIN}/downloads/${HDF5}.tar.gz"
+   if [ "${HVER}_${HMAJ}" = "2_1" ] ; then
+      HDF5URL="https://support.hdfgroup.org/releases/hdf5/${HVER}.${HMAJ}.${HMIN}/downloads/${HDF5}.tar.gz"
+   else
+      HDF5URL="https://support.hdfgroup.org/releases/hdf5/v${HVER}_${HMAJ}/v${HVER}_${HMAJ}_${HMIN}/downloads/${HDF5}.tar.gz"
+   fi
    echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
    curl ${MINUS_K}  -L ${HDF5URL} -o ${HDF5}.tar.gz
    if [ $? != 0 ] ; then

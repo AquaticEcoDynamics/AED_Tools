@@ -131,4 +131,4 @@ if [ "$GET_SQLITE" = "true" ] ; then
   . ./scripts/fetch_sqlite.inc
 fi
 
-exit 0
+exit $?
