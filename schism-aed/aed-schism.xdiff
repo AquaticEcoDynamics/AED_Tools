@@ -1,8 +1,8 @@
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index c8cda13f..53d7c30d 100644
+index bcbe80ff..9d0d26cb 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -233,6 +233,7 @@ add_module(Fabm     USE_FABM  OFF)
+@@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
  add_module(EcoSim   USE_ECO   OFF)
  add_module(Sediment USE_SED   OFF)
  add_module(Sed2d    USE_SED2D OFF)
@@ -10,7 +10,7 @@ index c8cda13f..53d7c30d 100644
  add_module(Hydro    USE_HYDRO ON)
  add_module(Core     USE_SCHISM ON)
  
-@@ -327,6 +328,9 @@ endforeach()
+@@ -326,6 +327,9 @@ endforeach()
  string(CONCAT mod_tag ${all_use_mod_defs})
  string(REPLACE USE_ _ mod_tag_rev ${mod_tag})
  string(REPLACE _HYDRO_SCHISM "" mod_tag_rev ${mod_tag_rev})
@@ -266,7 +266,7 @@ index bba85621..45355429 100644
  add_dependencies(combine_output11 utillib)
 +add_dependencies(combine_output11_MPI utillib)
 diff --git a/src/Utility/Combining_Scripts/combine_output11.f90 b/src/Utility/Combining_Scripts/combine_output11.f90
-index 73940a7f..42a4ec2c 100644
+index 73940a7f..3b233389 100644
 --- a/src/Utility/Combining_Scripts/combine_output11.f90
 +++ b/src/Utility/Combining_Scripts/combine_output11.f90
 @@ -103,6 +103,9 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
@@ -296,14 +296,15 @@ index 73940a7f..42a4ec2c 100644
      iret = nf90_create(trim(fname), OR(NF90_CLOBBER,OR(NF90_NETCDF4,NF90_CLASSIC_MODEL)), ncid)
      !define dimensions
      iret = nf90_def_dim(ncid, 'nSCHISM_hgrid_node',np_global, node_dim)
-@@ -505,10 +513,14 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -505,10 +513,15 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
  !          endif
  
      !Find and define variables
 +  if (original_version) then
      file63='schout_000000_'//it_char(1:it_len)//'.nc'
 +  else
-+    file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++   !file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++    file63=trim(output_prefix)//'_000000_'//trim(it_char)//'.nc'
 +  endif
      file63=adjustl(file63)
      iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
@@ -312,14 +313,15 @@ index 73940a7f..42a4ec2c 100644
      !iret=nf_inq_nvars(ncid2,nvars)
      iret=nf90_inquire(ncid2,nVariables=nvars)
  !    write(99,*)'nvars=',nvars,file63
-@@ -734,11 +746,15 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -734,11 +747,16 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
        do irank=0,nproc-1
          !Open input file
          write(a_4,'(i6.6)') irank
 +     if (original_version) then
          file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
 +     else
-+        file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++       !file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++        file63=trim(output_prefix)//'_'//trim(a_4)//'_'//it_char(1:it_len)//'.nc'
 +     endif
          file63=adjustl(file63)
          iret=nf90_open(trim(file63),NF90_NOWRITE,ncid2)
@@ -330,7 +332,7 @@ index 73940a7f..42a4ec2c 100644
          endif
          !write(99,*)'nvars=',nvars,file63
 diff --git a/src/Utility/Combining_Scripts/combine_output11_MPI.F90 b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
-index df3c23f5..9ea7496c 100644
+index df3c23f5..37453568 100644
 --- a/src/Utility/Combining_Scripts/combine_output11_MPI.F90
 +++ b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
 @@ -111,6 +111,9 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
@@ -359,14 +361,15 @@ index df3c23f5..9ea7496c 100644
      iret = nf90_create(trim(fname), OR(NF90_CLOBBER,OR(NF90_NETCDF4,NF90_CLASSIC_MODEL)), ncid)
      !define dimensions
      iret = nf90_def_dim(ncid, 'nSCHISM_hgrid_node',np_global, node_dim)
-@@ -532,11 +540,15 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -532,11 +540,16 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
  !          endif
  
      !Find and define variables
 +  if (original_version) then
      file63='schout_000000_'//it_char(1:it_len)//'.nc'
 +  else
-+    file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++    !file63=trim(output_prefix)//'_00000'//it_char(1:it_len)//'.nc'
++    file63 = trim(output_prefix)//'_000000_'//trim(it_char)//'.nc'
 +  endif
      file63=adjustl(file63)
      iret=nf90_open(trim(file63),OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)
@@ -376,14 +379,15 @@ index df3c23f5..9ea7496c 100644
        call mpi_abort(comm,0,j10)
      endif
      !iret=nf_inq_nvars(ncid2,nvars)
-@@ -767,11 +779,15 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -767,11 +780,16 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
        do irank=0,nproc-1
          !Open input file
          write(a_4,'(i6.6)') irank
 +     if (original_version) then
          file63='schout_'//a_4//'_'//it_char(1:it_len)//'.nc'
 +     else
-+        file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++       !file63=trim(output_prefix)//'_'//trim(a_4)//'.nc'
++        file63=trim(output_prefix)//'_'//trim(a_4)//'_'//it_char(1:it_len)//'.nc'
 +     endif
          file63=adjustl(file63)
          iret=nf90_open(trim(file63),OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)

@@ -60,25 +60,28 @@ if [ "$WITH_AED_PLUS" = "true" ] ; then
 
     if [ -d "${CWD}/modflow6" ] ; then
       MODFLOWDIR="${CWD}/modflow6"
-      cd "${CWD}/modflow6"
-#     grep OBJDIR make/makefile | grep -v '%' | grep -v mf6.o > liblist
-#     ${MAKE}
+      which meson > /dev/null 2>&1
+      if [ $? -eq 0 ] ; then
+        cd "${CWD}/modflow6"
+#       grep OBJDIR make/makefile | grep -v '%' | grep -v mf6.o > liblist
+#       ${MAKE}
 
-      meson setup build --buildtype="release" --prefix="${CWD}/tmp"
-      meson compile -C build
-#     meson install -C build
+        meson setup build --buildtype="release" --prefix="${CWD}/tmp"
+        meson compile -C build
+#       meson install -C build
 
-      if [ ! -f build/srcbmi/libmf6.so ] ; then
-        echo building libmf6.so failed
-        unset MODFLOWDIR
-      else
-        mkdir ${CWD}/libaed-dev/mod
-        cp build/srcbmi/libmf6.so.p/*.mod ${CWD}/libaed-dev/mod
-        if [ "$FC" != "gfortran" ] ; then
-          cp build/src/libmf6core.a.p/mf6coremodule.mod   ${CWD}/libaed-dev/mod
-          cp build/src/libmf6core.a.p/simstagesmodule.mod ${CWD}/libaed-dev/mod
-          cp build/src/libmf6core.a.p/profilermodule.mod  ${CWD}/libaed-dev/mod
-          cp build/src/libmf6core.a.p/characterstringmodule.mod ${CWD}/libaed-dev/mod
+        if [ ! -f build/srcbmi/libmf6.so ] ; then
+          echo building libmf6.so failed
+          unset MODFLOWDIR
+        else
+          mkdir ${CWD}/libaed-dev/mod
+          cp build/srcbmi/libmf6.so.p/*.mod ${CWD}/libaed-dev/mod
+          if [ "$FC" != "gfortran" ] ; then
+            cp build/src/libmf6core.a.p/mf6coremodule.mod   ${CWD}/libaed-dev/mod
+            cp build/src/libmf6core.a.p/simstagesmodule.mod ${CWD}/libaed-dev/mod
+            cp build/src/libmf6core.a.p/profilermodule.mod  ${CWD}/libaed-dev/mod
+            cp build/src/libmf6core.a.p/characterstringmodule.mod ${CWD}/libaed-dev/mod
+          fi
         fi
       fi
     fi

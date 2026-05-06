@@ -1592,37 +1592,49 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
          iret = nf90_noerr
-         IF ( tv%var_type == v_type .AND. externalid(i) >= 0 ) THEN
+         IF ( tv%var_type == v_type ) THEN
             IF ( tv%sheet ) THEN
-               start(1) = 1; count(1) = n_cols
-               start(2) = ts_counter; count(2) = 1
+               !# Increment counters for all variables to track array position
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
                   sd = sd + 1
-                  !# Store benthic diagnostic variables.
-                  iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
-               ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               ELSEIF ( tv%var_type == V_STATE ) THEN
                   sv = sv + 1
-                  !# Store benthic biogeochemical state variables.
-                  iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
+               ENDIF
+               IF ( externalid(i) >= 0 ) THEN
+                  start(1) = 1; count(1) = n_cols
+                  start(2) = ts_counter; count(2) = 1
+                  IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+                     !# Store benthic diagnostic variables.
+                     iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
+                  ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+                     !# Store benthic biogeochemical state variables.
+                     iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
+                  ENDIF
                ENDIF
             ELSE !# not sheet
-               start(1) = 1;          count(1) = 1  ! n_layers, layer by layer
-               start(2) = 1;          count(2) = n_cols
-               start(3) = ts_counter; count(3) = 1
+               !# Increment counters for all variables to track array position
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
                   d = d + 1
-                  !# Store pelagic diagnostic variables layer by layer.
-                  DO j=1,n_layers
-                     start(1) = j
-                     iret = nf90_put_var(ncid, externalid(i), cc_diag(d, j, :), start, count)
-                  ENDDO
-               ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               ELSEIF ( tv%var_type == V_STATE ) THEN
                   v = v + 1
-                  !# Store pelagic biogeochemical state variables layer by layer.
-                  DO j=1,n_layers
-                     start(1) = j
-                     iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, j, :), start, count)
-                  ENDDO
+               ENDIF
+               IF ( externalid(i) >= 0 ) THEN
+                  start(1) = 1;          count(1) = 1  ! n_layers, layer by layer
+                  start(2) = 1;          count(2) = n_cols
+                  start(3) = ts_counter; count(3) = 1
+                  IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+                     !# Store pelagic diagnostic variables layer by layer.
+                     DO j=1,n_layers
+                        start(1) = j
+                        iret = nf90_put_var(ncid, externalid(i), cc_diag(d, j, :), start, count)
+                     ENDDO
+                  ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+                     !# Store pelagic biogeochemical state variables layer by layer.
+                     DO j=1,n_layers
+                        start(1) = j
+                        iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, j, :), start, count)
+                     ENDDO
+                  ENDIF
                ENDIF
             ENDIF
          ENDIF

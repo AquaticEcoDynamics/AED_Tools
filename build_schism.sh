@@ -2,6 +2,12 @@
 
 export CWD=`pwd`
 
+if [ ! -d schism ] ; then
+  echo no \"schism\" directory - you will need to get schism first\!
+  echo Try \"./fetch_sources.sh schism\"
+  exit 1
+fi
+
 #-------------------------------------------------------------------------------
 # Start by figuring out what system we're on
 
@@ -341,7 +347,13 @@ set(CMAKE_Fortran_COMPILER ${FC} CACHE PATH "Path to serial Fortran compiler")
 set(CMAKE_C_COMPILER gcc CACHE PATH "Path to serial C compiler")
 set(CMAKE_Fortran_FLAGS_RELEASE "${FFLAGS_RELEASE}" CACHE STRING "Fortran flags" FORCE)
 
+# # MPI compiler wrappers (important for parallel build) - for building on pawsey?
+# set(MPI_Fortran_COMPILER /opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3/bin/mpif90 CACHE PATH "MPI Fortran compiler wrapper")
+# set(MPI_C_COMPILER /opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3/bin/mpicc CACHE PATH "MPI C compiler wrapper")
+# set(NetCDF_PARALLEL TRUE CACHE BOOL "Enable parallel NetCDF")
+#
 set(NetCDF_PARALLEL "FALSE")
+
 #
 set(NetCDF_DIR "${NETCDFHOME}" CACHE PATH "Default Path to NetCDF")
 

@@ -10,6 +10,12 @@ count=0
 # get host out of our .git/config file
 #GITHOST=git@github.com:AquaticEcoDynamics/
 HOST=`grep 'url = ' .git/config | sed -e 's/url = //' | sed -e 's/AquaticEcoDynamics/\n/' | head -1`
+PLUS=`grep 'url = ' .git/config | sed -e 's/url = //' | sed -e 's/AquaticEcoDynamics/\n/' | tail -1`
+if [ "$PLUS" = "/AED_Tools_Private" ] ; then
+  PLUS="true"
+else
+  PLUS=false
+fi
 GITHOST="$HOST/AquaticEcoDynamics/"
 
 GET_GLM="false"
@@ -46,7 +52,7 @@ while [ $# -gt 0 ] ; do
       GETPLOT="true"
       GETUTIL="true"
       GETAEDFV="true"
-      GETPLUS="true"
+      if [ "$PLUS" = "true" ] ; then GETPLUS="true" ; fi
       GETPHQ="true"
       ;;
     GLM|glm)

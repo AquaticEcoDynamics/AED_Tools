@@ -118,7 +118,7 @@ if [ "$FABM" = "true" ] ; then
     export FABM=false
   else
     which cmake > /dev/null 2>&1
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
       echo "cmake not found - FABM cannot be built"
       export FABM=false
     fi
@@ -211,8 +211,9 @@ cd "${CWD}"
 
 # ***************************** Linux *********************************
 if [ "$OSTYPE" = "Linux" ] ; then
-  if [ $(lsb_release -is) = Ubuntu ] ; then
-    BINPATH=binaries/ubuntu/$(lsb_release -rs)
+  RELEASE=`lsb_release -is | tr '[A-Z]' '[a-z]'`
+  if [ $RELEASE = ubuntu ] || [ $RELEASE = debian ] ; then
+    BINPATH=binaries/$RELEASE/$(lsb_release -rs)
     if [ ! -d "${BINPATH}" ] ; then
       mkdir -p "${BINPATH}"/
     fi

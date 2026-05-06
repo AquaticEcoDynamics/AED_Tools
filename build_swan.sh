@@ -84,7 +84,7 @@ if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
   fi
 
   which ${FC} > /dev/null 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
      echo ${FC} compiler requested, but not found
      exit 1
   fi

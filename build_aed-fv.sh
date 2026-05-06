@@ -13,6 +13,7 @@ export DEBUG=false
 export WITH_AED=true
 export WITH_AED_PLUS=false
 export WITH_MPI=false
+export WITH_CHECKS=false
 
 export LICENSE=0
 
@@ -22,6 +23,7 @@ while [ $# -gt 0 ] ; do
   case $1 in
     --debug)
       export DEBUG=true
+      export WITH_CHECKS=true
       ;;
     --fence)
       export FENCE=true
@@ -31,6 +33,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --single)
       export SINGLE=true
+      ;;
+    --with-checks)
+      export WITH_CHECKS=true
       ;;
     --with-aed-plus)
       export WITH_AED_PLUS=true
@@ -187,8 +192,9 @@ if [ "$EXTERNAL_LIBS" = "shared" ] ; then
     BINPATH="binaries/macos/${MOSNAME}"
   fi
   if [ "$OSTYPE" = "Linux" ] ; then
-    if [ $(lsb_release -is) = Ubuntu ] ; then
-      BINPATH="binaries/ubuntu/$(lsb_release -rs)"
+    RELEASE=`lsb_release -is | tr '[A-Z]' '[a-z]'`
+    if [ $RELEASE = ubuntu ] || [ $RELEASE = debian ] ; then
+      BINPATH=binaries/$RELEASE/$(lsb_release -rs)
     fi
     cd ${CURDIR}
     if [ -d debian/libaed-tfv ] ; then

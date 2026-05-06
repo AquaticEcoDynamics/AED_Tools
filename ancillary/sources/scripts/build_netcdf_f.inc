@@ -38,8 +38,10 @@ if [ "$NETCDFF" != "" ] ; then
            -DNETCDF_C_LIBRARY="${FINALDIR}/lib/libnetcdf.so" \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-netcdf-f 2>&1
 
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $NETCDFF cmake failed
+    which cmake > /dev/null 2>&1
+    if [ $? -ne 0 ] ; then echo cmake not installed? ; fi
     exit 1
   fi
 
@@ -49,7 +51,7 @@ if [ "$NETCDFF" != "" ] ; then
     exit 1
   fi
   cmake -P cmake_install.cmake
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
      echo $NETCDFF install failed
     exit 1
   fi

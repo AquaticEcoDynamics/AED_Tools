@@ -16,30 +16,38 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   export MAKE=gmake
 fi
 
+NEEDS=""
+if [ "$WITH_AED_PLUS" = "true" ] ; then
+  NEED_GD=true
+fi
 # echo building environment for `basename $0`
-# case `basename $0` in
-#   "build_aed-fv.sh")
-#     ;;
-#   "build_aedlibs.sh")
-#     ;;
-#   "build_modflow.sh")
-#     ;;
-#   "build_swan.sh")
-#     ;;
-#   "build_zeroD.sh")
-#     ;;
-#   "build_elcom.sh")
-#     NEEDS+="--need-netcdf-f"
-#     ;;
-#   "build_glm.sh")
-#     NEEDS+="--need-netcdf-c --need-gd"
-#     ;;
-#   "build_schism.sh")
-#     NEEDS+="--need-netcdf-f --need-openmpi"
-#     ;;
-#   "build_tuflow.sh")
-#     ;;
-# esac
+case "`basename $0`" in
+# "build_aedlibs.sh")
+#   ;;
+  "build_glm.sh")
+    NEED_NCDFC=true
+    NEED_GD=true
+    ;;
+# "build_aed-fv.sh")
+#   ;;
+  "build_elcom.sh")
+    NEED_NCDFF=true
+    ;;
+  "build_zeroD.sh")
+    NEED_NCDFC=true
+    NEED_GD=true
+    ;;
+  "build_schism.sh")
+    NEED_NCDFF=true
+    NEED_OMPI=true
+    ;;
+# "build_modflow.sh")
+#   ;;
+# "build_swan.sh")
+#   ;;
+# "build_tuflow.sh")
+#   ;;
+esac
 
 
 #---------------
@@ -48,6 +56,18 @@ get_commit_id () {
   me=`grep -w url .git/config | head -1 | cut -f3 -d\ `
   stat=`git status -s --untracked-files=no | wc -l`
   echo "$cid from $me with $stat changes"
+}
+#---------------
+
+#---------------
+find_header () {
+  echo "include"
+}
+#---------------
+
+#---------------
+find_library () {
+  echo "lib"
 }
 #---------------
 
@@ -79,7 +99,7 @@ if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
     fi
     if [ "$MY_PS" = "$$" ] ; then
       which ${FC} > /dev/null 2>&1
-      if [ $? != 0 ] ; then
+      if [ $? -ne 0 ] ; then
 
         cat << EOF | cmd
 @echo off
@@ -95,41 +115,71 @@ EOF
   fi
 
   which ${FC} > /dev/null 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo ${FC} compiler requested, but not found
     exit 1
   fi
 fi
 
-# see if we have open mpi, netcdf-c and netcdf-fortran in our default path, set the
+# If we're on MacOS, work out if we have MacPorts or HomeBrew
+if [ "$OSTYPE" = "Darwin" ] ; then
+# export LIBRARY_PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
+  brew -v > /dev/null 2>&1
+  if [ $? -eq 0 ] ; then
+    export HOMEBREW=true
+    DEFAULTPATH=/opt/homebrew
+  else
+    which port > /dev/null 2>&1
+    if [ $? -eq 0 ] ; then
+      export MACPORTS=true
+      DEFAULTPATH=/opt/local
+    fi
+  fi
+fi
+
+# see if we have open mpi, netcdf-c, netcdf-fortran and libgd in our default path, set the
 # default "home" for each
 
 if [ "$OSTYPE" = "Msys" ] ; then
   export PATH="$PATH:`pwd`/ancillary/bin"
 fi
 
-OMPIBASE=
-BINDIR=`which ompi_info`
-if [ "$BINDIR" != "" ] ; then
-  BINDIR=`dirname $BINDIR`
+# Do we need/have ompi
+if [ "$NEED_OMPI" = "true" ] ; then
+  OMPIBASE=
+  BINDIR=`which ompi_info`
   if [ "$BINDIR" != "" ] ; then
-    OMPIBASE=`dirname $BINDIR`
+    BINDIR=`dirname $BINDIR`
+    if [ "$BINDIR" != "" ] ; then
+      OMPIBASE=`dirname $BINDIR`
+    fi
+  fi
+  if [ "$OMPIBASE" = "" ] ; then
+    NEED_OMPI=true
+#   echo no open-mpi found
+  else
+    NEED_OMPI=false
   fi
 fi
-if [ "$OMPIBASE" = "" ] ; then
-  echo no open-mpi found
-fi
-BINDIR=`which nc-config`
-if [ "$BINDIR" != "" ] ; then
-  BINDIR=`dirname $BINDIR`
+
+# do we need/have netcdf-c
+if [ "$NEED_NCDFC" = "true" ] ; then
+  BINDIR=`which nc-config`
   if [ "$BINDIR" != "" ] ; then
-    NCDFCBASE=`dirname $BINDIR`
+    BINDIR=`dirname $BINDIR`
+    if [ "$BINDIR" != "" ] ; then
+      NCDFCBASE=`dirname $BINDIR`
+    fi
   fi
-fi
-if [ "$NCDFCBASE" = "" ] ; then
-  echo no netcdf found
+  if [ "$NCDFCBASE" = "" ] ; then
+    NEED_NCDFC=true
+#   echo no netcdf found
+  else
+    NEED_NCDFC=false
+  fi
 fi
 unset BINDIR
+
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
   if [ -d ancillary/bin ] ; then
     BINDIR="`pwd`/ancillary/bin"
@@ -141,6 +191,7 @@ if [ "$BINDIR" = "" ] ; then
     BINDIR=`dirname $BINDIR`
   fi
 fi
+
 if [ "$BINDIR" != "" ] ; then
   NF_FC=`$BINDIR/nf-config --fc`
   if [ "`basename $NF_FC .exe`" = "${FC}" ] ; then
@@ -152,7 +203,8 @@ fi
 unset BINDIR
 
 # if we haven't found netcdf-fortran ...
-if [ "${NCDFFBASE}" = "" ]; then
+if [ "$NEED_NCDFF" = "true" ] && [ "${NCDFFBASE}" = "" ]; then
+  export NEED_NCDFF=false
   BASEDIR='.'
   TCWD=`pwd`
   if [ -d ancillary ] ; then
@@ -165,15 +217,11 @@ if [ "${NCDFFBASE}" = "" ]; then
   fi
   if [ "$OSTYPE" = "Msys" ] ; then
     if [ ! -f ${BASEDIR}/ancillary/include/netcdf.h ] ; then
-      echo making windows ancillary extras
-      cd ${BASEDIR}/ancillary
-      ./build.sh || exit 1
+      export NEED_NCDFF=true
     fi
   else
     if [ ! -f ${BASEDIR}/ancillary/include/netcdf.mod ] ; then
-      echo making $OSTYPE ancillary extras
-      cd ${BASEDIR}/ancillary
-      ./build.sh --need-netcdf_f || exit 1
+      export NEED_NCDFF=true
     fi
   fi
   export NCDFFBASE=${BASEDIR}/ancillary
@@ -182,7 +230,7 @@ if [ "${NCDFFBASE}" = "" ]; then
   fi
   cd ${TCWD}
   unset TCWD
-# echo PATH=\"$PATH\"
+
   if [ "${NCFCBASE}" = "" ] ; then
     NCFCBASE=${NCDFFBASE}
   fi
@@ -190,20 +238,25 @@ fi
 
 export NETCDFHOME=${NCDFFBASE}
 
-# If we're on MacOS, work out if we have MacPorts or HomeBrew
-if [ "$OSTYPE" = "Darwin" ] ; then
-# export LIBRARY_PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
-  brew -v >& /dev/null
-  if [ $? != 0 ] ; then
-    which port >& /dev/null
-    if [ ! $? ] ; then
-      export MACPORTS=true
-      DEFAULTPATH=/opt/local
-    fi
-  else
-    export HOMEBREW=true
-    DEFAULTPATH=/opt/homebrew
+if [ "$NEED_GD" = "true" ] ; then
+  if [ -f /usr/include/gd.h ] || [ -f ancillary/include/gd.h ] ; then
+    NEED_GD=false
   fi
 fi
+
+NEEDS=
+if [ "$NEED_NCDFC" = "true" ] ; then NEEDS="$NEEDS --need-netcdf-c" ; fi
+if [ "$NEED_NCDFF" = "true" ] ; then NEEDS="$NEEDS --need-netcdf-f" ; fi
+if [ "$NEED_OMPI" = "true" ] ; then NEEDS="$NEEDS --need-ompi" ; fi
+if [ "$NEED_GD" = "true" ] ; then NEEDS="$NEEDS --need-gd" ; fi
+
+if [ "$NEED_NCDFC" = "true" ] || [ "$NEED_NCDFF" = "true" ] || [ "$NEED_OMPI" = "true" ] || [ "$NEED_GD" = "true" ] ; then
+  echo NEED_NCDFC=$NEED_NCDFC NEED_NCDFF=$NEED_NCDFF NEED_OMPI=$NEED_OMPI NEED_GD=$NEED_GD
+  cd ancillary
+  ./build.sh ${NEEDS} || exit 1
+fi
+
+export INCLUDES="$INCLUDES -I${CWD}/ancillary/include"
+export LDFLAGS="$LDFLAGS -L${CWD}/ancillary/lib"
 
 echo basic info OMPIBASE=$OMPIBASE  NCDFCBASE=$NCDFCBASE NCDFFBASE=$NCDFFBASE
