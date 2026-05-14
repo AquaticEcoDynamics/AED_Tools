@@ -16,7 +16,6 @@ if [ "$OSTYPE" = "FreeBSD" ] ; then
   export MAKE=gmake
 fi
 
-NEEDS=""
 if [ "$WITH_AED_PLUS" = "true" ] ; then
   NEED_GD=true
 fi
@@ -31,6 +30,7 @@ case "`basename $0`" in
 # "build_aed-fv.sh")
 #   ;;
   "build_elcom.sh")
+    NEED_NCDFC=true
     NEED_NCDFF=true
     ;;
   "build_zeroD.sh")
@@ -38,8 +38,10 @@ case "`basename $0`" in
     NEED_GD=true
     ;;
   "build_schism.sh")
+    NEED_NCDFC=true
     NEED_NCDFF=true
     NEED_OMPI=true
+    NEED_GD=true
     ;;
 # "build_modflow.sh")
 #   ;;
@@ -180,11 +182,14 @@ if [ "$NEED_NCDFC" = "true" ] ; then
 fi
 unset BINDIR
 
-if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
+if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] || [ "$FC" = "flang"  ] || [ "$FC" = "flang-new" ] ; then
   if [ -d ancillary/bin ] ; then
-    BINDIR="`pwd`/ancillary/bin"
+    if [ -x ancillary/bin/nf-config ] ; then
+      BINDIR="`pwd`/ancillary/bin"
+    fi
   fi
 fi
+
 if [ "$BINDIR" = "" ] ; then
   BINDIR=`which nf-config`
   if [ "$BINDIR" != "" ] ; then
@@ -196,6 +201,7 @@ if [ "$BINDIR" != "" ] ; then
   NF_FC=`$BINDIR/nf-config --fc`
   if [ "`basename $NF_FC .exe`" = "${FC}" ] ; then
     NCDFFBASE=`dirname $BINDIR`
+    export NEED_NCDFF=false
   else
     echo fortran compiler mismatch on nf-config "( $NF_FC != $FC )"
   fi
@@ -204,7 +210,7 @@ unset BINDIR
 
 # if we haven't found netcdf-fortran ...
 if [ "$NEED_NCDFF" = "true" ] && [ "${NCDFFBASE}" = "" ]; then
-  export NEED_NCDFF=false
+# export NEED_NCDFF=false
   BASEDIR='.'
   TCWD=`pwd`
   if [ -d ancillary ] ; then
@@ -215,16 +221,10 @@ if [ "$NEED_NCDFF" = "true" ] && [ "${NCDFFBASE}" = "" ]; then
       BASEDIR=`pwd`
     fi
   fi
-  if [ "$OSTYPE" = "Msys" ] ; then
-    if [ ! -f ${BASEDIR}/ancillary/include/netcdf.h ] ; then
-      export NEED_NCDFF=true
-    fi
-  else
-    if [ ! -f ${BASEDIR}/ancillary/include/netcdf.mod ] ; then
-      export NEED_NCDFF=true
-    fi
+  if [ -f ${CWD}/ancillary/include/netcdf.mod ] ; then
+    export NEED_NCDFF=false
   fi
-  export NCDFFBASE=${BASEDIR}/ancillary
+  export NCDFFBASE=${CWD}/ancillary
   if [ "${NCDFFBASE}" != "" ]; then
     export PATH="${NCDFFBASE}/bin:${PATH}"
   fi
@@ -245,18 +245,27 @@ if [ "$NEED_GD" = "true" ] ; then
 fi
 
 NEEDS=
-if [ "$NEED_NCDFC" = "true" ] ; then NEEDS="$NEEDS --need-netcdf-c" ; fi
-if [ "$NEED_NCDFF" = "true" ] ; then NEEDS="$NEEDS --need-netcdf-f" ; fi
-if [ "$NEED_OMPI" = "true" ] ; then NEEDS="$NEEDS --need-ompi" ; fi
+if [ "$NEED_NCDFC" = "true" ] ; then NEEDS="$NEEDS --need-ncdfc-extras --need-netcdf_c" ; fi
+if [ "$NEED_NCDFF" = "true" ] ; then NEEDS="$NEEDS --need-netcdf_f" ; fi
+if [ "$NEED_OMPI" = "true" ] ; then NEEDS="$NEEDS --need-openmpi" ; fi
 if [ "$NEED_GD" = "true" ] ; then NEEDS="$NEEDS --need-gd" ; fi
 
 if [ "$NEED_NCDFC" = "true" ] || [ "$NEED_NCDFF" = "true" ] || [ "$NEED_OMPI" = "true" ] || [ "$NEED_GD" = "true" ] ; then
   echo NEED_NCDFC=$NEED_NCDFC NEED_NCDFF=$NEED_NCDFF NEED_OMPI=$NEED_OMPI NEED_GD=$NEED_GD
+
   cd ancillary
   ./build.sh ${NEEDS} || exit 1
+
+  if [ "$NEED_NCDFC" = "true" ] ; then export NCDFCBASE="${CWD}/ancillary" ; fi
+  if [ "$NEED_NCDFF" = "true" ] ; then export NCDFFBASE="${CWD}/ancillary" ; fi
+  if [ "$NEED_OMPI"  = "true" ] ; then export OMPIBASE="${CWD}/ancillary" ; fi
 fi
 
 export INCLUDES="$INCLUDES -I${CWD}/ancillary/include"
 export LDFLAGS="$LDFLAGS -L${CWD}/ancillary/lib"
 
-echo basic info OMPIBASE=$OMPIBASE  NCDFCBASE=$NCDFCBASE NCDFFBASE=$NCDFFBASE
+echo basic info :
+echo    NCDFCBASE=$NCDFCBASE
+echo    NCDFFBASE=$NCDFFBASE
+echo    OMPIBASE=$OMPIBASE
+

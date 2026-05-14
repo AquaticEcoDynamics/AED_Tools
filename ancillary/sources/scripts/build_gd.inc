@@ -16,17 +16,16 @@ if [ "$JPEG" != "" ] ; then
   fi
   cd jpeg-$JPEGV
 
-# not sure we still need to do the vc version
-# cp jconfig.vc jconfig.h
   cp jconfig.txt jconfig.h
 
-  if [ "$OSTYPE" = "FreeBSD" ] ; then
-    sed -e 's/CC= cc/CC= clang/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
-  else
-    sed -e 's/CC= cc/CC= gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
+# if [ "$OSTYPE" = "FreeBSD" ] ; then
+  if [ "$CC" != "" ] ; then
+    sed -e "s/CC= cc/CC= $CC/" < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
+# else
+#   sed -e 's/CC= cc/CC= gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
   fi
   make
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $JPEG build failed
     exit 1
   fi
@@ -63,13 +62,13 @@ if [ "$LIBPNG" != "" ] ; then
            -DPNG_TOOLS:BOOL=OFF \
            -DZLIB_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/${LIBZA}" \
            -DCMAKE_INSTALL_PREFIX="$FINALDIR" -LAH > $FINALDIR/cmake-info-libpng 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $LIBPNG failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $LIBPNG build failed
     exit 1
   fi
@@ -109,13 +108,13 @@ if [ "$FREETYPE2" != "" ] ; then
            -DZLIB_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/${LIBZA}" \
            -DPNG_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/libpng.a" \
            -DCMAKE_INSTALL_PREFIX="$FINALDIR" -LAH > $FINALDIR/cmake-info-libfreetype 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $FREETYPE2 failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $FREETYPE2 build failed
     exit 1
   fi
@@ -155,7 +154,7 @@ if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
            -DZLIB_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/${LIBZA}" \
            -DPNG_LIBRARY_RELEASE:FILEPATH="$FINALDIR/lib/libpng.a" \
            -DCMAKE_INSTALL_PREFIX="$FINALDIR" -LAH > $FINALDIR/cmake-info-libgd 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $LIBGD failed
     exit 1
   fi
@@ -169,7 +168,7 @@ if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
 #          -DBUILD_STATIC_LIBS:BOOL=ON \
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $LIBGD build failed
     exit 1
   fi

@@ -75,7 +75,7 @@ if [ "$GETCDFC" = "true" ] ; then
   if [ ! -f ${NETCDF}.tar.gz ] ; then
     echo fetching ${NETCDF}.tar.gz
     curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-c/archive/refs/tags/v${NETCDFV}.tar.gz
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
       echo failed to fetch ${NETCDF}.tar.gz
       exit 1
     elif [ "$UNPACK" = "true" ] ; then
@@ -88,7 +88,7 @@ if [ "$GETCDFF" = "true" ] ; then
   if [ ! -f ${NETCDFF}.tar.gz ] ; then
     echo fetching ${NETCDFF}.tar.gz
     curl ${MINUS_K} -LJO https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${NETCDFFV}.tar.gz
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
       echo failed to fetch ${NETCDFF}.tar.gz
       exit 1
     elif [ "$UNPACK" = "true" ] ; then
@@ -101,7 +101,7 @@ if [ "$GETMPICH" = "true" ] ; then
   if [ ! -f ${MPICH}.tar.gz ] ; then
     echo fetching ${MPICH}.tar.gz
     curl ${MINUS_K} -LJO https://www.mpich.org/static/downloads/${MPICHV}/${MPICH}.tar.gz
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
       echo failed to fetch ${MPICH}.tar.gz
       exit 1
     elif [ "$UNPACK" = "true" ] ; then
@@ -114,7 +114,7 @@ if [ "$GETOMPI" = "true" ] ; then
   if [ ! -f ${OMPI}.tar.gz ] ; then
     echo fetching ${OMPI}.tar.gz
     curl ${MINUS_K} -LJO https://download.open-mpi.org/release/open-mpi/v${OMPIMAJ}/openmpi-${OMPIV}.tar.gz
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
       echo failed to fetch ${OMPI}.tar.gz
       exit 1
     elif [ "$UNPACK" = "true" ] ; then

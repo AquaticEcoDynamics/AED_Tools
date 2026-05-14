@@ -25,7 +25,7 @@ detab_file () {
 #      sed 's/[ 	]*$//' $FILE > tmpx
 #   fi
     \diff $FILE tmpx > /dev/null 2>&1
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
        echo changed $FILE
        /bin/rm $FILE
        /bin/mv tmpx $FILE
@@ -48,3 +48,5 @@ for k in ${FABMDIR}/src/models/aed ${FABMDIR}/src/drivers/glm ${GLMDIR}/src ${UT
       echo "No directory called" $k
    fi
 done
+
+exit 0

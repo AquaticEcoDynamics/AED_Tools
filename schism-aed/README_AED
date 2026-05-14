@@ -35,22 +35,14 @@
 # schism_aed.F90 contains :
 #
 #   schism_aed_init_model(ntracers=ntrs(13))
-#     At this stage most variables are not yet set - so we dont know, for example, how many 
-#     columns there are, nor how many layers.  This is a good place to read the aed.nml file
-#     to set global configuration values
 #
 #   schism_aed_init_stage2()
-#     So now we have ne (or nea) for the number of column, and, presumably a bunch of
+#     So now we have ne for the number of columns, and a bunch of
 #     other useful bits so we can build arrays etc.
 #
 #   schism_aed_do()
-#     The main doing stuff routine - currently doesnt seem to get called, but thats
-#     kind of OK because it still needs a fair bit of work, and until the init stage
-#     works properly...
+#     The main doing stuff routine
 #
 #   schism_aed_write_output_netcdf(time=time)
 #   schism_aed_close_output_netcdf()
-#
-# The current iteration of this file uses the libaed-api which is the simplified
-# interface to the aed libraries.
 #

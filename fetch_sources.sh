@@ -35,7 +35,7 @@ GETPHQ="false"
 GETSHZ="false"
 GETMODF="false"
 
-if [ $# = 0 ] ; then
+if [ $# -eq 0 ] ; then
   # The default case is to just update
   upd_list="libaed-api libaed-water libaed-benthic libaed-riparian libaed-demo libaed-dev libaed-light libplot libutil libaed-fv libaed2 libaed2-plus GLM ELCOM"
 fi
@@ -334,7 +334,7 @@ if [ "$GET_TFV" = "true" ] ; then
 fi
 
 #-------------------------------------------------------------------------------
-if [ $count = 0 ] ; then
+if [ $count -eq 0 ] ; then
   echo "There do not seem to be any repositories requested or present"
   echo "Usage : "
   echo "  fetch_sources.sh [-g <githost>] <repo>"

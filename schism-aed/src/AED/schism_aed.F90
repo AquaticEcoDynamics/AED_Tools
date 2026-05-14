@@ -29,13 +29,22 @@
 !###############################################################################
 
 #include "aed_api.h"
+#define SAVE_SINGLE_P   1
 
 #define AED_MODL_NO 13
-#define NC_FILLER    (9.9692099683868690d+36)
 
+#if SAVE_SINGLE_P
 !# Make output files smaller - at the cost of accuracy
 #define NF_REAL_TYPE nf90_float
-!#define NF_REAL_TYPE nf90_double
+#define NF_FILL_TYPE real(4)
+#define NC_FILLER    (9.9692099683868690e+36)
+!#define NC_FILLER    nf_fill_float
+#else
+#define NF_REAL_TYPE nf90_double
+#define NF_FILL_TYPE real(8)
+#define NC_FILLER    (9.9692099683868690d+36)
+!#define NC_FILLER    nf_fill_double
+#endif
 
 !#----------------------------------------------------------------------------#!
 !# CAB: Some DEBUG bits want DEBUG to be non-zero ; some want > 1
@@ -74,7 +83,7 @@ MODULE schism_aed
 !
   !# "elements" in schism are what we call columns
   !# layers are indexed from the bottom up
-  !# kbe(col) is the bottom (0 based)
+  !# kbe(col) is the bottom (0 means inactive)
   !#
   !# These are commented as in schism_glbl.F90 which may not make sense yet
   USE schism_glbl,ONLY: rkind
@@ -309,6 +318,9 @@ MODULE schism_aed
    INTEGER :: n_d_vars_save = -1
    CHARACTER(len=64),DIMENSION(200) :: d_vars_save
 
+   !  Shuffle filter is automatically enabled when deflate is on.
+   INTEGER :: nc_deflate_level = 0
+
 !  %% END NAMELIST   %%  /aed_save_vars/
 !#===================================================
 
@@ -361,7 +373,8 @@ SUBROUTINE schism_aed_configure_models(ntracers)
                          debug_interval, debug_col
 
     NAMELIST /aed_vars_save/ n_vars_save, vars_save,                           &
-                             n_d_vars_save, d_vars_save
+                             n_d_vars_save, d_vars_save,                       &
+                             nc_deflate_level
 !
 !-------------------------------------------------------------------------------
 !BEGIN
@@ -386,16 +399,16 @@ SUBROUTINE schism_aed_configure_models(ntracers)
 
    CLOSE(namlst);
 
- IF (myrank == 0) THEN
-    print*, "SSSSS n_vars_save = ", n_vars_save
-    DO i=1,n_vars_save
-       print*, "SSSSS vars_save(",i,") = ",vars_save(i)
-    ENDDO
-    print*, "DDDDD n_d_vars_save = ", n_d_vars_save
-    DO i=1,n_d_vars_save
-       print*, "DDDDD d_vars_save(",i,") = ",d_vars_save(i)
-    ENDDO
- ENDIF
+   IF (myrank == 0) THEN
+      print*, "SSSSS n_vars_save = ", n_vars_save
+      DO i=1,n_vars_save
+         print*, "SSSSS vars_save(",i,") = ",vars_save(i)
+      ENDDO
+      print*, "DDDDD n_d_vars_save = ", n_d_vars_save
+      DO i=1,n_d_vars_save
+         print*, "DDDDD d_vars_save(",i,") = ",d_vars_save(i)
+      ENDDO
+   ENDIF
 
    inited = .TRUE.
 
@@ -1209,7 +1222,6 @@ SUBROUTINE doMobilityF(N,dt,H,A,wvel,min_C,mcc)
 END SUBROUTINE doMobilityF
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 !# end of step
 !#                   ------------------------------
 !# start of io
@@ -1235,7 +1247,7 @@ SUBROUTINE schism_aed_create_output(stage)
    IF ( .NOT. inited ) RETURN
    IF ( n_cols <= 0 ) RETURN ! Nothing to do
 
-   IF (.NOT.ALLOCATED(externalid)) ALLOCATE(externalid(n_aed_vars)) 
+   IF (.NOT.ALLOCATED(externalid)) ALLOCATE(externalid(n_aed_vars))
    externalid = -1
 
    write(rank,fmt='(I0.6)') myrank
@@ -1371,6 +1383,13 @@ INTEGER FUNCTION new_nc_variable(ncid, name, data_type, ndim, dims)
       RETURN
    ENDIF
    CALL check_nc_error( nf90_def_var(ncid, name, data_type, dims, id) );
+   IF ( nc_deflate_level > 0 ) THEN
+      CALL check_nc_error( nf90_def_var_deflate(ncid, id,                      &
+                                                shuffle = 1,                   &
+                                                deflate = 1,                   &
+                                            deflate_level = nc_deflate_level), &
+                           'def_var_deflate '//TRIM(name) )
+   ENDIF
    new_nc_variable = id;
 END FUNCTION new_nc_variable
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1380,11 +1399,11 @@ END FUNCTION new_nc_variable
 SUBROUTINE set_nc_attributes(ncid, id, units, long_name, FillValue, i23dval)
 !-------------------------------------------------------------------------------
 !ARGUMENTS
-   INTEGER,INTENT(in)   :: ncid, id
+   INTEGER,INTENT(in) :: ncid, id
    CHARACTER(*),INTENT(in) :: units
    CHARACTER(*),INTENT(in),OPTIONAL :: long_name
-   AED_REAL,INTENT(in)  :: FillValue
-   INTEGER,INTENT(in)   :: i23dval
+   NF_FILL_TYPE,INTENT(in) :: FillValue
+   INTEGER,INTENT(in) :: i23dval
 !
 !LOCALS
    INTEGER :: status
@@ -1592,49 +1611,47 @@ SUBROUTINE schism_aed_write_output_split(time, v_type)
    DO i=1,n_aed_vars
       IF ( aed_get_var(i, tv) ) THEN
          iret = nf90_noerr
-         IF ( tv%var_type == v_type ) THEN
+         IF ( tv%sheet ) THEN
+            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+               sd = sd + 1
+            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               sv = sv + 1
+            ENDIF
+         ELSE !# not sheet
+            IF ( tv%var_type == V_DIAGNOSTIC ) THEN
+               d = d + 1
+            ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+               v = v + 1
+            ENDIF
+         ENDIF
+
+         IF ( tv%var_type == v_type .AND. externalid(i) >= 0 ) THEN
             IF ( tv%sheet ) THEN
-               !# Increment counters for all variables to track array position
+               start(1) = 1; count(1) = n_cols
+               start(2) = ts_counter; count(2) = 1
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-                  sd = sd + 1
-               ELSEIF ( tv%var_type == V_STATE ) THEN
-                  sv = sv + 1
-               ENDIF
-               IF ( externalid(i) >= 0 ) THEN
-                  start(1) = 1; count(1) = n_cols
-                  start(2) = ts_counter; count(2) = 1
-                  IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-                     !# Store benthic diagnostic variables.
-                     iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
-                  ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
-                     !# Store benthic biogeochemical state variables.
-                     iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
-                  ENDIF
+                  !# Store benthic diagnostic variables.
+                  iret = nf90_put_var(ncid, externalid(i), cc_diag_hz(sd,:), start, count)
+               ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+                  !# Store benthic biogeochemical state variables.
+                  iret = nf90_put_var(ncid, externalid(i), cc_hz(sv,:), start, count)
                ENDIF
             ELSE !# not sheet
-               !# Increment counters for all variables to track array position
+               start(1) = 1;          count(1) = 1  ! n_layers, layer by layer
+               start(2) = 1;          count(2) = n_cols
+               start(3) = ts_counter; count(3) = 1
                IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-                  d = d + 1
-               ELSEIF ( tv%var_type == V_STATE ) THEN
-                  v = v + 1
-               ENDIF
-               IF ( externalid(i) >= 0 ) THEN
-                  start(1) = 1;          count(1) = 1  ! n_layers, layer by layer
-                  start(2) = 1;          count(2) = n_cols
-                  start(3) = ts_counter; count(3) = 1
-                  IF ( tv%var_type == V_DIAGNOSTIC ) THEN
-                     !# Store pelagic diagnostic variables layer by layer.
-                     DO j=1,n_layers
-                        start(1) = j
-                        iret = nf90_put_var(ncid, externalid(i), cc_diag(d, j, :), start, count)
-                     ENDDO
-                  ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
-                     !# Store pelagic biogeochemical state variables layer by layer.
-                     DO j=1,n_layers
-                        start(1) = j
-                        iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, j, :), start, count)
-                     ENDDO
-                  ENDIF
+                  !# Store pelagic diagnostic variables layer by layer.
+                  DO j=1,n_layers
+                     start(1) = j
+                     iret = nf90_put_var(ncid, externalid(i), cc_diag(d, j, :), start, count)
+                  ENDDO
+               ELSEIF ( tv%var_type == V_STATE ) THEN  ! not diag
+                  !# Store pelagic biogeochemical state variables layer by layer.
+                  DO j=1,n_layers
+                     start(1) = j
+                     iret = nf90_put_var(ncid, externalid(i), tr_el(idx_s+v, j, :), start, count)
+                  ENDDO
                ENDIF
             ENDIF
          ENDIF

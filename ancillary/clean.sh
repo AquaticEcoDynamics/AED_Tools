@@ -18,7 +18,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "$SQUEEKY" = "true" ] ; then
-  /bin/rm -rf include bin lib share etc cmake*
+  /bin/rm -rf include bin lib sbin share etc cmake*
 
   cd sources
   ./clean_all.sh --squeeky

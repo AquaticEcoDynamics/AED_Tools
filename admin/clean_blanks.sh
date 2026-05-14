@@ -33,7 +33,7 @@ strip_file () {
        sed 's/[ 	]*$//' $FILE > tmpx
     fi
     \diff $FILE tmpx > /dev/null 2>&1
-    if [ $? != 0 ] ; then
+    if [ $? -ne 0 ] ; then
        echo changed $FILE
        /bin/rm $FILE
        /bin/mv tmpx $FILE

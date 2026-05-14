@@ -18,9 +18,9 @@ else
 fi
 
 ./configure --prefix=${FINALDIR} --enable-shared=no ${EXTRA_CONF}
-if [ $? = 0 ] ; then
+if [ $? -eq 0 ] ; then
   make
-  if [ $? = 0 ] ; then
+  if [ $? -eq 0 ] ; then
     make install
   else
     echo '****' build failed for $MPICH

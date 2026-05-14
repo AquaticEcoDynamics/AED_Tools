@@ -1,6 +1,6 @@
 # ===========================================================================
 
-if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] && [ ! -f "${FINALDIR}/lib/libnetcdf.so" ] ; then
   echo "====== building $NETCDF"
 
   \rm -rf $NETCDF
@@ -41,13 +41,13 @@ if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] ; then
 #          -DHDF5_C_INCLUDE_DIR:PATH="${FINALDIR}/include" \
 #          -DHDF5_DIR:PATH="${FINALDIR}/cmake" \
 
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $NETCDF failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $NETCDF build failed
     exit 1
   fi

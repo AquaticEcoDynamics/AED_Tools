@@ -7,7 +7,7 @@ export FINALDIR=`pwd`
 
 cd sources
 
-if [ $# != 0 ] ; then
+if [ $# -gt 0 ] ; then
   ./build_all.sh $*
 else
   echo "build --all"

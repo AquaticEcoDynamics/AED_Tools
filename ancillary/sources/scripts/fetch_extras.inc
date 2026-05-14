@@ -7,7 +7,7 @@ fi
 if [ ! -f ${CURL}.tar.gz ] ; then
    echo fetching ${CURL}.tar.gz
    curl ${MINUS_K} -L https://curl.haxx.se/download/${CURL}.tar.gz -o ${CURL}.tar.gz
-   if [ $? != 0 ] ; then
+   if [ $? -ne 0 ] ; then
       echo failed to fetch ${CURL}.tar.gz
       exit 1
    elif [ "$UNPACK" = "true" ] ; then
@@ -19,7 +19,7 @@ if [ ! -f  ${LIBAEC}.tar.gz ] ; then
    echo fetching ${LIBAEC}.tar.gz
    echo curl ${MINUS_K} -LJO https://gitlab.dkrz.de/dkrz-sw/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
    curl ${MINUS_K} -LJO https://gitlab.dkrz.de/dkrz-sw/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
-   if [ $? != 0 ] ; then
+   if [ $? -ne 0 ] ; then
       echo failed to fetch ${LIBAEC}.tar.gz
       exit 1
    elif [ "$UNPACK" = "true" ] ; then
@@ -39,7 +39,7 @@ if [ ! -f ${HDF5}.tar.gz ] ; then
    fi
    echo fetching ${HDF5}.tar.gz from \"${HDF5URL}\"
    curl ${MINUS_K}  -L ${HDF5URL} -o ${HDF5}.tar.gz
-   if [ $? != 0 ] ; then
+   if [ $? -ne 0 ] ; then
       echo failed to fetch ${HDF5}.tar.gz
       exit 1
    elif [ "$UNPACK" = "true" ] ; then

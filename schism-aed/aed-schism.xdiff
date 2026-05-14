@@ -1,8 +1,8 @@
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index bcbe80ff..9d0d26cb 100644
+index c8cda13f..53d7c30d 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -232,6 +232,7 @@ add_module(Fabm     USE_FABM  OFF)
+@@ -233,6 +233,7 @@ add_module(Fabm     USE_FABM  OFF)
  add_module(EcoSim   USE_ECO   OFF)
  add_module(Sediment USE_SED   OFF)
  add_module(Sed2d    USE_SED2D OFF)
@@ -10,7 +10,7 @@ index bcbe80ff..9d0d26cb 100644
  add_module(Hydro    USE_HYDRO ON)
  add_module(Core     USE_SCHISM ON)
  
-@@ -326,6 +327,9 @@ endforeach()
+@@ -327,6 +328,9 @@ endforeach()
  string(CONCAT mod_tag ${all_use_mod_defs})
  string(REPLACE USE_ _ mod_tag_rev ${mod_tag})
  string(REPLACE _HYDRO_SCHISM "" mod_tag_rev ${mod_tag_rev})
@@ -21,7 +21,7 @@ index bcbe80ff..9d0d26cb 100644
  
  ######## Tests ##################
 diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
-index 13ea5e7a..ce55d0c9 100644
+index d4c35dcd..e18ea234 100644
 --- a/src/Core/schism_glbl.F90
 +++ b/src/Core/schism_glbl.F90
 @@ -79,7 +79,7 @@ module schism_glbl
@@ -88,7 +88,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index eb5a010d..5743c760 100644
+index 6a71bbcb..907ac751 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -122,7 +122,7 @@ index eb5a010d..5743c760 100644
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -5138,6 +5148,10 @@
+@@ -5137,6 +5147,10 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
@@ -133,7 +133,7 @@ index eb5a010d..5743c760 100644
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6730,6 +6744,10 @@
+@@ -6729,6 +6743,10 @@
        enddo !i
  #endif
  
@@ -144,7 +144,7 @@ index eb5a010d..5743c760 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6965,6 +6983,12 @@
+@@ -6964,6 +6982,12 @@
        enddo !i
  #endif/*USE_FABM*/
  
@@ -158,7 +158,7 @@ index eb5a010d..5743c760 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index 1135c82d..9e34e2fe 100644
+index c5d7d9b5..6e2e79ed 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@
@@ -172,7 +172,7 @@ index 1135c82d..9e34e2fe 100644
  #ifdef USE_ICM
        use icm_mod, only : ntrs_icm,itrs_icm,nout_icm,wqout,nhot_icm,wqhot,isav_icm,sht
  #endif
-@@ -7822,6 +7826,10 @@
+@@ -7826,6 +7830,10 @@ real (rkind) :: aux                               ! ustar
          if(myrank==0) write(16,*) 'Done FABM calculations'
  #endif
  
@@ -183,7 +183,7 @@ index 1135c82d..9e34e2fe 100644
  #ifdef USE_ICM
          itmp1=irange_tr(1,7)
          itmp2=irange_tr(2,7)
-@@ -9276,6 +9284,9 @@
+@@ -9280,6 +9288,9 @@ real (rkind) :: aux                               ! ustar
          noutput=noutput+1
  #endif
  
@@ -193,7 +193,7 @@ index 1135c82d..9e34e2fe 100644
  
  #ifdef USE_SED2D
          if(iof_sed2d(1)==1) call writeout_nc(id_out_var(noutput+5), &
-@@ -9840,6 +9851,14 @@
+@@ -9844,6 +9855,14 @@ real (rkind) :: aux                               ! ustar
          enddo !i
  #endif
  
@@ -208,7 +208,7 @@ index 1135c82d..9e34e2fe 100644
  #ifdef USE_ICE
          if(iof_ice(1)==1) then
            icount=icount+1
-@@ -10137,6 +10156,12 @@
+@@ -10141,6 +10160,12 @@ real (rkind) :: aux                               ! ustar
          enddo !i
  #endif
  
@@ -221,7 +221,7 @@ index 1135c82d..9e34e2fe 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) then
          call savensend3D_scribe(icount,1,1,nvrt,np,swild95(:,1:np,7))
-@@ -10239,7 +10264,7 @@
+@@ -10243,7 +10268,7 @@ real (rkind) :: aux                               ! ustar
        enddo !i
  #endif /*USE_ANALYSIS*/
  
@@ -230,7 +230,7 @@ index 1135c82d..9e34e2fe 100644
        !Check total # of vars
        if(icount/=ncount_3dside) then
          write(errmsg,*)'STEP: 3D count wrong(2):',icount,ncount_3dside
-@@ -10317,6 +10342,12 @@
+@@ -10321,6 +10346,12 @@ real (rkind) :: aux                               ! ustar
        end if
  #endif
  
@@ -266,7 +266,7 @@ index bba85621..45355429 100644
  add_dependencies(combine_output11 utillib)
 +add_dependencies(combine_output11_MPI utillib)
 diff --git a/src/Utility/Combining_Scripts/combine_output11.f90 b/src/Utility/Combining_Scripts/combine_output11.f90
-index 73940a7f..3b233389 100644
+index 73940a7f..e64ad5bb 100644
 --- a/src/Utility/Combining_Scripts/combine_output11.f90
 +++ b/src/Utility/Combining_Scripts/combine_output11.f90
 @@ -103,6 +103,9 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
@@ -313,7 +313,28 @@ index 73940a7f..3b233389 100644
      !iret=nf_inq_nvars(ncid2,nvars)
      iret=nf90_inquire(ncid2,nVariables=nvars)
  !    write(99,*)'nvars=',nvars,file63
-@@ -734,11 +747,16 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -612,10 +625,20 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
+         if(mod(i23d(m)-1,3)==0) then !2D
+           if(ivs(m)==1) then
+             var2d_dims(2)=ntime_dim
++            chunks(1)=npse; chunks(2)=1
+             iret=nf90_def_var(ncid,variable_nm(m),NF90_FLOAT,var2d_dims,iu_id(m))
++!#ifdef NETCDF_4
++            iret=nf90_def_var_chunking(ncid,iu_id(m),NF90_CHUNKED,chunks(1:2))
++            iret=nf90_def_var_deflate(ncid,iu_id(m),0,1,4)
++!#endif
+           else !2D vector
+             var3d_dims(1)=ntwo_dim; var3d_dims(3)=ntime_dim
++            chunks(1)=2; chunks(2)=npse; chunks(3)=1
+             iret=nf90_def_var(ncid,variable_nm(m),NF90_FLOAT,var3d_dims,iu_id(m))
++!#ifdef NETCDF_4
++            iret=nf90_def_var_chunking(ncid,iu_id(m),NF90_CHUNKED,chunks(1:3))
++            iret=nf90_def_var_deflate(ncid,iu_id(m),0,1,4)
++!#endif
+           endif !ivs
+         else !3D
+           if(ivs(m)==1) then
+@@ -734,11 +757,16 @@ subroutine combine_output11(ibgn,iend,iwetdry,to_be_combined,output_prefix)
        do irank=0,nproc-1
          !Open input file
          write(a_4,'(i6.6)') irank
@@ -332,7 +353,7 @@ index 73940a7f..3b233389 100644
          endif
          !write(99,*)'nvars=',nvars,file63
 diff --git a/src/Utility/Combining_Scripts/combine_output11_MPI.F90 b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
-index df3c23f5..37453568 100644
+index df3c23f5..448a0256 100644
 --- a/src/Utility/Combining_Scripts/combine_output11_MPI.F90
 +++ b/src/Utility/Combining_Scripts/combine_output11_MPI.F90
 @@ -111,6 +111,9 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
@@ -379,7 +400,28 @@ index df3c23f5..37453568 100644
        call mpi_abort(comm,0,j10)
      endif
      !iret=nf_inq_nvars(ncid2,nvars)
-@@ -767,11 +780,16 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+@@ -643,10 +656,20 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
+         if(mod(i23d(m)-1,3)==0) then !2D
+           if(ivs(m)==1) then
+             var2d_dims(2)=ntime_dim
++            chunks(1)=npse; chunks(2)=1
+             iret=nf90_def_var(ncid,variable_nm(m),NF90_FLOAT,var2d_dims,iu_id(m))
++!#ifdef NETCDF_4
++            iret=nf90_def_var_chunking(ncid,iu_id(m),NF90_CHUNKED,chunks(1:2))
++            iret=nf90_def_var_deflate(ncid,iu_id(m),0,1,4)
++!#endif
+           else !2D vector
+             var3d_dims(1)=ntwo_dim; var3d_dims(3)=ntime_dim
++            chunks(1)=2; chunks(2)=npse; chunks(3)=1
+             iret=nf90_def_var(ncid,variable_nm(m),NF90_FLOAT,var3d_dims,iu_id(m))
++!#ifdef NETCDF_4
++            iret=nf90_def_var_chunking(ncid,iu_id(m),NF90_CHUNKED,chunks(1:3))
++            iret=nf90_def_var_deflate(ncid,iu_id(m),0,1,4)
++!#endif
+           endif !ivs
+         else !3D
+           if(ivs(m)==1) then
+@@ -767,11 +790,16 @@ subroutine combine_output11(comm,ibgn,iend,iwetdry,to_be_combined,output_prefix)
        do irank=0,nproc-1
          !Open input file
          write(a_4,'(i6.6)') irank

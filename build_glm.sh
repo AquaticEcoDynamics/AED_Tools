@@ -81,11 +81,14 @@ while [ $# -gt 0 ] ; do
     --ifort)
       export FC=ifort
       ;;
-    --flang-new)
-      export FC=flang-new
+    --clang)
+      export CC=clang
       ;;
     --flang)
       export FC=flang
+      ;;
+    --flang-new)
+      export FC=flang-new
       ;;
     --no-gui)
       export WITH_PLOTS=false

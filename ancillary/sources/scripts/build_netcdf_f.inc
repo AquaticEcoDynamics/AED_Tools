@@ -8,8 +8,7 @@ fi
 
 #----------------------------------------------------------------
 
-if [ "$NETCDFF" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] ; then
 # netcdff depends on netcdf
   echo "====== building $NETCDFF"
 
@@ -46,7 +45,7 @@ if [ "$NETCDFF" != "" ] ; then
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $NETCDFF build failed
     exit 1
   fi

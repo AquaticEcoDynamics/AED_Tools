@@ -5,8 +5,8 @@
 
 #---------------
 
-if [ "$LIBAEC" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libaec.a" ] ; then
+#if [ "$LIBAEC" != "" ] ; then
+if [ ! -f "${FINALDIR}/lib/libaec.a" ] ; then
   echo "====== building $LIBAEC"
 
   \rm -rf $LIBAEC
@@ -24,13 +24,13 @@ if [ "$LIBAEC" != "" ] ; then
            -DBUILD_SHARED_LIBS:BOOL=OFF \
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-libaec 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $LIBAEC failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $LIBAEC build failed
     exit 1
   fi
@@ -44,8 +44,8 @@ fi
 
 #---------------
 
-if [ "$CURL" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libcurl.a" ] ; then
+#if [ "$CURL" != "" ] ; then
+if [ ! -f "${FINALDIR}/lib/libcurl.a" ] ; then
   echo "====== building $CURL"
 
   \rm -rf $CURL
@@ -66,13 +66,13 @@ if [ "$CURL" != "" ] ; then
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DZLIB_LIBRARY_RELEASE:FILEPATH="${FINALDIR}/lib/${LIBZA}" \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-curl 2>&1
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $CURL failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $CURL build failed
     exit 1
   fi
@@ -85,8 +85,8 @@ fi
 
 #---------------
 
-if [ "$HDF5" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libhdf5.a" ] ; then
+#if [ "$HDF5" != "" ] ; then
+if [ ! -f "${FINALDIR}/lib/libhdf5.a" ] ; then
   echo "====== building $HDF5"
 
   \rm -rf $HDF5
@@ -119,13 +119,13 @@ if [ "$HDF5" != "" ] ; then
            -DHDF5_BUILD_FORTRAN:BOOL=OFF \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-hdf5 2>&1
 
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo cmake $HDF5 failed
     exit 1
   fi
 
   cmake --build . --clean-first --config Release #--target INSTALL
-  if [ $? != 0 ] ; then
+  if [ $? -ne 0 ] ; then
     echo $HDF5 build failed
     exit 1
   fi

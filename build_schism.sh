@@ -39,31 +39,15 @@ else
   export CC=gcc
   export MAKE=make
 fi
+if [ -d /opt/cray/pe ] ; then
+  export pawsey=true
+fi
 
-# If we're on ubuntu we need to make sure we have :
-#
-#    libnetcdf-dev and cmake
-#
-# and if we're using gfortran we need :
-#
-#    libopenmpi-dev openmpi-bin libnetcdff-dev
-#
-if [ "$OSTYPE" = "Linux" ] ; then
-  if [ $(lsb_release -is) = Ubuntu ] ; then
-    PKG_SRCH="dpkg --list"
-  else # assume redhat
-    PKG_SRCH="rpm -qa | grep"
-  fi
-  ${PKG_SRCH} cmake > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires cmake installed to build'
-  fi
-  ${PKG_SRCH} libnetcdf-dev > /dev/null 2>& 1
-  if [ $? -ne 0 ] ; then
-    ERROR=1
-    echo 'schism requires libnetcdf-dev installed to build'
-  fi
+# Check we have cmake
+which cmake > /dev/null 2>& 1
+if [ $? -ne 0 ] ; then
+  ERROR=1
+  echo 'schism requires cmake installed to build'
 fi
 
 export WITH_BULK_FAIRALL="OFF"
@@ -84,6 +68,9 @@ while [ $# -gt 0 ] ; do
     --fence)
       export FENCE=true
       ;;
+    --pawsey)
+      export pawsey=true
+      ;;
     --gfort)
       export FC=gfortran
       ;;
@@ -93,8 +80,14 @@ while [ $# -gt 0 ] ; do
     --ifort)
       export FC=ifort
       ;;
+    --clang)
+      export CC=clang
+      ;;
     --flang)
       export FC=flang
+      ;;
+    --flang-new)
+      export FC=flang-new
       ;;
     --with-aed)
       export WITH_AED="ON"
@@ -224,6 +217,9 @@ while [ $# -gt 0 ] ; do
       echo "  --gfort          : use the gfortran compiler (default)"
       echo "  --ifort          : use the older intel fortran compiler"
       echo "  --ifx            : use the newer intel fortran compiler"
+      echo "  --clang          : use the clang C/C++ compiler"
+      echo "  --flang          : use the older flang fortran compiler"
+      echo "  --flang-new      : use the newer flang fortran compiler"
       echo "  --verbose        : turn on the verbose make flag"
       echo
       echo "  --with-aed       : build with aed enabled (default)"
@@ -322,6 +318,7 @@ fi
 if [ "$WITH_AED" = "ON" ] ; then
   . ${CWD}/build_aedlibs.inc
 fi
+echo libs built
 
 #-------------------------------------------------------------------------------
 #
@@ -338,38 +335,55 @@ get_commit_id >> ${CWD}/cur_state.log
 #---------------------------------
 if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
   FFLAGS_RELEASE="-O2 -fpp -qoverride-limits -qopenmp-link=static"
+elif [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
+  FFLAGS_RELEASE="-O2"
+fi
 
+echo NETCDFHOME = \"${NETCDFHOME}\"
+echo NCDFFBASE = \"${NCDFFBASE}\"
+echo NCDFCBASE = \"${NCDFCBASE}\"
+echo OMPIBASE = \"${OMPIBASE}\"
+
+#----------------------------------
+if [ "$pawsey" = "true" ] ; then
+  export MPI_DIR="/opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3"
+else
+  export MPI_DIR="${OMPIBASE}"
+fi
+
+#----------------------------------
+if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] || [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
   #-------------------------------
   cat << EOF > cmake/SCHISM.local.aed
-# what follows is a simple configuration for Ubuntu
+# taken from the simple configuration for Ubuntu
 
 set(CMAKE_Fortran_COMPILER ${FC} CACHE PATH "Path to serial Fortran compiler")
-set(CMAKE_C_COMPILER gcc CACHE PATH "Path to serial C compiler")
+set(CMAKE_C_COMPILER ${CC} CACHE PATH "Path to serial C compiler")
 set(CMAKE_Fortran_FLAGS_RELEASE "${FFLAGS_RELEASE}" CACHE STRING "Fortran flags" FORCE)
 
-# # MPI compiler wrappers (important for parallel build) - for building on pawsey?
-# set(MPI_Fortran_COMPILER /opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3/bin/mpif90 CACHE PATH "MPI Fortran compiler wrapper")
-# set(MPI_C_COMPILER /opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3/bin/mpicc CACHE PATH "MPI C compiler wrapper")
-# set(NetCDF_PARALLEL TRUE CACHE BOOL "Enable parallel NetCDF")
-#
-set(NetCDF_PARALLEL "FALSE")
+# Setting MIP_ROOT seems pointless since nothing looks at it
+#set(MPI_ROOT "${MPI_DIR}" CACHE PATH "Root dir of MPI")
 
-#
-set(NetCDF_DIR "${NETCDFHOME}" CACHE PATH "Default Path to NetCDF")
+# MPI compiler wrappers (important for parallel build)
+set(MPI_Fortran_COMPILER ${MPI_DIR}/bin/mpif90 CACHE PATH "MPI Fortran compiler wrapper")
+set(MPI_C_COMPILER ${MPI_DIR}/bin/mpicc CACHE PATH "MPI C compiler wrapper")
 
-set(NetCDF_Fortran_DIR "${NCDFFBASE}" CACHE PATH "Path to NetCDF Fortran library")
-set(NetCDF_Fortran_CONFIG_EXECUTABLE "${NCDFFBASE}/bin/nf-config" CACHE PATH "Path to NetCDF Fortran Executable")
-#set(NetCDF_Fortran_LIBRARY "${NCDFFBASE}/lib -lnetcdff" CACHE PATH "Path to NetCDF Fortran library")
-set(NetCDF_Fortran_INCLUDE "${NCDFFBASE}/include" CACHE PATH "Path to NetCDF Fortran Include File")
+# set(NetCDF_PARALLEL "FALSE")
+  set(NetCDF_PARALLEL TRUE CACHE BOOL "Enable parallel NetCDF")
 
-set(NetCDF_C_DIR "${NCDFCBASE}" CACHE PATH "Path to NetCDF C")
-set(NetCDF_C_CONFIG_EXECUTABLE "${NCDFCBASE}/bin/nc-config" CACHE PATH "Path to NetCDF C Executable")
-#set(NetCDF_C_LIBRARY "/usr/lib/x86_64-linux-gnu" CACHE PATH "Path to NetCDF C library")
-set(NetCDF_C_INCLUDE "/usr/include" CACHE PATH "Path to NetCDF C include file")
+#set(NetCDF_DIR "${NETCDFHOME}" CACHE PATH "Default Path to NetCDF")
 
-# Doesn't seem to get used
-#set(MPI_ROOT "${CWD}/ancillary"  CACHE PATH "Root dir of MPI")
+#set(NetCDF_Fortran_DIR "${NCDFFBASE}" CACHE PATH "Path to NetCDF Fortran")
+#set(NetCDF_Fortran_CONFIG_EXECUTABLE "${NCDFFBASE}/bin/nf-config" CACHE PATH "Path to NetCDF Fortran Executable")
+#set(NetCDF_Fortran_LIBRARY "${NCDFFBASE}/lib/libnetcdff.a" CACHE PATH "Path to NetCDF Fortran library")
+#set(NetCDF_Fortran_INCLUDE "${NCDFFBASE}/include" CACHE PATH "Path to NetCDF Fortran Include File")
 
+#set(NetCDF_C_DIR "${NCDFCBASE}" CACHE PATH "Path to NetCDF C")
+#set(NetCDF_C_CONFIG_EXECUTABLE "${NCDFCBASE}/bin/nc-config" CACHE PATH "Path to NetCDF C Executable")
+#set(NetCDF_C_LIBRARY "${NCDFCBASE}/lib/libnetcdf.so" CACHE PATH "Path to NetCDF C library")
+#set(NetCDF_C_INCLUDE "${NCDFCBASE}/include" CACHE PATH "Path to NetCDF C include file")
+
+set(C_PREPROCESS_FLAG "" CACHE STRING "C Preprocessor Flag")
 EOF
 #---------------------------------
 else
@@ -381,6 +395,7 @@ else
   fi
 fi
 #---------------------------------
+
 
 #-------------------------------------------------------------------------------
 # Here is where we turn on/off various modules
@@ -491,23 +506,20 @@ cd build
 if [ "$DEBUG" = "true" ] ; then
   export CFLAGS="$CFLAGS -g"
   export FFLAGS="$FFLAGS -g -fcheck=all,no-array-temps"
-  export LDFLAGS="$LDFLAGS -lefence"
+# export LDFLAGS="$LDFLAGS -lefence"
 fi
 if [ "$MDEBUG" = "true" ] ; then
   export CFLAGS="$CFLAGS -g -fsanitize=address"
   export FFLAGS="$FFLAGS -g -fcheck=all,no-array-temps -fsanitize=address"
 fi
-#if [ "${WITH_AED_PLUS}" = "true" ] ; then
-#  export WITH_AED_PLUS=${WITH_AED_PLUS}
-#fi
 
 # cmake generates a bunch of developer warnings and says to use -Wno-dev to supress
 # them, but adding it here doesn't seem to do anything
 cmake -Wno-dev -G "Unix Makefiles" \
       -C ../cmake/SCHISM.local.build.aed \
-      -C ../cmake/SCHISM.local.aed ../src/ || exit 1
+      -C ../cmake/SCHISM.local.aed ../src/ -LAH > cmake-info-schism 2>&1 || exit 1
 
-# On MacOS we have something like (it still didn't work, though) :
+# On MacOS we have tried something like the following, but it didn't work :
 #
 # export MPI_HOME="${CWD}/ancillary"
 # export MPIEXEC_EXECUTABLE="${CWD}/ancillary/bin/mpiexec"

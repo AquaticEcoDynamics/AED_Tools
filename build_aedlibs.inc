@@ -107,7 +107,9 @@ if [ "$WITH_AED_PLUS" = "true" ] ; then
       MORE_FLAGS="$MORE_FLAGS MODFLOWDIR=$MODFLOWDIR"
     fi
     if [ "$WITH_MPI" = "true" ] ; then
-      MORE_FLAGS="$MORE_FLAGS WITH_MPI=true"
+     # This breaks things - something to do with mpifort that gets called
+     #MORE_FLAGS="$MORE_FLAGS WITH_MPI=true"
+      MORE_FLAGS="$MORE_FLAGS WITH_MPI=false"
     fi
     ${MAKE} $MORE_FLAGS || exit 1
     DAEDDEVDIR=`pwd`

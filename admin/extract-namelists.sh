@@ -3,7 +3,7 @@
 for dir in libaed-* ; do
    for i in `find ${dir}/. -name \*.F90` ; do
       grep 'NAMELIST /' $i >& /dev/null
-      if [ "$?" != "0" ] ; then
+      if [ $? -ne 0 ] ; then
          echo '! ***' $i nas no namelist
       else
          echo '!------------------------------------------------------------------'
