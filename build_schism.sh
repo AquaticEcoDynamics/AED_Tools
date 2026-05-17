@@ -337,8 +337,16 @@ if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
   FFLAGS_RELEASE="-O2 -fpp -qoverride-limits -qopenmp-link=static"
 elif [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
   FFLAGS_RELEASE="-O2"
+else
+  FFLAGS_RELEASE="-O2 -ffree-line-length-none -static-libgfortran -finit-local-zero"
 fi
 
+export NetCDF_ROOT=${NETCDFHOME}
+if [ "${NETCDFHOME}" != "${NCDFFBASE}" ] ; then
+  export NetCDF_PATH=${NCDFFBASE}
+fi
+#   - NetCDF_ROOT                 - root of NetCDF installation
+#   - NetCDF_PATH                 - root of NetCDF installation
 echo NETCDFHOME = \"${NETCDFHOME}\"
 echo NCDFFBASE = \"${NCDFFBASE}\"
 echo NCDFCBASE = \"${NCDFCBASE}\"
@@ -352,47 +360,29 @@ else
 fi
 
 #----------------------------------
-if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] || [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
-  #-------------------------------
-  cat << EOF > cmake/SCHISM.local.aed
+cat << EOF > cmake/SCHISM.local.aed
 # taken from the simple configuration for Ubuntu
 
 set(CMAKE_Fortran_COMPILER ${FC} CACHE PATH "Path to serial Fortran compiler")
 set(CMAKE_C_COMPILER ${CC} CACHE PATH "Path to serial C compiler")
 set(CMAKE_Fortran_FLAGS_RELEASE "${FFLAGS_RELEASE}" CACHE STRING "Fortran flags" FORCE)
 
-# Setting MIP_ROOT seems pointless since nothing looks at it
-#set(MPI_ROOT "${MPI_DIR}" CACHE PATH "Root dir of MPI")
-
 # MPI compiler wrappers (important for parallel build)
 set(MPI_Fortran_COMPILER ${MPI_DIR}/bin/mpif90 CACHE PATH "MPI Fortran compiler wrapper")
 set(MPI_C_COMPILER ${MPI_DIR}/bin/mpicc CACHE PATH "MPI C compiler wrapper")
 
-# set(NetCDF_PARALLEL "FALSE")
-  set(NetCDF_PARALLEL TRUE CACHE BOOL "Enable parallel NetCDF")
-
-#set(NetCDF_DIR "${NETCDFHOME}" CACHE PATH "Default Path to NetCDF")
-
-#set(NetCDF_Fortran_DIR "${NCDFFBASE}" CACHE PATH "Path to NetCDF Fortran")
-#set(NetCDF_Fortran_CONFIG_EXECUTABLE "${NCDFFBASE}/bin/nf-config" CACHE PATH "Path to NetCDF Fortran Executable")
-#set(NetCDF_Fortran_LIBRARY "${NCDFFBASE}/lib/libnetcdff.a" CACHE PATH "Path to NetCDF Fortran library")
-#set(NetCDF_Fortran_INCLUDE "${NCDFFBASE}/include" CACHE PATH "Path to NetCDF Fortran Include File")
-
-#set(NetCDF_C_DIR "${NCDFCBASE}" CACHE PATH "Path to NetCDF C")
-#set(NetCDF_C_CONFIG_EXECUTABLE "${NCDFCBASE}/bin/nc-config" CACHE PATH "Path to NetCDF C Executable")
-#set(NetCDF_C_LIBRARY "${NCDFCBASE}/lib/libnetcdf.so" CACHE PATH "Path to NetCDF C library")
-#set(NetCDF_C_INCLUDE "${NCDFCBASE}/include" CACHE PATH "Path to NetCDF C include file")
-
 set(C_PREPROCESS_FLAG "" CACHE STRING "C Preprocessor Flag")
 EOF
+
 #---------------------------------
-else
-  FFLAGS_RELEASE="-O2 -ffree-line-length-none -static-libgfortran -finit-local-zero"
-  if [ "$OSTYPE" = "Darwin" ] ; then
-    cp cmake/SCHISM.homebrew.gcc-openmpi cmake/SCHISM.local.aed
-  else
-    cp cmake/SCHISM.local.ubuntu cmake/SCHISM.local.aed
-  fi
+if [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
+  cat << EOF >> cmake/SCHISM.local.aed
+
+if (USE_AED)
+  include_directories(${CWD}/libaed-api/include)
+  include_directories(${CWD}/libaed-water/include)
+endif(USE_AED)
+EOF
 fi
 #---------------------------------
 
@@ -558,12 +548,9 @@ ISODATE=`date +%Y%m%d`
 #============================ Linux ===================================
 if [ "$OSTYPE" = "Linux" ] ; then
   if [ $(lsb_release -is) = Ubuntu ] ; then
-    T=_u
-  else
-    T=_r
-  fi
-  if [ $(lsb_release -is) = Ubuntu ] ; then
     BINPATH=binaries/ubuntu/$(lsb_release -rs)
+  elif [ $(lsb_release -is) = Debian ] ; then
+    BINPATH=binaries/debian/$(lsb_release -rs)
   else
     BINPATH=binaries/redhat/$(lsb_release -rs)
   fi
@@ -572,8 +559,6 @@ fi
 if [ "$OSTYPE" = "Darwin" ] ; then
   MOSLINE=`grep 'SOFTWARE LICENSE AGREEMENT FOR ' '/System/Library/CoreServices/Setup Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf'`
   MOSNAME=`echo ${MOSLINE} | awk -F 'macOS ' '{print $NF}'  | tr -d '\\' | tr ' ' '_'`
-
-  T="_${MOSNAME}"
 
   BINPATH="binaries/macos/${MOSNAME}"
 fi

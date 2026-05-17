@@ -27,8 +27,7 @@ if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] ; then
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH=${FINALDIR} \
            -DCMAKE_BUILD_TYPE:STRING=Release \
-           -DBUILD_SHARED_LIBS:BOOL=OFF  \
-           -DBUILD_STATIC_LIBS:BOOL=ON \
+           -DBUILD_SHARED_LIBS:BOOL=ON  \
            -DENABLE_TESTS=OFF \
            -DBUILD_TESTING:BOOL=OFF \
            -DBUILD_UTILITIES:BOOL=OFF \
@@ -36,6 +35,9 @@ if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] ; then
            -DNETCDF_C_INCLUDE_DIR="${INC}" \
            -DNETCDF_C_LIBRARY="${FINALDIR}/lib/libnetcdf.so" \
            -DCMAKE_INSTALL_PREFIX="${FINALDIR}" -LAH > ${FINALDIR}/cmake-info-netcdf-f 2>&1
+
+#          -DBUILD_SHARED_LIBS:BOOL=OFF  \
+#          -DBUILD_STATIC_LIBS:BOOL=ON \
 
   if [ $? -ne 0 ] ; then
     echo $NETCDFF cmake failed
