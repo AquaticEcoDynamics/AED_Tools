@@ -1,6 +1,8 @@
 # ===========================================================================
 
-if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] && [ ! -f "${FINALDIR}/lib/libnetcdf.so" ] ; then
+if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] && \
+   [ ! -f "${FINALDIR}/lib/libnetcdf.so" ] && \
+   [ ! -f "${FINALDIR}/lib/libnetcdf.dylib" ] ; then
   echo "====== building $NETCDF"
 
   \rm -rf $NETCDF

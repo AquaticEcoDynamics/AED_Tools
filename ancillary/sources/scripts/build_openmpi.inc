@@ -1,7 +1,9 @@
 # ===========================================================================
 
 
-if [ ! -f ${FINALDIR}/lib/libmpi.a ] ; then
+if [ ! -f "${FINALDIR}/lib/libmpi.a" ] && \
+   [ ! -f "${FINALDIR}/lib/libmpi.so" ] && \
+   [ ! -f "${FINALDIR}/lib/libmpi.dylib" ] ; then
   echo "====== building $OMPI"
 
   \rm -rf $OMPI

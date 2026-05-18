@@ -353,6 +353,7 @@ echo NCDFCBASE = \"${NCDFCBASE}\"
 echo OMPIBASE = \"${OMPIBASE}\"
 
 #----------------------------------
+# Hopefully the addition of MPI_<compiler>_COMPILER stuff will work on pawsey
 if [ "$pawsey" = "true" ] ; then
   export MPI_DIR="/opt/cray/pe/mpich/8.1.32/ofi/gnu/12.3"
 else
@@ -373,7 +374,10 @@ set(MPI_C_COMPILER ${MPI_DIR}/bin/mpicc CACHE PATH "MPI C compiler wrapper")
 
 set(C_PREPROCESS_FLAG "" CACHE STRING "C Preprocessor Flag")
 EOF
+#--------
 
+# flang-new builds its .mod files with includes of its dependencies mod files, so we need
+# add their locations to the include path
 #---------------------------------
 if [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
   cat << EOF >> cmake/SCHISM.local.aed
@@ -509,34 +513,7 @@ cmake -Wno-dev -G "Unix Makefiles" \
       -C ../cmake/SCHISM.local.build.aed \
       -C ../cmake/SCHISM.local.aed ../src/ -LAH > cmake-info-schism 2>&1 || exit 1
 
-# On MacOS we have tried something like the following, but it didn't work :
-#
-# export MPI_HOME="${CWD}/ancillary"
-# export MPIEXEC_EXECUTABLE="${CWD}/ancillary/bin/mpiexec"
-# export MPI_CXX_COMPILER="${CWD}/ancillary/bin/mpicxx"
-# export MPI_CXX_HEADER_DIR="${CWD}/ancillary/include"
-# export MPI_CXX_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
-# export MPI_C_COMPILER="${CWD}/ancillary/bin/mpicc"
-# export MPI_C_HEADER_DIR="${CWD}/ancillary/include"
-# export MPI_C_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
-# export MPI_Fortran_COMPILER="${CWD}/ancillary/bin/mpifort"
-# export MPI_Fortran_F77_HEADER_DIR="${CWD}/ancillary/include"
-# export MPI_Fortran_LIB_NAMES="-Wl,-rpath -Wl,${exec_prefix}/lib -Wl,--enable-new-dtags -L${libdir} -lmpi -lpthread -L${CWD}/ancillary/lib -latomic -lpthread -ldl"
-#
-# cmake -Wno-dev -G "Unix Makefiles" \
-#     -DMPI_HOME=${MPI_HOME} \
-#     -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} \
-#     -DMPI_CXX_COMPILER=${MPI_CXX_COMPILER} \
-#     -DMPI_CXX_HEADER_DIR=${MPI_CXX_HEADER_DIR} \
-#     -DMPI_CXX_LIB_NAMES=${MPI_CXX_LIB_NAMES} \
-#     -DMPI_C_COMPILER=${MPI_C_COMPILER} \
-#     -DMPI_C_HEADER_DIR=${MPI_C_HEADER_DIR} \
-#     -DMPI_C_LIB_NAMES=${MPI_C_LIB_NAMES} \
-#     -DMPI_Fortran_COMPILER=${MPI_Fortran_COMPILER} \
-#     -DMPI_Fortran_HEADER_DIR=${MPI_Fortran_HEADER_DIR} \
-#     -DMPI_Fortran_LIB_NAMES=${MPI_Fortran_LIB_NAMES} \
-#     -C ../cmake/SCHISM.local.build.aed \
-#     -C ../cmake/SCHISM.local.aed ../src/ || exit 1
+# On MacOS schism cmake can't fin mpicxx and fails
 
 
 ${MAKE} $BFLAG || exit 1
@@ -563,7 +540,6 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   BINPATH="binaries/macos/${MOSNAME}"
 fi
 #============================ more ===================================
-
 
 EXTN="_$ISODATE"
 cd ${CWD}

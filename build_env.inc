@@ -15,10 +15,11 @@ esac
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export MAKE=gmake
 fi
-
 if [ "$WITH_AED_PLUS" = "true" ] ; then
+  # since -dev has the plotting we need libgd
   NEED_GD=true
 fi
+
 # echo building environment for `basename $0`
 case "`basename $0`" in
 # "build_aedlibs.sh")
@@ -75,6 +76,7 @@ find_library () {
 
 
 # Are we using intel fortran (no longer supported on mac)
+# Currently only tuflowfv NEEDS intel fortran
 if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] ; then
   if [ "$OSTYPE" = "Linux" ] ; then
     export start_sh="$(ps -p $$ -o command= | awk '{print $1}')" ;
@@ -125,7 +127,6 @@ fi
 
 # If we're on MacOS, work out if we have MacPorts or HomeBrew
 if [ "$OSTYPE" = "Darwin" ] ; then
-# export LIBRARY_PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
   brew -v > /dev/null 2>&1
   if [ $? -eq 0 ] ; then
     export HOMEBREW=true
@@ -139,7 +140,7 @@ if [ "$OSTYPE" = "Darwin" ] ; then
   fi
 fi
 
-# see if we have open mpi, netcdf-c, netcdf-fortran and libgd in our default path, set the
+# see if we have openmpi, netcdf-c, netcdf-fortran and libgd in our default path, set the
 # default "home" for each
 
 if [ "$OSTYPE" = "Msys" ] ; then
@@ -182,7 +183,8 @@ if [ "$NEED_NCDFC" = "true" ] ; then
 fi
 unset BINDIR
 
-if [ "$FC" = "ifort"  ] || [ "$FC" = "ifx" ] || [ "$FC" = "flang"  ] || [ "$FC" = "flang-new" ] ; then
+if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] || \
+   [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
   if [ -d ancillary/bin ] ; then
     if [ -x ancillary/bin/nf-config ] ; then
       BINDIR="`pwd`/ancillary/bin"
@@ -210,7 +212,6 @@ unset BINDIR
 
 # if we haven't found netcdf-fortran ...
 if [ "$NEED_NCDFF" = "true" ] && [ "${NCDFFBASE}" = "" ]; then
-# export NEED_NCDFF=false
   BASEDIR='.'
   TCWD=`pwd`
   if [ -d ancillary ] ; then
@@ -250,8 +251,10 @@ if [ "$NEED_NCDFF" = "true" ] ; then NEEDS="$NEEDS --need-netcdf_f" ; fi
 if [ "$NEED_OMPI" = "true" ] ; then NEEDS="$NEEDS --need-openmpi" ; fi
 if [ "$NEED_GD" = "true" ] ; then NEEDS="$NEEDS --need-gd" ; fi
 
-if [ "$NEED_NCDFC" = "true" ] || [ "$NEED_NCDFF" = "true" ] || [ "$NEED_OMPI" = "true" ] || [ "$NEED_GD" = "true" ] ; then
-  echo NEED_NCDFC=$NEED_NCDFC NEED_NCDFF=$NEED_NCDFF NEED_OMPI=$NEED_OMPI NEED_GD=$NEED_GD
+# If any package is needed that we know about, then build it
+if [ "$NEED_NCDFC" = "true" ] || [ "$NEED_NCDFF" = "true" ] || \
+    [ "$NEED_OMPI" = "true" ] || [ "$NEED_GD" = "true" ] ; then
+# echo NEED_NCDFC=$NEED_NCDFC NEED_NCDFF=$NEED_NCDFF NEED_OMPI=$NEED_OMPI NEED_GD=$NEED_GD
 
   cd ancillary
   ./build.sh ${NEEDS} || exit 1

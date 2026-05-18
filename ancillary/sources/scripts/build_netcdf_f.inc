@@ -6,9 +6,13 @@ else
   export INC="/usr/include"
 fi
 
+# It seems schisms cmake setup cant find libnetcdff if it is a static lib
+
 #----------------------------------------------------------------
 
-if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] && \
+   [ ! -f "${FINALDIR}/lib/libnetcdff.so" ] && \
+   [ ! -f "${FINALDIR}/lib/libnetcdff.dylib" ] ; then
 # netcdff depends on netcdf
   echo "====== building $NETCDFF"
 
