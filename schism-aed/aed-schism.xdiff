@@ -21,7 +21,7 @@ index c8cda13f..53d7c30d 100644
  
  ######## Tests ##################
 diff --git a/src/Core/schism_glbl.F90 b/src/Core/schism_glbl.F90
-index d4c35dcd..e18ea234 100644
+index 67ba9c99..47944bbb 100644
 --- a/src/Core/schism_glbl.F90
 +++ b/src/Core/schism_glbl.F90
 @@ -79,7 +79,7 @@ module schism_glbl
@@ -34,10 +34,10 @@ index d4c35dcd..e18ea234 100644
  
    !Parameters from param.nml
 diff --git a/src/Core/scribe_io.F90 b/src/Core/scribe_io.F90
-index 8606dd0a..c89f7d56 100644
+index e6dd54b2..6f3861c7 100644
 --- a/src/Core/scribe_io.F90
 +++ b/src/Core/scribe_io.F90
-@@ -682,6 +682,12 @@
+@@ -684,6 +684,12 @@
        enddo !j
  #endif/*USE_FABM*/
  
@@ -50,7 +50,7 @@ index 8606dd0a..c89f7d56 100644
  #ifdef USE_ANALYSIS
        if(iof_ana(14)==1) call scribe_recv_write(it,1,1,itotal,icount_out_name)
  !        itotal=itotal+1
-@@ -957,7 +963,7 @@
+@@ -959,7 +965,7 @@
        character(len=140) :: fname
        character(len=12) :: ifile_char
        real(rkind) :: a1d(1)
@@ -88,7 +88,7 @@ index 35db5919..586ea3d4 100644
        do i=1,2000
          close(i)
 diff --git a/src/Hydro/schism_init.F90 b/src/Hydro/schism_init.F90
-index 6a71bbcb..907ac751 100644
+index 92c7304d..852fe608 100644
 --- a/src/Hydro/schism_init.F90
 +++ b/src/Hydro/schism_init.F90
 @@ -106,6 +106,10 @@
@@ -122,7 +122,7 @@ index 6a71bbcb..907ac751 100644
        !Total # of tracers (including T,S)
        !The big tracer arrays are: tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa)
        !The order of each tracer modules can be seen above
-@@ -5137,6 +5147,10 @@
+@@ -5138,6 +5148,10 @@
        call init_flmud
  #endif /*USE_TIMOR*/
  
@@ -133,7 +133,7 @@ index 6a71bbcb..907ac751 100644
  #ifdef USE_FIB
        ! Fecal Indicator Bacteria model
        if(myrank==0) write(16,*) 'FIB model invoked'
-@@ -6729,6 +6743,10 @@
+@@ -6730,6 +6744,10 @@
        enddo !i
  #endif
  
@@ -144,7 +144,7 @@ index 6a71bbcb..907ac751 100644
  #ifdef USE_ICE
        if(iof_ice(1)==1) then
          ncount_2delem=ncount_2delem+1
-@@ -6964,6 +6982,12 @@
+@@ -6965,6 +6983,12 @@
        enddo !i
  #endif/*USE_FABM*/
  

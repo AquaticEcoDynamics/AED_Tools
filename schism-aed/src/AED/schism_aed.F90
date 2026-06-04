@@ -220,10 +220,11 @@ MODULE schism_aed
    AED_REAL,DIMENSION(:,:),POINTER :: wv_uorb
    AED_REAL,DIMENSION(:,:),POINTER :: ustar_bed
    AED_REAL,DIMENSION(:,:),POINTER :: sed_zones
-   AED_REAL,DIMENSION(:),POINTER :: evap       !# [cols]
    AED_REAL,DIMENSION(:),POINTER :: sed_zone
-   AED_REAL,DIMENSION(:),POINTER :: longwave
-   AED_REAL,DIMENSION(:),POINTER :: layer_stress
+
+   AED_REAL,DIMENSION(:),POINTER :: evap         !# [cols] - point to fluxevp
+   AED_REAL,DIMENSION(:),POINTER :: longwave     !# -> hradd
+   AED_REAL,DIMENSION(:),POINTER :: layer_stress !# -> tau_bot_node
 
    !# these are feedback vars
    AED_REAL,DIMENSION(:,:),POINTER :: biodrag    => null()
@@ -613,57 +614,6 @@ SUBROUTINE debug_max_min(msg)
       ENDIF
    ENDDO
 
-#if 0
-#define DFMTSTR '(1X,"E: ",I2,1X,A14," <=> ",f20.8,f20.8," : ",A)'
-#define DR_ARGS(ar,nm,info) v,nm,MINVAL(ar),MAXVAL(ar),info
-#define DIPRINT(ar,nm,info) DPRINTF DFMTSTR, DR_ARGS(ar,nm,info)
-   v=1   ; DIPRINT(temp(:,col),"temperature","temp => tr_el(1,:,col)")
-   v=v+1 ; DIPRINT(salt(:,col),"salinity","salt => tr_el(2,:,col)")
-   v=v+1 ; DIPRINT(rho(:,col),"density","rho  => erho(:,:)")
-   v=v+1 ; DIPRINT(cvel(:,col),"velocity","cvel(:,col) = sqrt(SCHISM_N2E_VALS(uu2,:)**2 + SCHISM_N2E_VALS(vv2,:)**2)")
-   v=v+1 ; DIPRINT(depth(:,col),"depth","depth calculated from dpe and ze")
-   v=v+1 ; DIPRINT(pres(:,col),"pressure","pres calculated from rho0 and grav")
-   v=v+1 ; DIPRINT(dz(:,col),"thick","dz calculated from dpe and ze")
-   v=v+1 ; DIPRINT(area_(:,col),"area", "area_ extended from 'area' to 3D")
-   v=v+1 ; DIPRINT(extc(:,col),"extc", "extc NOT FOUND")
-
-   v=v+1 ; DIPRINT(I_0(:),"I_0 (par_sf)","I_0(col) = SCHISM_N2E_VAL(srad)")
-   v=v+1 ; DIPRINT(par(:,col),"par","par(:,col) = I_0(col) * par_frac * EXP(-(Kw+localext)*1e-6*dz(:,col))")
-   v=v+1 ; DIPRINT(nir(:,col),"nir","nir(:,col) = (par(:,col)/par_frac) * nir_frac")
-   v=v+1 ; DIPRINT(uva(:,col),"uva","uva(:,col) = (par(:,col)/par_frac) * uva_frac")
-   v=v+1 ; DIPRINT(uvb(:,col),"uvb","uvb(:,col) = (par(:,col)/par_frac) * uvb_frac")
-
-   v=v+1 ; DIPRINT(tss(:,col),"tss","tss NOT FOUND");
-   v=v+1 ; DIPRINT(ss1(:,col),"ss1","ss1 NOT FOUND");
-   v=v+1 ; DIPRINT(ss2(:,col),"ss2","ss2 NOT FOUND");
-   v=v+1 ; DIPRINT(ss3(:,col),"ss3","ss3 NOT FOUND");
-   v=v+1 ; DIPRINT(ss4(:,col),"ss4","ss4 NOT FOUND");
-
-   v=v+1 ; DIPRINT(air_pres(:),"air_pres","air_pres(col) = SCHISM_N2E_VAL(pr)")
-   v=v+1 ; DIPRINT(air_temp(:),"air_temp","air_temp(col) = SCHISM_N2E_VAL(airt1)")
-   v=v+1 ; DIPRINT(rain(:),"rain", "rain(col) = SCHISM_N2E_VAL(prec_rain)")
-   v=v+1 ; DIPRINT(wind(:),"wind","wind(col) = sqrt(SCHISM_N2E_VAL(windx)**2 + SCHISM_N2E_VAL(windy)**2)")
-   v=v+1 ; DIPRINT(humidity(:),"humidity","humidity(col) = SCHISM_N2E_VAL(shum1)")
-   v=v+1 ; DIPRINT(evap(:),"evap","evap = SCHISM_N2E_VAL(fluxevp)")
-
-   v=v+1 ; DIPRINT(col_depth(:),"col_depth","col_depth calculated from dpe and ze")
-!  v=v+1 ; DIPRINT(col_area(:),"col_area","area_(nvrt)")
-
-   v=v+1 ; DIPRINT(layer_stress(:),"layer_stress","layer_stress = SCHISM_N2E_VALS(tau_bot_node,1) ? bottom_stress?")
-   v=v+1 ; DIPRINT(longwave(:),"longwave","longwave = SCHISM_N2E_VAL(hradd)")
-
-   v=v+1 ; DIPRINT(ustar_bed(:,col),"ustar_bed","ustar_bed NOT FOUND");
-   v=v+1 ; DIPRINT(wv_uorb(:,col),"wv_uorb","wv_orb NOT FOUND");
-   v=v+1 ; DIPRINT(wv_t(:,col),"wv_t","wv_t NOT FOUND");
- ! print*," Feedback vars:"
- ! v=v+1 ; DIPRINT(biodrag(:,col),"biodrag"," feedback")
- ! v=v+1 ; DIPRINT(bioextc(:,col),"bioextc"," feedback")
- ! v=v+1 ; DIPRINT(solarshade(col),"solarshade"," feedback")
- ! v=v+1 ; DIPRINT(windshade(col),"windshade"," feedback")
- ! v=v+1 ; DIPRINT(bathy(:),"bathy"," feedback")
- ! v=v+1 ; DIPRINT(rainloss(:),"rainloss"," feedback")
-#endif
-
 !#    env(col)%sed_zones     => sed_zones(:,col)  !# internal to AED really
 !#    env(col)%sed_zone      => sed_zone(col)     !# internal to AED really
    print*, "------------ done with msg = ",msg
@@ -931,7 +881,7 @@ SUBROUTINE schism_aed_init_models()
 #endif
 
    IF ( init_values_file /= '' ) &
-       CALL set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
+      CALL set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
 
    TPRINT 'done schism_aed_init_models'
 END SUBROUTINE schism_aed_init_models
