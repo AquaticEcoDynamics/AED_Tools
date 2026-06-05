@@ -158,7 +158,7 @@ index 92c7304d..852fe608 100644
        if(iof_ana(14)==1) then
          ncount_3dnode=ncount_3dnode+1
 diff --git a/src/Hydro/schism_step.F90 b/src/Hydro/schism_step.F90
-index c5d7d9b5..6e2e79ed 100644
+index e29d59e0..6ca6a9e2 100644
 --- a/src/Hydro/schism_step.F90
 +++ b/src/Hydro/schism_step.F90
 @@ -47,6 +47,10 @@

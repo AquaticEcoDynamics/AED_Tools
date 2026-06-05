@@ -170,6 +170,39 @@ fetch_it () {
 
 #-------------------------------------------------------------------------------
 
+fetch_schism () {
+  echo "===================================================="
+
+  if [ -d schism ] ; then
+    echo "Updating schism from " `grep -w url schism/.git/config`
+
+    cd schism
+
+    DETACHED=`git status | grep 'HEAD detached at'`
+    git checkout .
+    if [ "$DETACHED" != "" ] ; then git switch - ; fi
+    git pull
+    git checkout `cat ../schism-aed/gitlog-schism`
+    cd ..
+  else
+    echo "fetching schism from ${GITHOST}schism schism"
+    git clone --recurse-submodules ${GITHOST}schism schism
+  fi
+
+  if [ -d schism ] ; then
+    if [ -L a ] ; then /bin/rm a ; fi
+    ln -s schism a
+    patch -p0 < schism-aed/aed-schism.xdiff
+    /bin/rm a
+    cd schism/src
+    if [ ! -e AED ] ; then
+      ln -s ../../schism-aed/src/AED .
+    fi
+  fi
+}
+
+#-------------------------------------------------------------------------------
+
 if [ "$upd_list" != "" ] ; then
   echo "Updating . from " `grep -w url .git/config`
   git pull
@@ -275,16 +308,8 @@ fi
 
 if [ "$GETSHZ" = "true" ] ; then
   count=$((count+1))
-  if [ ! -d schism ] ; then
-    GITHOST=https://github.com/schism-dev/
-    fetch_it schism
-  else
-    src='schism'
-    echo "Updating $src from " `grep -w url $src/.git/config`
-    cd schism
-    git pull
-    cd ..
-  fi
+  GITHOST=https://github.com/schism-dev/
+  fetch_schism
 fi
 
 if [ "$GETMODF" = "true" ] ; then
