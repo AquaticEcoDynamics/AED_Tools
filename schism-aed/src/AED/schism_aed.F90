@@ -904,7 +904,7 @@ SUBROUTINE set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
    CHARACTER(len=32),POINTER,DIMENSION(:) :: csvnames
    TYPE(AED_SYMBOL),DIMENSION(:),ALLOCATABLE :: values
    TYPE(aed_variable_t),POINTER :: tv
-   INTEGER :: idx_col = 0, numv = 0, numd = 0, t
+   INTEGER :: idx_col = 0, numv = 0, numd = 0, t, matz_col = 0
    INTEGER :: av, v, d, sv, sd
    INTEGER,DIMENSION(:),ALLOCATABLE :: vars, vmap
    INTEGER,DIMENSION(:),ALLOCATABLE :: dvar, dmap
@@ -921,6 +921,12 @@ SUBROUTINE set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
    DO ccol=1,nccols
       IF ( csvnames(ccol) == "ID" ) THEN
          idx_col = ccol
+         EXIT
+      ENDIF
+   ENDDO
+   DO ccol=1,nccols
+      IF ( csvnames(ccol) == "MATZ" ) THEN
+         matz_col = ccol
          EXIT
       ENDIF
    ENDDO
@@ -983,6 +989,7 @@ SUBROUTINE set_initial_from_file(init_values_file, cc_hz, cc_diag_hz)
                   cc_diag_hz(dvar(v), iegl(t)%id) = extract_double(values(dmap(v)))
                ENDIF
             ENDDO
+            IF ( matz_col > 0 ) matz(t) = extract_integer(values(matz_col))
          ENDIF
       ENDDO
    ENDIF
