@@ -54,7 +54,6 @@ while [ $# -gt 0 ] ; do
     --flang)
       export FC=flang
       ;;
-      ;;
     --with-aed-plus)
       export WITH_AED_PLUS=true
       ;;

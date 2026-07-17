@@ -34,6 +34,18 @@ case `uname` in
     ;;
 esac
 
+case $OSTYPE in
+  Darwin)
+    export LIB_EXT=dylib
+    ;;
+  Msys)
+    export LIB_EXT=dll
+    ;;
+  *)
+    export LIB_EXT=so
+    ;;
+esac
+
 if [ "$OSTYPE" = "FreeBSD" ] ; then
   export FC=flang
   export CC=clang
@@ -72,6 +84,12 @@ while [ $# -gt 0 ] ; do
     --without-aed-plus)
       export WITH_AED_PLUS=false
       ;;
+    --with-lib)
+      export WITH_LIB=true
+      ;;
+    --without-lib)
+      export WITH_LIB=false
+      ;;
     --gfort)
       export FC=gfortran
       ;;
@@ -87,12 +105,12 @@ while [ $# -gt 0 ] ; do
     --flang)
       export FC=flang
       ;;
-    --flang-new)
-      export FC=flang-new
-      ;;
     --no-gui)
       export WITH_PLOTS=false
       export WITH_XPLOTS=false
+      ;;
+    --auto-prereq)
+      export AUTO_PREQ=true
       ;;
     *)
       ;;
@@ -157,12 +175,7 @@ if [ -d "${UTILDIR}" ] ; then
   cd "${CWD}"
 fi
 
-if [ "$OSTYPE" = "FreeBSD" ] ; then
-  echo not making flang extras
-  # cd ancillary/freebsd
-  # ./fetch.sh
-  # ${MAKE} || exit 1
-elif [ "$OSTYPE" = "Msys" ] ; then
+if [ "$OSTYPE" = "Msys" ] ; then
   if [ ! -d ancillary/lib ] ; then
     echo making windows ancillary extras
     cd ancillary
@@ -195,15 +208,26 @@ cd "${CURDIR}"
 get_commit_id >> ${CWD}/cur_state.log
 
 export LIBRARY_PATH=$LIB
-${MAKE} AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
+if [ "$WITH_LIB" = "true" ] ; then
+  LIBTARG="libglm.${LIB_EXT}"
+else
+  LIBTARG=""
+fi
+${MAKE} glm $LIBTARG AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR || exit 1
 if [ "${DAEDDEVDIR}" != "" ] ; then
   if [ -d "${DAEDDEVDIR}" ] ; then
     echo now build plus version
     /bin/rm obj/aed_external.o
     /bin/rm obj/glm_main.o
-    ${MAKE} glm+ WITH_AED_PLUS=1 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
-                                 AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR \
-                                 AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR || exit 1
+    if [ "$WITH_LIB" = "true" ] ; then
+      LIBTARG="libglm+.${LIB_EXT}"
+    else
+      LIBTARG=""
+    fi
+    ${MAKE} glm+ $LIBTARG WITH_AED_PLUS=1 \
+                     AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
+                     AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR \
+                     AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR || exit 1
   fi
 fi
 
@@ -343,7 +367,7 @@ if [ "$OSTYPE" = "Msys" ] ; then
 fi
 
 # ***************************** All *******************************
-cd ${CURDIR}/..
+cd ${CWD}
 
 echo Finished build for $OSTYPE
 
@@ -378,7 +402,39 @@ if [ -x ${CURDIR}/glm+ ] ; then
   echo "glm+_$VERSION" > ${BINPATH}/glm+_latest/VERSION
   /bin/cp ${CURDIR}/glm+ ${BINPATH}/glm+_latest
   echo Generating ReleaseInfo.txt for glm+
-  ./admin/make_release_info.sh > ${BINPATH}/glm+_latest/ReleaseInfo.txt
+  ./admin/make_release_info.sh plus > ${BINPATH}/glm+_latest/ReleaseInfo.txt
+fi
+
+if [ "$WITH_LIB" = "true" ] ; then
+  if [ -d ${BINPATH}/pglm_$VERSION ] ; then /bin/rm -rf ${BINPATH}/pglm_$VERSION ; fi
+  if [ -d ${BINPATH}/pglm_latest ] ; then /bin/rm -rf ${BINPATH}/pglm_latest ; fi
+
+  /bin/mkdir ${BINPATH}/pglm_$VERSION
+  /bin/cp -r ${CURDIR}/pglm ${BINPATH}/pglm_$VERSION/
+  /bin/cp ${CURDIR}/libglm.${LIB_EXT} ${BINPATH}/pglm_$VERSION/
+  ./admin/make_release_info.sh > ${BINPATH}/pglm_$VERSION/ReleaseInfo.txt
+
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
+    if [ -d ${BINPATH}/pglm+_$VERSION ] ; then /bin/rm -rf ${BINPATH}/pglm+_$VERSION ; fi
+    if [ -d ${BINPATH}/pglm+_latest ] ; then /bin/rm -rf ${BINPATH}/pglm+_latest ; fi
+
+    /bin/mkdir ${BINPATH}/pglm+_$VERSION
+    /bin/cp -r ${CURDIR}/pglm ${BINPATH}/pglm+_$VERSION/
+    /bin/cp ${CURDIR}/libglm+.${LIB_EXT} ${BINPATH}/pglm+_$VERSION/
+    cd ${BINPATH}/pglm+_$VERSION
+    /bin/ln -s libglm+.${LIB_EXT} libglm.${LIB_EXT}
+    cd ${CWD}
+    ./admin/make_release_info.sh plus > ${BINPATH}/pglm+_$VERSION/ReleaseInfo.txt
+  fi
+
+  cd ${BINPATH}
+  /bin/tar czf pglm_$VERSION.tar.gz pglm_$VERSION
+  /bin/mv pglm_$VERSION pglm_latest
+
+  if [ "$WITH_AED_PLUS" = "true" ] ; then
+    /bin/tar czf pglm+_$VERSION.tar.gz pglm+_$VERSION
+    /bin/mv pglm+_$VERSION pglm+_latest
+  fi
 fi
 
 echo Finished packaging for $OSTYPE

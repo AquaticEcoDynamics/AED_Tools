@@ -114,7 +114,7 @@ if [ -d gotm-git ] ; then
   export GOTMDIR=${CWD}/gotm-git
   export FORTRAN_COMPILER=IFORT
   cd gotm-git
-  ${MAKE} distclean
+  ${MAKE} distclean > /dev/null
   cd "$CWD"
 fi
 
@@ -146,10 +146,23 @@ fi
 
 if [ -d modflow6 ] ; then
   echo cleaning modflow6
-  cd modflow6/make
-  make clean
-  cd ..
-  /bin/rm -rf build
+  cd modflow6
+  if [ -d build ] ; then
+    /bin/rm -rf build
+  fi
+  if [ -d make ] ; then
+    cd make
+    make clean
+  fi
+  cd "$CWD"
+fi
+
+if [ -d telemac ] ; then
+  echo cleaning telemac
+  cd telemac
+  if [ -d build ] ; then
+    /bin/rm -rf build
+  fi
   cd "$CWD"
 fi
 

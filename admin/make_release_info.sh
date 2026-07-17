@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$1" = "plus" ] ; then
+  PLUS=true
+fi
+
 export OUTFILE="ReleaseInfo.txt"
 export MAINLIST="GLM libplot libutil libaed-water libaed-benthic libaed-demo libaed-api libaed2"
 export PLUSLIST="libaed-riparian libaed-light libaed-dev libaed2-plus"
@@ -33,11 +37,13 @@ do_it () {
   extract_vers
   do_list ${MAINLIST}
 
-  # For the PLUS versions :
-  echo
-  echo "The plus version also has :"
-  echo
-  do_list ${PLUSLIST}
+  if [ "$PLUS" = "true" ] ; then
+    # For the PLUS versions :
+    echo
+    echo "The plus version also has :"
+    echo
+    do_list ${PLUSLIST}
+  fi
 }
 
 do_it #> ${OUTFILE}

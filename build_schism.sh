@@ -25,23 +25,19 @@ esac
 
 export FABMDIR=fabm-schism
 export WITH_AED_PLUS=false
-export MAKE=make
 export BFLAG='-j8'
 export ERROR=0
 export MDEBUG=false
 
 if [ "$OSTYPE" = "FreeBSD" ] ; then
-  export FC=flang
-  export CC=clang
   export MAKE=gmake
 else
-  export FC=gfortran
-  export CC=gcc
   export MAKE=make
 fi
-if [ -d /opt/cray/pe ] ; then
-  export pawsey=true
-fi
+if [ "$FC" = "" ] ; then export FC=gfortran ; fi
+if [ "$CC" = "" ] ; then export CC=gcc ; fi
+
+if [ -d /opt/cray/pe ] ; then export pawsey=true ; fi
 
 # Check we have cmake
 which cmake > /dev/null 2>& 1
@@ -86,9 +82,6 @@ while [ $# -gt 0 ] ; do
     --flang)
       export FC=flang
       ;;
-    --flang-new)
-      export FC=flang-new
-      ;;
     --with-aed)
       export WITH_AED="ON"
       ;;
@@ -99,6 +92,9 @@ while [ $# -gt 0 ] ; do
       ;;
     --without-aed-plus)
       export WITH_AED_PLUS=false
+      ;;
+    --auto-prereq)
+      export AUTO_PREQ=true
       ;;
     --with-fabm)
       export WITH_FABM="ON"
@@ -218,12 +214,12 @@ while [ $# -gt 0 ] ; do
       echo "  --ifort          : use the older intel fortran compiler"
       echo "  --ifx            : use the newer intel fortran compiler"
       echo "  --clang          : use the clang C/C++ compiler"
-      echo "  --flang          : use the older flang fortran compiler"
-      echo "  --flang-new      : use the newer flang fortran compiler"
+      echo "  --flang          : use the llvm flang fortran compiler"
       echo "  --verbose        : turn on the verbose make flag"
       echo
       echo "  --with-aed       : build with aed enabled (default)"
       echo "  --with-aed-plus  : build with aed and aed-plus enabled"
+      echo "  --auto-prereq    : try building missing prerequisites in ancillary"
       echo
       echo "  --with-fabm      : build with fabm enabled"
       echo "  --with-gotm      : fabm and gotm cannot be used together"
@@ -335,7 +331,7 @@ get_commit_id >> ${CWD}/cur_state.log
 #---------------------------------
 if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] ; then
   FFLAGS_RELEASE="-O2 -fpp -qoverride-limits -qopenmp-link=static"
-elif [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
+elif [ "$FC" = "flang" ] ; then
   FFLAGS_RELEASE="-O2"
 else
   FFLAGS_RELEASE="-O2 -ffree-line-length-none -static-libgfortran -finit-local-zero"
@@ -376,10 +372,10 @@ set(C_PREPROCESS_FLAG "" CACHE STRING "C Preprocessor Flag")
 EOF
 #--------
 
-# flang-new builds its .mod files with includes of its dependencies mod files, so we need
+# flang builds its .mod files with includes of its dependencies mod files, so we need
 # add their locations to the include path
 #---------------------------------
-if [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
+if [ "$FC" = "flang" ] ; then
   cat << EOF >> cmake/SCHISM.local.aed
 
 if (USE_AED)
@@ -494,7 +490,7 @@ fi
 # Here's the actual building stuff
 #-------------------------------------------------------------------------------
 
-mkdir build
+mkdir build > /dev/null 2>&1
 cd build
 
 if [ "$DEBUG" = "true" ] ; then
@@ -513,8 +509,7 @@ cmake -Wno-dev -G "Unix Makefiles" \
       -C ../cmake/SCHISM.local.build.aed \
       -C ../cmake/SCHISM.local.aed ../src/ -LAH > cmake-info-schism 2>&1 || exit 1
 
-# On MacOS schism cmake can't fin mpicxx and fails
-
+# On MacOS schism cmake can't find mpicxx and fails
 
 ${MAKE} $BFLAG || exit 1
 

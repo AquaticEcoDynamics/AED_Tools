@@ -38,9 +38,9 @@ export CURLV=8.8.0
 # https://support.hdfgroup.org/ftp/lib-external/szip/2.1.1/src/szip-2.1.1.tar.gz
 export SZIPV=2.1.1
 
-# https://gitlab.dkrz.de/dkrz-sw/libaec/
-#export LIBAECV=v1.1.6
-export LIBAECV=v1.1.4
+# https://github.com/Deutsches-Klimarechenzentrum/libaec/releases/download/v1.1.4/libaec-1.1.4.tar.gz
+#export LIBAECV=1.1.7
+export LIBAECV=1.1.4
 
 # https://support.hdfgroup.org/releases/hdf5/
 # https://support.hdfgroup.org/downloads/index.html

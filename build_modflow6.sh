@@ -65,11 +65,21 @@ while [ $# -gt 0 ] ; do
   shift
 done
 
-. ${CWD}/build_env.inc
+which meson > /dev/null 2>&1
+if [ $? -ne 0 ] ; then
+  echo "you will need to have 'meson' installed to compile modflow6"
+  exit 1
+fi
+
+#-------------------------------------------------------------------------------
 
 export F77=$FC
 export F90=$FC
 export F95=$FC
+
+. ${CWD}/build_env.inc
+
+#-------------------------------------------------------------------------------
 
 export HDF5LIB=$NETCDFHOME/lib
 #export HDF5LIBNAME="-lhdf5"
@@ -110,28 +120,21 @@ export BUILDDATE=`date -u +%Y%m%d-%H%MUTC`
 PARAMS=""
 
 echo build modflow
-cd ${CURDIR}/make
-#if [ "$WITH_AED_PLUS" = "true" ] ; then
-#  ${MAKE} -f makefile WITH_AED_PLUS=1  AEDWATDIR=$DAEDWATDIR \
-#                 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
-#                 AEDRIPDIR=$DAEDRIPDIR AEDLGTDIR=$DAEDLGTDIR \
-#                 AEDDEVDIR=$DAEDDEVDIR PHREEQDIR=$PHREEQDIR \
-#                 AEDAPIDIR=$DAEDAPIDIR || exit 1
-#else
-#  ${MAKE} -f makefile WITH_AED_PLUS=0  AEDWATDIR=$DAEDWATDIR \
-#                 AEDBENDIR=$DAEDBENDIR AEDDMODIR=$DAEDDMODIR \
-#                 AEDAPIDIR=$DAEDAPIDIR || exit 1
-#fi
-make
+
+cd ${CURDIR}
+
+meson setup build --buildtype="release" --prefix="$HOME/tmp"
+meson compile -C build
 
 cd ${CURDIR}
 
 #============================ Linux ===================================
 if [ "$OSTYPE" = "Linux" ] ; then
-  if [ $(lsb_release -is) = Ubuntu ] ; then
-    BINPATH=../binaries/ubuntu/$(lsb_release -rs)
+  RELEASE=`lsb_release -is | tr '[A-Z]' '[a-z]'`
+  if [ $RELEASE = ubuntu ] || [ $RELEASE = debian ] ; then
+    BINPATH=../binaries/$(RELEASE}/$(lsb_release -rs)
   else
-    BINPATH=../binaries/RedHat/$(lsb_release -rs)
+    BINPATH=../binaries/redhat/$(lsb_release -rs)
   fi
 fi
 #============================ MacOS ===================================
@@ -158,6 +161,17 @@ echo Installing in ${BINPATH}
 if [ ! -d ${BINPATH} ] ; then
    mkdir -p ${BINPATH}
 fi
-cp bin/mf6 ${BINPATH}/
+if [ -d ${BINPATH}/modflow_latest ] ; then
+  /bin/rm -rf ${BINPATH}/modflow_latest
+fi
+mkdir ${BINPATH}/modflow_latest
+mkdir ${BINPATH}/modflow_latest/bin
+mkdir ${BINPATH}/modflow_latest/lib
+
+cp build/src/mf6 ${BINPATH}/modflow_latest/bin
+cp build/srcbmi/libmf6.so ${BINPATH}/modflow_latest/lib
+
+cd ${BINPATH}
+tar czf modflow.tar.gz modflow_latest
 
 exit 0

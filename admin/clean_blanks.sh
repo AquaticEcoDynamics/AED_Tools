@@ -42,7 +42,7 @@ strip_file () {
     fi
 }
 
-if [ $ARGS != "" ] ; then
+if [ "$ARGS" != "" ] ; then
    for i in $ARGS ; do
      strip_file $i
    done

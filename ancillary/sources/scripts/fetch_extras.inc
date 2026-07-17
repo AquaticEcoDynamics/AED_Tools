@@ -17,8 +17,8 @@ fi
 
 if [ ! -f  ${LIBAEC}.tar.gz ] ; then
    echo fetching ${LIBAEC}.tar.gz
-   echo curl ${MINUS_K} -LJO https://gitlab.dkrz.de/dkrz-sw/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
-   curl ${MINUS_K} -LJO https://gitlab.dkrz.de/dkrz-sw/libaec/-/archive/${LIBAECV}/${LIBAEC}.tar.gz
+   echo curl ${MINUS_K} -LJO https://github.com/Deutsches-Klimarechenzentrum/libaec/releases/download/v${LIBAECV}/${LIBAEC}.tar.gz
+   curl ${MINUS_K} -LJO https://github.com/Deutsches-Klimarechenzentrum/libaec/releases/download/v${LIBAECV}/${LIBAEC}.tar.gz
    if [ $? -ne 0 ] ; then
       echo failed to fetch ${LIBAEC}.tar.gz
       exit 1

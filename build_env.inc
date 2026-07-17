@@ -44,11 +44,15 @@ case "`basename $0`" in
     NEED_OMPI=true
     NEED_GD=true
     ;;
-# "build_modflow.sh")
+# "build_modflow6.sh")
 #   ;;
 # "build_swan.sh")
 #   ;;
 # "build_tuflow.sh")
+#   ;;
+# "build_delft3d.sh")
+#   ;;
+# "build_telemac.sh")
 #   ;;
 esac
 
@@ -184,7 +188,7 @@ fi
 unset BINDIR
 
 if [ "$FC" = "ifort" ] || [ "$FC" = "ifx" ] || \
-   [ "$FC" = "flang" ] || [ "$FC" = "flang-new" ] ; then
+   [ "$FC" = "flang" ] ; then
   if [ -d ancillary/bin ] ; then
     if [ -x ancillary/bin/nf-config ] ; then
       BINDIR="`pwd`/ancillary/bin"
@@ -254,10 +258,19 @@ if [ "$NEED_GD" = "true" ] ; then NEEDS="$NEEDS --need-gd" ; fi
 # If any package is needed that we know about, then build it
 if [ "$NEED_NCDFC" = "true" ] || [ "$NEED_NCDFF" = "true" ] || \
     [ "$NEED_OMPI" = "true" ] || [ "$NEED_GD" = "true" ] ; then
-# echo NEED_NCDFC=$NEED_NCDFC NEED_NCDFF=$NEED_NCDFF NEED_OMPI=$NEED_OMPI NEED_GD=$NEED_GD
 
-  cd ancillary
-  ./build.sh ${NEEDS} || exit 1
+  if [ "$NEED_NCDFC" = "true" ] ; then echo "NetCDF libs not found" ; fi
+  if [ "$NEED_NCDFF" = "true" ] ; then echo "NetCDF fortran libs not found" ; fi
+  if [ "$NEED_OMPI" = "true" ] ; then echo "openmpi libs not found" ; fi
+  if [ "$NEED_GD" = "true" ] ; then echo "gd libs not found" ; fi
+
+  if [ "$AUTO_PREQ" = "true" ] ; then
+    echo attempting to build in ancillary
+    cd ancillary
+    ./build.sh ${NEEDS} || exit 1
+  else
+    echo not auto building prerequisites
+  fi
 
   if [ "$NEED_NCDFC" = "true" ] ; then export NCDFCBASE="${CWD}/ancillary" ; fi
   if [ "$NEED_NCDFF" = "true" ] ; then export NCDFFBASE="${CWD}/ancillary" ; fi
