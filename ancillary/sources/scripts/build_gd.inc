@@ -4,8 +4,7 @@
 
 #---------------
 
-if [ "$JPEG" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libjpeg.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libjpeg.a" ] ; then
   echo "====== building $JPEG"
 
   \rm -rf jpeg-$JPEGV
@@ -18,11 +17,8 @@ if [ "$JPEG" != "" ] ; then
 
   cp jconfig.txt jconfig.h
 
-# if [ "$OSTYPE" = "FreeBSD" ] ; then
   if [ "$CC" != "" ] ; then
     sed -e "s/CC= cc/CC= $CC/" < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
-# else
-#   sed -e 's/CC= cc/CC= gcc/' < makefile.ansi | sed -e 's/CFLAGS= -O/CFLAGS= -O2 -fPIC/' > Makefile
   fi
   make
   if [ $? -ne 0 ] ; then
@@ -39,8 +35,7 @@ fi
 
 #---------------
 
-if [ "$LIBPNG" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libpng.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libpng.a" ] ; then
   echo "====== building $LIBPNG"
 
   \rm -rf $LIBPNG
@@ -83,8 +78,7 @@ fi
 
 #---------------
 
-if [ "$FREETYPE2" != "" ] ; then
-#if [ ! -f "${FINALDIR}/lib/libfreetype.a" ] ; then
+if [ ! -f "${FINALDIR}/lib/libfreetype.a" ] ; then
   echo "====== building $FREETYPE2"
 
   \rm -rf $FREETYPE2
@@ -127,7 +121,6 @@ fi
 
 #---------------
 
-#if [ "$LIBGD" != "" ] ; then
 if [ ! -f "${FINALDIR}/lib/libgd.a" ] ; then
   echo "====== building $LIBGD"
 

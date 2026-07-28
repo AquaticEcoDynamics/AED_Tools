@@ -112,7 +112,28 @@ while [ $# -gt 0 ] ; do
     --auto-prereq)
       export AUTO_PREQ=true
       ;;
+    --help)
+      echo "build_glm accepts the following flags:"
+      echo "  --debug            : build with debugging symbols"
+      echo "  --gfort            : use the gfortran compiler"
+      echo "  --ifort            : use the older intel fortran compiler"
+      echo "  --ifx              : use the newer intel fortran compiler"
+      echo "  --clang            : use the clang C/C++ compiler"
+      echo "  --flang            : use the flang fortran compiler"
+      echo
+      echo "  --with-aed-plus    : build with aed and aed-plus enabled"
+      echo "  --without-aed-plus : build without aed and aed-plus enabled"
+      echo "  --with-lib         : build library (libglm) as well"
+      echo "  --without-lib      : dont build libglm (default)"
+      echo
+      echo "  --auto-prereq      : if needed, also build ancillary pre-requirments"
+      echo
+
+      exit 0
+      ;;
     *)
+      echo "Unknown option \"$1\""
+      exit 1
       ;;
   esac
   shift

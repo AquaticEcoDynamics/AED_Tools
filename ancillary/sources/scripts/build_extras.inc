@@ -104,7 +104,7 @@ if [ ! -f "${FINALDIR}/lib/libhdf5.a" ] ; then
            -DBUILD_SHARED_LIBS:BOOL=OFF \
            -DCMAKE_BUILD_TYPE:STRING=Release \
            -DBUILD_TESTING=OFF  \
-           -DCMAKE_C_FLAGS="-I${FINALDIR}/include"  \
+           -DCMAKE_C_FLAGS="-I${FINALDIR}/include -DFLT16_MAX=__FLT16_MAX__"  \
            -DHDF5_ENABLE_Z_LIB_SUPPORT:PATH="${FINALDIR}"  \
            -DHDF5_ENABLE_SZIP_SUPPORT:PATH="${FINALDIR}" \
            -DHDF5_USE_LIBAEC_STATIC:BOOL=ON \

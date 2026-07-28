@@ -7,6 +7,7 @@ fi
 
 if [ ! -f ${FREETYPE2}.tar.gz ] ; then
    echo fetching ${FREETYPE2}.tar.gz
+   echo "curl ${MINUS_K} -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz"
    curl ${MINUS_K} -L https://download.savannah.gnu.org/releases/freetype/${FREETYPE2}.tar.gz -o ${FREETYPE2}.tar.gz
    if [ $? -ne 0 ] ; then
       echo failed to fetch ${FREETYPE2}.tar.gz

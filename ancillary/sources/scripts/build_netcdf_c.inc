@@ -30,6 +30,7 @@ if [ ! -f "${FINALDIR}/lib/libnetcdf.a" ] && \
            -DBUILD_UTILITIES:BOOL=OFF \
            -DENABLE_BYTERANGE:BOOL=OFF \
            -DENABLE_NCZARR:BOOL=OFF \
+           -DCMAKE_C_FLAGS:STRING=-fpermissive \
            -DCMAKE_MODULE_LINKER_FLAGS:STRING=-L"${FINALDIR}/lib" \
            -DZLIB_LIBRARY:PATH="${FINALDIR}/lib/${LIBZA}"  \
            -DSZIP_LIBRARY:PATH="${FINALDIR}/lib/libsz.a"  \

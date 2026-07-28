@@ -31,6 +31,7 @@ if [ ! -f "${FINALDIR}/lib/libnetcdff.a" ] && \
   cmake .. -G "Unix Makefiles" \
            -DCMAKE_FIND_ROOT_PATH=${FINALDIR} \
            -DCMAKE_BUILD_TYPE:STRING=Release \
+           -DCMAKE_C_FLAGS=-fpermissive \
            -DBUILD_SHARED_LIBS:BOOL=ON  \
            -DENABLE_TESTS=OFF \
            -DBUILD_TESTING:BOOL=OFF \
