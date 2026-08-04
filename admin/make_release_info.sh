@@ -5,8 +5,8 @@ if [ "$1" = "plus" ] ; then
 fi
 
 export OUTFILE="ReleaseInfo.txt"
-export MAINLIST="GLM libplot libutil libaed-water libaed-benthic libaed-demo libaed-api libaed2"
-export PLUSLIST="libaed-riparian libaed-light libaed-dev libaed2-plus"
+export MAINLIST="GLM libplot libutil libaed-water libaed-benthic libaed-demo libaed-api"
+export PLUSLIST="libaed-riparian libaed-light libaed-dev"
 export GITPATH=".git"
 
 extract_vers () {

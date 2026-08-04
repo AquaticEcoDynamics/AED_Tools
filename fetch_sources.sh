@@ -32,9 +32,9 @@ GET_EGS="false"
 GETFABM="false"
 GET_TFV="false"
 GETGOTM="false"
-GETSWN="false"
-GETPHQ="false"
-GETSHZ="false"
+GET_SWN="false"
+GET_PHQ="false"
+GET_SHZ="false"
 GETMODF="false"
 GETTELM="false"
 GET_D3D="false"
@@ -57,7 +57,7 @@ while [ $# -gt 0 ] ; do
       GETUTIL="true"
       GETAEDFV="true"
       if [ "$PLUS" = "true" ] ; then GETPLUS="true" ; fi
-      GETPHQ="true"
+      GET_ELC="true"
       ;;
     GLM|glm)
       GET_GLM="true"
@@ -83,9 +83,9 @@ while [ $# -gt 0 ] ; do
       ;;
     plus)
       GETPLUS="true"
-      GETPHQ="true"
+      GET_PHQ="true"
       ;;
-    elcom)
+    ELCOM|elcom)
       GET_ELC="true"
       ;;
     aed2)
@@ -99,7 +99,7 @@ while [ $# -gt 0 ] ; do
       GETGOTM="true"
       GETAEDFV="true"
       GET_AED="true"
-      GETSWN="true"
+      GET_SWN="true"
       ;;
     gotm)
       GETGOTM="true"
@@ -108,16 +108,16 @@ while [ $# -gt 0 ] ; do
       GETFABM="true"
       ;;
     swan)
-      GETSWN="true"
+      GET_SWN="true"
       ;;
     schism)
-      GETSHZ="true"
+      GET_SHZ="true"
       ;;
     modflow)
       GETMODF="true"
       ;;
     phreeqcrm)
-      GETPHQ="true"
+      GET_PHQ="true"
       ;;
     telemac)
       GETTELM="true"
@@ -130,6 +130,8 @@ while [ $# -gt 0 ] ; do
 #     shift # skip argument
 #     ;;
     *)
+      echo "Unknown option \"$1\""
+      exit 1
       ;;
   esac
   shift # next
@@ -167,6 +169,7 @@ fetch_it () {
     cd $dst
     BRANCH=`git branch | grep '*' | cut -f2 -d\ `
     git pull origin $BRANCH
+    git fetch --all --prune
     cd ..
   else
     echo "fetching $src from ${GITHOST}$src $dst"
@@ -202,6 +205,7 @@ fetch_3rd () {
     git checkout .
     if [ "$DETACHED" != "" ] ; then git switch - ; fi
     git pull
+    git fetch --all --prune
     cd ..
   else
     echo "fetching $srcdir from ${GITHOST}${srcdir} ${dstdir}"
@@ -246,6 +250,7 @@ if [ "$upd_list" != "" ] ; then
       cd $src
       BRANCH=`git branch | grep '*' | cut -f2 -d\ `
       git pull origin $BRANCH
+      git fetch --all --prune
       cd ..
     fi
   done
@@ -290,19 +295,19 @@ if [ "$GETGOTM" = "true" ] ; then
   fetch_3rd code gotm-git
 fi
 
-if [ "$GETSWN" = "true" ] ; then
+if [ "$GET_SWN" = "true" ] ; then
   count=$((count+1))
   GITHOST=https://gitlab.tudelft.nl/citg/wavemodels/
   fetch_3rd swan
 fi
 
-if [ "$GETPHQ" = "true" ] ; then
+if [ "$GET_PHQ" = "true" ] ; then
   count=$((count+1))
   GITHOST=https://github.com/usgs-coupled/
   fetch_3rd phreeqcrm
 fi
 
-if [ "$GETSHZ" = "true" ] ; then
+if [ "$GET_SHZ" = "true" ] ; then
   count=$((count+1))
   GITHOST=https://github.com/schism-dev/
   fetch_3rd schism
@@ -359,6 +364,7 @@ if [ "$GET_TFV" = "true" ] ; then
       echo "Updating $src from " `grep -w url $src/.git/config`
       cd tuflowfv
       git pull
+      git fetch --all --prune
       cd ..
     else
       GITHOST=git@githost.aed-net.science.uwa.edu.au:

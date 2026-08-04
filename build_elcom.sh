@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# CWD should be the tools directory in which CURDIR lives
-export CWD=`pwd`
 # CURDIR should be the directory of the project we are building
-export CURDIR=${CWD}/ELCOM
+export CURDIR=`pwd`/ELCOM
+# CWD should be the tools directory in which CURDIR lives
+export CWD=`dirname ${CURDIR}`
 
 if [ ! -d ELCOM ] ; then
   echo "no ELCOM directory"
@@ -55,11 +55,36 @@ while [ $# -gt 0 ] ; do
     --ifort)
       export FC=ifort
       ;;
-    --gfortran)
+    --gfort)
       export FC=gfortran
+      ;;
+    --clang)
+      export CC=clang
       ;;
     --flang)
       export FC=flang
+      ;;
+    --auto-prereq)
+      export AUTO_PREQ=true
+      ;;
+    --help)
+      echo "build_elcom accepts the following flags:"
+      echo "  --debug            : build with debugging symbols"
+      echo "  --gfort            : use the gfortran compiler"
+      echo "  --ifort            : use the older intel fortran compiler"
+      echo "  --ifx              : use the newer intel fortran compiler"
+      echo "  --clang            : use the clang C/C++ compiler"
+      echo "  --flang            : use the flang fortran compiler"
+      echo
+      echo "  --with-aed         : build with aed enabled"
+      echo "  --without-aed      : build without aed enabled"
+      echo "  --with-aed-plus    : build with aed and aed-plus enabled"
+      echo "  --without-aed-plus : build without aed and aed-plus enabled"
+      echo
+      echo "  --auto-prereq      : if needed, also build ancillary pre-requirments"
+      echo
+
+      exit 0
       ;;
     *)
       echo unknown arg \"$1\" ignored
@@ -145,12 +170,6 @@ cd ${CURDIR}/caedym_utils
 ${MAKE} -f Makefile || exit 1
 DCAEDYMUDIR=`pwd`
 PARAMS="${PARAMS} CAEDYMUDIR=${DCAEDYMUDIR}"
-
-echo build caedym_src
-cd ${CURDIR}/caedym_src
-${MAKE} -f Makefile || exit 1
-DCAEDYMDIR=`pwd`
-PARAMS="${PARAMS} CAEDYMDIR=${DCAEDYMDIR}"
 
 echo build elcom_sed
 cd ${CURDIR}/elcom_sed

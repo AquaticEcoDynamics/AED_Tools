@@ -25,9 +25,6 @@ while [ $# -gt 0 ] ; do
       export DEBUG=true
       export WITH_CHECKS=true
       ;;
-    --fence)
-      export FENCE=true
-      ;;
     --static)
       export EXTERNAL_LIBS=static
       ;;
@@ -46,7 +43,26 @@ while [ $# -gt 0 ] ; do
     --ifx)
       export FC=ifx
       ;;
+    --help)
+      echo "build_aed-fv accepts the following flags:"
+      echo "  --debug            : build with debugging symbols"
+      echo "  --with-checks      : add compiler flag to check array bounds"
+      echo "  --ifx              : use the newer intel fortran compiler"
+      echo
+      echo "  --with-aed-plus    : build with aed and aed-plus enabled"
+      echo "  --without-aed-plus : build without aed and aed-plus enabled"
+      echo "  --with-lib         : build library (libglm) as well"
+      echo "  --without-lib      : dont build libglm (default)"
+      echo
+      echo "  --single           : build single precision version (obsolete)"
+      echo "  --static           : build static library instead (obsolete)"
+      echo
+
+      exit 0
+      ;;
     *)
+      echo "Unknown option \"$1\""
+      exit 1
       ;;
   esac
   shift
@@ -82,9 +98,9 @@ if [ "$OSTYPE" = "Msys" ] ; then
   fi
 
   if [ "$WITH_AED_PLUS" = "true" ] ; then
-    cmd.exe '/c build_fv.bat tuflowfv_external_wq+ '
+    cmd.exe '/c build_fv+.bat'
   else
-    cmd.exe '/c build_fv.bat tuflowfv_external_wq '
+    cmd.exe '/c build_fv.bat'
   fi
   if [ $? -ne 0 ] ; then
     echo errors in build

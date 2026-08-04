@@ -109,6 +109,9 @@ while [ $# -gt 0 ] ; do
       export WITH_PLOTS=false
       export WITH_XPLOTS=false
       ;;
+    --dont-package)
+      export NO_PKG=true
+      ;;
     --auto-prereq)
       export AUTO_PREQ=true
       ;;
@@ -121,6 +124,8 @@ while [ $# -gt 0 ] ; do
       echo "  --clang            : use the clang C/C++ compiler"
       echo "  --flang            : use the flang fortran compiler"
       echo
+      echo "  --with-aed         : build with aed enabled"
+      echo "  --without-aed      : build without aed enabled"
       echo "  --with-aed-plus    : build with aed and aed-plus enabled"
       echo "  --without-aed-plus : build without aed and aed-plus enabled"
       echo "  --with-lib         : build library (libglm) as well"
@@ -253,6 +258,11 @@ if [ "${DAEDDEVDIR}" != "" ] ; then
 fi
 
 cd "${CWD}"
+
+if [ "$NO_PKG" = "true" ] ; then
+  # all done
+  exit 0
+fi
 
 # =====================================================================
 # Package building bit
