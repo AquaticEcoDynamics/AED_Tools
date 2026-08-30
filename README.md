@@ -11,20 +11,44 @@ Rather than containing the model source itself, this repository provides the scr
 
 ## Is this the repository you want?
 
-| If you want to... | Use |
+`AED_Tools` builds the AED water quality library against three host models — **GLM**, **ELCOM**
+and **SCHISM**. It is aimed at developers. If you simply want to *use* one of these models,
+there is a better starting point:
+
+| If you want to... | Go to |
 |---|---|
-| Run the model, or build a stable released version | [`glm-aed`](https://github.com/AquaticEcoDynamics/glm-aed) |
-| Just download a ready-made executable | [`glm-aed/binaries`](https://github.com/AquaticEcoDynamics/glm-aed/tree/main/binaries) |
-| **Develop the model, or build from live source** | **this repository** |
+| Download a ready-made executable | [`releases`](https://github.com/AquaticEcoDynamics/releases) |
+| Build a stable, released version from source | the model's release bundle (below) |
+| **Develop the models, or build from live source** | **this repository** |
 
-The [`glm-aed`](https://github.com/AquaticEcoDynamics/glm-aed) repository carries GLM and AED as
-sub-modules pinned to fixed commits, which gives a reproducible build of a released version.
-`AED_Tools` instead tracks the source repositories directly, so you work against live
-development branches. If you are not developing the model, use `glm-aed`.
+### By model
 
-**`AED_Tools_Private`** is the equivalent repository for AED internal use. It additionally
-supports the "plus" versions of our software and has limited support for building TuflowFV.
-Access is restricted to the AED group.
+| Model | Pre-compiled binaries | Stable source bundle | Build script here |
+|---|---|---|---|
+| **GLM** | [`releases/GLM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`glm-aed`](https://github.com/AquaticEcoDynamics/glm-aed) | `build_glm.sh` |
+| **ELCOM** | [`releases/ELCOM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`elcom-aed`](https://github.com/AquaticEcoDynamics/elcom-aed) | `build_elcom.sh` |
+| **SCHISM** | [`releases/SCHISM-AED`](https://github.com/AquaticEcoDynamics/releases) | — | `build_schism.sh` |
+
+The [`releases`](https://github.com/AquaticEcoDynamics/releases) repository is the archive of
+current and historical pre-compiled executables across platforms — start there if you just need
+to run a model.
+
+The release bundles carry the model and the AED libraries as sub-modules pinned to fixed
+commits, giving a reproducible build of a released version. `AED_Tools` instead tracks the
+source repositories directly, so you work against live development branches. If you are not
+developing the models, use the bundle.
+
+SCHISM has no AED release bundle: its source is fetched from the upstream
+[schism-dev](https://github.com/schism-dev/schism) project, with the AED coupling supplied from
+the `schism-aed` directory of this repository. `fetch_sources.sh schism` does both steps for
+you.
+
+Note that the ELCOM source and its release bundle are private repositories — access is
+restricted to the AED group and collaborators.
+
+**`AED_Tools_Private`** is the equivalent tools repository for AED internal use. It
+additionally supports the "plus" versions of our software and has limited support for building
+TuflowFV. Access is restricted to the AED group.
 
 <br>
 
