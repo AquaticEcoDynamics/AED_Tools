@@ -1,5 +1,13 @@
 # AED_Tools
 
+[![Project Status: Active – The project is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![AED](https://img.shields.io/badge/AED-3.0-orange)](https://github.com/AquaticEcoDynamics/libaed-water)
+[![GLM](https://img.shields.io/badge/GLM-4.0-blue)](https://github.com/AquaticEcoDynamics/GLM)
+[![TUFLOW-FV](https://img.shields.io/badge/TUFLOW--FV-2025.2.1-blue)](https://www.tuflow.com/products/tuflow-fv/)
+[![ELCOM](https://img.shields.io/badge/ELCOM-4.0-blue)](https://github.com/AquaticEcoDynamics/elcom-aed)
+[![SCHISM](https://img.shields.io/badge/SCHISM-5.11-blue)](https://github.com/schism-dev/schism)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 **AED_Tools is the preferred starting point for developers working on AED model source code.**
 
 Rather than containing the model source itself, this repository provides the scripts that
@@ -11,9 +19,9 @@ Rather than containing the model source itself, this repository provides the scr
 
 ## Is this the repository you want?
 
-`AED_Tools` builds the AED water quality library against three host models — **GLM**, **ELCOM**
-and **SCHISM**. It is aimed at developers. If you simply want to *use* one of these models,
-there is a better starting point:
+`AED_Tools` builds the AED water quality library against four host models — **GLM**,
+**TUFLOW-FV**, **ELCOM** and **SCHISM**. It is aimed at developers. If you simply want to *use*
+one of these models, there is a better starting point:
 
 | If you want to... | Go to |
 |---|---|
@@ -25,9 +33,13 @@ there is a better starting point:
 
 | Model | Pre-compiled binaries | Stable source bundle | Build script here |
 |---|---|---|---|
-| **GLM** | [`releases/GLM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`glm-aed`](https://github.com/AquaticEcoDynamics/glm-aed) | `build_glm.sh` |
-| **ELCOM** | [`releases/ELCOM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`elcom-aed`](https://github.com/AquaticEcoDynamics/elcom-aed) | `build_elcom.sh` |
-| **SCHISM** | [`releases/SCHISM-AED`](https://github.com/AquaticEcoDynamics/releases) | — | `build_schism.sh` |
+| **GLM** | [`releases/GLM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`glm-aed`](https://github.com/AquaticEcoDynamics/glm-aed) | [`build_glm.sh`](build_glm.sh) |
+| **TUFLOW-FV** | [`releases/FV-AED`](https://github.com/AquaticEcoDynamics/releases) | [`fv-aed`](https://github.com/AquaticEcoDynamics/fv-aed) | [`build_aed-fv.sh`](build_aed-fv.sh) |
+| **ELCOM** | [`releases/ELCOM-AED`](https://github.com/AquaticEcoDynamics/releases) | [`elcom-aed`](https://github.com/AquaticEcoDynamics/elcom-aed) | [`build_elcom.sh`](build_elcom.sh) |
+| **SCHISM** | [`releases/SCHISM-AED`](https://github.com/AquaticEcoDynamics/releases) | — | [`build_schism.sh`](build_schism.sh) |
+
+For TUFLOW-FV, `build_aed-fv.sh` builds `libaed-fv` — the AED library that TUFLOW-FV links
+against — rather than the TUFLOW-FV hydrodynamic engine itself, which is distributed separately.
 
 The [`releases`](https://github.com/AquaticEcoDynamics/releases) repository is the archive of
 current and historical pre-compiled executables across platforms — start there if you just need
@@ -49,6 +61,65 @@ restricted to the AED group and collaborators.
 **`AED_Tools_Private`** is the equivalent tools repository for AED internal use. It
 additionally supports the "plus" versions of our software and has limited support for building
 TuflowFV. Access is restricted to the AED group.
+
+<br>
+
+## What AED_Tools builds
+
+AED does not compute hydrodynamics itself — it links to a host hydrodynamic model through a
+defined interface, so the same water quality configuration can be moved between host models.
+The diagram below shows the libraries this repository fetches and builds, and the build script
+for each host model.
+
+```mermaid
+flowchart LR
+  subgraph AED["AED library"]
+    A["libaed-api<br/>host-model interface"]
+    W["libaed-water<br/>water column modules"]
+    B["libaed-benthic<br/>benthic modules"]
+    X["libaed-demo<br/>example modules"]
+  end
+  GLM["GLM 4.0<br/>1D lakes & reservoirs<br/>build_glm.sh"] --- A
+  FV["TUFLOW-FV 2025.2.1<br/>3D estuaries & coasts<br/>build_aed-fv.sh"] --- A
+  ELCOM["ELCOM 4.0<br/>3D lakes & reservoirs<br/>build_elcom.sh"] --- A
+  SCHISM["SCHISM 5.11<br/>3D cross-scale coastal<br/>build_schism.sh"] --- A
+  A --- W
+  W --- B
+  W --- X
+
+  click GLM "build_glm.sh"
+  click FV "build_aed-fv.sh"
+  click ELCOM "build_elcom.sh"
+  click SCHISM "build_schism.sh"
+  click A "https://github.com/AquaticEcoDynamics/libaed-api"
+  click W "https://github.com/AquaticEcoDynamics/libaed-water"
+  click B "https://github.com/AquaticEcoDynamics/libaed-benthic"
+  click X "https://github.com/AquaticEcoDynamics/libaed-demo"
+```
+
+The build scripts are also linked from the [table above](#by-model), since GitHub may not
+render the diagram's links as clickable.
+
+<br>
+
+## Getting AED+
+
+This repository builds the open AED library only. The **AED+** modules — `libaed-dev`
+(modules in development), `libaed-riparian` (riparian modules) and `libaed-light` — are held in
+private repositories and are **not available through `AED_Tools`**.
+
+`fetch_sources.sh plus` and the `--with-aed-plus` build flag exist here, but both require access
+to those private repositories; without it, the fetch will fail.
+
+To work with AED+ you need:
+
+1. membership of the AED group, or a collaboration agreement giving access to the private
+   repositories, and
+2. the [`AED_Tools_Private`](https://github.com/AquaticEcoDynamics/AED_Tools_Private) tools
+   repository, which fetches and builds the AED+ sources by default.
+
+If you are a researcher or practitioner who needs the AED+ modules, contact the AED group via
+[aquatic.science.uwa.edu.au](https://aquatic.science.uwa.edu.au) to discuss access.
 
 <br>
 
