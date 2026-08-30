@@ -1,4 +1,4 @@
-# AED_Tools
+# AED_Tools : The AED Developer Toolkit
 
 [![Project Status: Active – The project is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![AED](https://img.shields.io/badge/AED-3.0-orange)](https://github.com/AquaticEcoDynamics/libaed-water)
@@ -8,12 +8,11 @@
 [![SCHISM](https://img.shields.io/badge/SCHISM-5.11-blue)](https://github.com/schism-dev/schism)
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-**AED_Tools is the preferred starting point for developers working on AED model source code.**
+<br>
 
-Rather than containing the model source itself, this repository provides the scripts that
-*fetch*, *build* and *manage* the AED source trees. You clone this repository, then use
-`fetch_sources.sh` to pull down the model repositories you need alongside it, and the
-`build_*.sh` scripts to compile them.
+<a href="url"><img src="admin/aed-toolkit-icon.png" align="right" width="80" ></a> **AED_Tools is the preferred starting point for developers working on AED model source code.** Rather than containing the model source itself, this repository provides the scripts that *fetch*, *build* and *manage* the AED source trees. You clone this repository, then use `fetch_sources.sh` to pull down the model repositories you need alongside it, and the `build_*.sh` scripts to compile them.
+
+**AED+** brings additional code and tools — modules under active development, riparian and light modules, and extra build targets — and is available to members of the AED community. If you are working with AED+, use the AED+ enabled toolkit, [`AED_Tools_Private`](https://github.com/AquaticEcoDynamics/AED_Tools_Private), rather than this repository. See [Getting AED+](#getting-aed) at the bottom of this page.
 
 <br>
 
@@ -58,9 +57,9 @@ you.
 Note that the ELCOM source and its release bundle are private repositories — access is
 restricted to the AED group and collaborators.
 
-**`AED_Tools_Private`** is the equivalent tools repository for AED internal use. It
-additionally supports the "plus" versions of our software and has limited support for building
-TuflowFV. Access is restricted to the AED group.
+**`AED_Tools_Private`** is the AED+ enabled version of this toolkit. Alongside everything here
+it carries the AED+ code and tools, and adds support for building TuflowFV and several further
+models. It is available to members of the AED community — see [Getting AED+](#getting-aed).
 
 <br>
 
@@ -102,27 +101,6 @@ render the diagram's links as clickable.
 
 <br>
 
-## Getting AED+
-
-This repository builds the open AED library only. The **AED+** modules — `libaed-dev`
-(modules in development), `libaed-riparian` (riparian modules) and `libaed-light` — are held in
-private repositories and are **not available through `AED_Tools`**.
-
-`fetch_sources.sh plus` and the `--with-aed-plus` build flag exist here, but both require access
-to those private repositories; without it, the fetch will fail.
-
-To work with AED+ you need:
-
-1. membership of the AED group, or a collaboration agreement giving access to the private
-   repositories, and
-2. the [`AED_Tools_Private`](https://github.com/AquaticEcoDynamics/AED_Tools_Private) tools
-   repository, which fetches and builds the AED+ sources by default.
-
-If you are a researcher or practitioner who needs the AED+ modules, contact the AED group via
-[aquatic.science.uwa.edu.au](https://aquatic.science.uwa.edu.au) to discuss access.
-
-<br>
-
 ## Prerequisites
 
 You will need:
@@ -139,7 +117,7 @@ directory — see [Building prerequisites](#building-prerequisites) below.
 > [!IMPORTANT]
 > `fetch_sources.sh` derives the git host from this repository's own `.git/config`, so it
 > fetches the model repositories over whatever transport you used to clone `AED_Tools`. The
-> private repositories (including the "plus" sources) require credentials — set up an SSH key
+> restricted repositories (including the AED+ sources) require credentials — set up an SSH key
 > on your GitHub account, or clone over HTTPS with a credential helper configured.
 >
 > `admin/change-git-https-to-ssh.sh` converts existing checkouts from HTTPS to SSH remotes.
@@ -181,7 +159,7 @@ Available targets:
 | `aed-fv` | `libaed-fv` sources |
 | `libaed` | the `libaed-*` sources |
 | `libplot` / `libutil` | supporting libraries |
-| `plus` | the `libaed-*` "plus" sources (private repository) |
+| `plus` | the `libaed-*` AED+ sources (requires AED+ access) |
 | `examples` | `GLM_Examples` |
 | `schism` | SCHISM source, and links in the AED coupling |
 | `swan` | SWAN, from TU Delft |
@@ -280,7 +258,7 @@ cd AED_Tools/
 ./build_glm.sh
 ```
 
-To then rebuild including the "plus" modules (requires access to the private repositories):
+To then rebuild including the AED+ modules (requires AED+ access):
 
 ```
 ./clean.sh
@@ -335,6 +313,28 @@ The `admin` directory holds maintenance tooling:
 | `extract-namelists.sh` | Extract namelist definitions from source |
 | `change-git-https-to-ssh.sh` | Convert checkouts from HTTPS to SSH remotes |
 | `tabclean.sh`, `clean_blanks.sh` | Source formatting helpers |
+
+<br>
+
+## Getting AED+
+
+This repository builds the open AED library. **AED+** adds further code and tools on top of it:
+
+- `libaed-dev` — modules under active development,
+- `libaed-riparian` — riparian modules,
+- `libaed-light` — light and optics modules,
+- additional build targets and supporting tooling.
+
+AED+ is available to members of the AED community. Working with it means using the AED+ enabled
+toolkit, [`AED_Tools_Private`](https://github.com/AquaticEcoDynamics/AED_Tools_Private), which
+fetches and builds the AED+ sources by default.
+
+`fetch_sources.sh plus` and the `--with-aed-plus` build flag do exist in this repository, but
+the sources they reach for are not published here, so the fetch will fail without AED+ access.
+
+If you are a researcher or practitioner who would like to work with the AED+ modules, get in
+touch with the AED group via
+[aquatic.science.uwa.edu.au](https://aquatic.science.uwa.edu.au).
 
 <br>
 
