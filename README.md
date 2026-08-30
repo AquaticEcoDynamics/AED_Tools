@@ -148,9 +148,53 @@ for setting up a Windows/MSYS build environment.
 
 ## Setting up a build environment
 
-> [!NOTE]
-> This section is to be completed — step-by-step instructions for setting up a build
-> environment under Docker and under a virtual machine are to be added here.
+The two routes below both target Ubuntu (tested against a vanilla Ubuntu 24 setup): a
+**virtual machine**, or a **Docker container**. The package and build steps are identical; only
+the way you get to a shell differs.
+
+### Prerequisite packages (once per machine)
+
+```
+sudo apt install libnetcdf-dev libnetcdff-dev
+sudo apt install libx11-dev libgd-dev
+```
+
+### Route A — Ubuntu virtual machine
+
+1. Generate an SSH key and add it to your GitHub account — see
+   [GitHub's instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+2. Set up the VM as a host in Visual Studio Code.
+3. Connect to the VM over SSH from VS Code.
+4. Install the prerequisite packages above.
+
+### Route B — Docker container
+
+1. Install Docker Desktop.
+2. Build a container from a Dockerfile that installs the prerequisite packages above.
+3. Configure your GitHub SSH key inside the container.
+4. Open the container in VS Code as a dev container.
+
+### Building
+
+Once you have a shell with the prerequisites installed, the steps are the same either way:
+
+```
+git clone https://github.com/AquaticEcoDynamics/AED_Tools
+cd AED_Tools/
+./fetch_sources.sh all
+./build_glm.sh
+```
+
+To then rebuild including the "plus" modules (requires access to the private repositories):
+
+```
+./clean.sh
+./fetch_sources.sh plus
+./build_glm.sh
+```
+
+`fetch_sources.sh plus` adds the "plus" sources alongside the existing checkouts, and
+`build_glm.sh` picks them up automatically on the next build.
 
 <br>
 
